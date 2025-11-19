@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 import { formatTime } from "@/lib/game-utils"
 import type { GameStats } from "@/lib/types"
@@ -5,7 +6,6 @@ import { type FullscreenElement, useFullscreen } from "../hooks/use-fullscreen"
 
 interface GameNavbarProps {
 	stats: GameStats
-	onBackToMenu: () => void
 }
 
 const checkFullscreenState = (): boolean => {
@@ -18,7 +18,7 @@ const checkFullscreenState = (): boolean => {
 	return !!(fullscreenElement || webkitElement || mozElement || msElement)
 }
 
-export default function GameNavbar({ stats, onBackToMenu }: GameNavbarProps) {
+export default function GameNavbar({ stats }: GameNavbarProps) {
 	const { toggleFullscreen, isFullscreenAvailable } = useFullscreen()
 	const [isFullscreenMode, setIsFullscreenMode] = useState(false)
 
@@ -51,14 +51,13 @@ export default function GameNavbar({ stats, onBackToMenu }: GameNavbarProps) {
 			{/* Completely transparent navbar */}
 			<div className="px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
 				{/* Left: Menu Button */}
-				<button
-					type="button"
-					onClick={onBackToMenu}
+				<Link
+					to="/"
 					className="group px-2 py-1 sm:px-3 sm:py-1.5 bg-stone-800/50 hover:bg-stone-700/50 text-stone-100 text-xs sm:text-sm font-semibold rounded border border-stone-600 hover:border-stone-500 transition-all duration-200 cursor-pointer"
 					aria-label="Back to menu"
 				>
 					<span>← Menu</span>
-				</button>
+				</Link>
 
 				{/* Center: Stats */}
 				<div className="flex items-center gap-2 sm:gap-4 md:gap-6">

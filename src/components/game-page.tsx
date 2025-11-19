@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router"
 import { useCallback, useEffect, useState } from "react"
 import {
 	calculateAccuracy,
@@ -12,11 +13,9 @@ import GameNavbar from "./game-navbar"
 
 interface GamePageProps {
 	difficulty: Difficulty
-	onBackToMenu: () => void
 }
 
-export default function GamePage({ difficulty, onBackToMenu }: GamePageProps) {
-	// Use a key to force complete re-mount when difficulty changes
+export default function GamePage({ difficulty }: GamePageProps) {
 	const [cards, setCards] = useState<Card[]>(() => initializeGame(difficulty))
 	const [flippedCards, setFlippedCards] = useState<Card[]>([])
 	const [gameState, setGameState] = useState<GameState>("playing")
@@ -119,7 +118,6 @@ export default function GamePage({ difficulty, onBackToMenu }: GamePageProps) {
 
 	return (
 		<div
-			key={difficulty}
 			className="min-h-screen h-screen bg-cover bg-center bg-no-repeat text-stone-50 flex flex-col overflow-hidden"
 			style={{ backgroundImage: "url(/main_menu_bg.png)" }}
 		>
@@ -127,7 +125,7 @@ export default function GamePage({ difficulty, onBackToMenu }: GamePageProps) {
 
 			{/* Game Navbar */}
 			<div className="relative z-10 shrink-0">
-				<GameNavbar stats={stats} onBackToMenu={onBackToMenu} />
+				<GameNavbar stats={stats} />
 			</div>
 
 			{/* Game Board Container - fills remaining space */}
@@ -169,9 +167,8 @@ export default function GamePage({ difficulty, onBackToMenu }: GamePageProps) {
 								<span className="text-yellow-300 font-bold">💎 Matches:</span> {stats.matches}
 							</p>
 						</div>
-						<button
-							type="button"
-							onClick={onBackToMenu}
+						<Link
+							to="/"
 							className="w-full group relative overflow-hidden py-3 px-6 bg-linear-to-br from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-amber-950 font-bold rounded-lg shadow-lg border-2 border-yellow-400 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
 						>
 							{/* Button shine effect */}
@@ -180,7 +177,7 @@ export default function GamePage({ difficulty, onBackToMenu }: GamePageProps) {
 							{/* Top border accent */}
 							<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-200 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 							<span className="relative z-10">Return to Menu</span>
-						</button>
+						</Link>
 					</div>
 				</div>
 			)}
