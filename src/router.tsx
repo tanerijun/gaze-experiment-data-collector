@@ -1,28 +1,38 @@
-import { createRouter } from '@tanstack/react-router'
-import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
-import * as TanstackQuery from './integrations/tanstack-query/root-provider'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createRouter } from "@tanstack/react-router";
+import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
+import { routeTree } from "./routeTree.gen";
 
-// Import the generated route tree
-import { routeTree } from './routeTree.gen'
-
-// Create a new router instance
-export const getRouter = () => {
-  const rqContext = TanstackQuery.getContext()
-
-  const router = createRouter({
-    routeTree,
-    context: { ...rqContext },
-    defaultPreload: 'intent',
-    Wrap: (props: { children: React.ReactNode }) => {
-      return (
-        <TanstackQuery.Provider {...rqContext}>
-          {props.children}
-        </TanstackQuery.Provider>
-      )
-    },
-  })
-
-  setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient })
-
-  return router
+function getRQContext() {
+	const queryClient = new QueryClient();
+	return {
+		queryClient,
+	};
 }
+
+function RQProvider({
+	children,
+	queryClient,
+}: {
+	children: React.ReactNode;
+	queryClient: QueryClient;
+}) {
+	return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
+
+export const getRouter = () => {
+	const rqContext = getRQContext();
+
+	const router = createRouter({
+		routeTree,
+		context: { ...rqContext },
+		defaultPreload: "intent",
+		Wrap: (props: { children: React.ReactNode }) => {
+			return <RQProvider {...rqContext}>{props.children}</RQProvider>;
+		},
+	});
+
+	setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient });
+
+	return router;
+};
