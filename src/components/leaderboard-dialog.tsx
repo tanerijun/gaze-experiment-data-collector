@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <workaround for dialog interaction> */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <workaround for dialog interaction> */
 
-import type { Difficulty } from "@/lib/game-utils"
+import type { Difficulty } from "@/lib/types"
 import {
 	DemonLevelIcon,
 	GoblinLevelIcon,

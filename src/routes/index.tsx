@@ -1,18 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { useEffect, useState } from "react"
-import FloatingCreditsButton from "@/components/floating-credits-button"
-import FloatingLeaderboardButton from "@/components/floating-leaderboard-button"
+import CreditsDialog from "@/components/credits-dialog"
+import { DialogButton } from "@/components/dialog-button"
 import {
 	CrossedSwordIcon,
+	CrownIcon,
 	DemonLevelIcon,
 	GoblinLevelIcon,
 	GolemLevelIcon,
 	OrcLevelIcon,
+	ThreeFriendsIcon,
 	TrollLevelIcon,
 	VampireLevelIcon,
 } from "@/components/icons"
-import { type FullscreenElement, useFullscreen } from "@/hooks/use-fullscreen"
-import { type Difficulty, GRID_CONFIGS } from "@/lib/game-utils"
+import LeaderboardDialog from "@/components/leaderboard-dialog"
+import { GRID_CONFIGS } from "@/lib/game-utils"
+import type { Difficulty } from "@/lib/types"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -88,64 +90,27 @@ const DIFFICULTY_CONFIG: Array<{
 	},
 ]
 
-const checkFullscreenState = (): boolean => {
-	const fullscreenElement = document.fullscreenElement as HTMLElement | null
-	const fullscreenDoc = document as FullscreenElement
-	const webkitElement = fullscreenDoc.webkitFullscreenElement as HTMLElement | null
-	const mozElement = fullscreenDoc.mozFullScreenElement as HTMLElement | null
-	const msElement = fullscreenDoc.msFullscreenElement as HTMLElement | null
-
-	return !!(fullscreenElement || webkitElement || mozElement || msElement)
-}
-
 function App() {
-	const { toggleFullscreen, isFullscreenAvailable } = useFullscreen()
-	const [isFullscreenMode, setIsFullscreenMode] = useState(false)
-
-	useEffect(() => {
-		const handleFullscreenChange = () => {
-			setIsFullscreenMode(checkFullscreenState())
-		}
-
-		// Set initial state after mounting
-		handleFullscreenChange()
-
-		document.addEventListener("fullscreenchange", handleFullscreenChange)
-		document.addEventListener("webkitfullscreenchange", handleFullscreenChange)
-		document.addEventListener("mozfullscreenchange", handleFullscreenChange)
-		document.addEventListener("MSFullscreenChange", handleFullscreenChange)
-
-		return () => {
-			document.removeEventListener("fullscreenchange", handleFullscreenChange)
-			document.removeEventListener("webkitfullscreenchange", handleFullscreenChange)
-			document.removeEventListener("mozfullscreenchange", handleFullscreenChange)
-			document.removeEventListener("MSFullscreenChange", handleFullscreenChange)
-		}
-	}, [])
-
-	const handleFullscreenToggle = async () => {
-		await toggleFullscreen()
-	}
-
 	return (
 		<div
 			className="min-h-screen bg-cover bg-center bg-no-repeat text-stone-50 flex items-center justify-center px-4"
 			style={{ backgroundImage: "url(/main-menu-bg.png)" }}
 		>
-			<div className="absolute inset-0 bg-black/40"></div>
-			<FloatingLeaderboardButton />
-			<FloatingCreditsButton />
-			{isFullscreenAvailable() && (
-				<button
-					type="button"
-					onClick={handleFullscreenToggle}
-					className="absolute top-4 right-4 px-3 py-2 bg-stone-800/50 hover:bg-stone-700/50 text-stone-100 text-sm font-semibold rounded border border-stone-600 hover:border-stone-500 transition-all duration-200 cursor-pointer z-20"
-					aria-label={isFullscreenMode ? "Exit fullscreen" : "Enter fullscreen"}
-					title={isFullscreenMode ? "Exit fullscreen" : "Enter fullscreen"}
-				>
-					<span>{isFullscreenMode ? "⛶ Exit" : "⛶ Full"}</span>
-				</button>
-			)}
+			<DialogButton
+				className="absolute z-20 bottom-6 left-6"
+				icon={<CrownIcon className="size-8" />}
+				label="Show leaderboard"
+				title="Leaderboard"
+				dialog={LeaderboardDialog}
+			/>
+			<DialogButton
+				className="absolute z-20 bottom-6 right-6"
+				icon={<ThreeFriendsIcon className="size-8" />}
+				label="Show credits"
+				title="Credits"
+				dialog={CreditsDialog}
+			/>
+
 			<div className="max-w-3xl w-full relative z-10">
 				{/* Header */}
 				<div className="text-center mb-12">
@@ -192,14 +157,14 @@ function App() {
 								/>
 
 								{/* Corner decorations */}
-								<div className="absolute top-1 left-1 w-2 h-2 border-l-2 border-t-2 border-stone-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-								<div className="absolute top-1 right-1 w-2 h-2 border-r-2 border-t-2 border-stone-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-								<div className="absolute bottom-1 left-1 w-2 h-2 border-l-2 border-b-2 border-stone-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-								<div className="absolute bottom-1 right-1 w-2 h-2 border-r-2 border-b-2 border-stone-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+								<div className="absolute top-1 left-1 w-2 h-2 border-l-2 border-t-2 border-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+								<div className="absolute top-1 right-1 w-2 h-2 border-r-2 border-t-2 border-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+								<div className="absolute bottom-1 left-1 w-2 h-2 border-l-2 border-b-2 border-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+								<div className="absolute bottom-1 right-1 w-2 h-2 border-r-2 border-b-2 border-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" />
 
 								{/* Content */}
-								<div className="relative flex flex-col items-center gap-2 text-center">
-									<Icon className="w-8 h-8 text-stone-300 shrink-0" />
+								<div className="relative flex flex-col items-center gap-2 text-center py-2">
+									<Icon className="size-10 text-stone-300 shrink-0" />
 									<div className="flex-1">
 										<h3 className="text-lg font-bold text-stone-100 group-hover:text-stone-50 transition-colors drop-shadow-md">
 											{label}

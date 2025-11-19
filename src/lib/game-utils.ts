@@ -1,23 +1,8 @@
-import type { CalculatedLayout, Card, GridConfig, ImageItem } from "./types"
-
-export const difficulties = ["goblin", "troll", "orc", "golem", "vampire", "demon"] as const
-export type Difficulty = (typeof difficulties)[number]
+import type { CalculatedLayout, Card, Difficulty, GridConfig, ImageItem } from "./types"
 
 // Available categories
 const CATEGORIES = ["currencies", "fruits", "herbs", "meats", "plants", "undeads", "vegetables"]
 const ITEMS_PER_CATEGORY = 48
-
-interface LayoutScore {
-	rows: number
-	cols: number
-	cardSize: number
-	totalWidth: number
-	totalHeight: number
-	coverageArea: number
-	aspectRatioScore: number
-	cardSizeBonus: number
-	score: number
-}
 
 // Grid configurations for each difficulty
 export const GRID_CONFIGS: Record<Difficulty, GridConfig> = {
@@ -80,11 +65,17 @@ export function calculateOptimalLayout(
 	let bestScore = -Infinity
 	let hasValidLayout = false
 
-	console.log("=== Evaluating layouts for", totalCards, "cards ===")
-	console.log("Available space:", { width: availableWidth, height: availableHeight })
-	console.log("Valid layouts to consider:", validLayouts)
-
-	const layoutScores: LayoutScore[] = []
+	const layoutScores: {
+		rows: number
+		cols: number
+		cardSize: number
+		totalWidth: number
+		totalHeight: number
+		coverageArea: number
+		aspectRatioScore: number
+		cardSizeBonus: number
+		score: number
+	}[] = []
 
 	for (const layout of validLayouts) {
 		const { rows, cols } = layout
@@ -171,17 +162,6 @@ export function calculateOptimalLayout(
 			bestCardSize = cardSize
 		}
 	}
-
-	console.log(
-		"Layout scores:",
-		layoutScores.sort((a, b) => b.score - a.score),
-	)
-	console.log("Best layout chosen:", {
-		rows: bestLayout.rows,
-		cols: bestLayout.cols,
-		cardSize: Math.floor(bestCardSize),
-		score: bestScore,
-	})
 
 	// Fallback: if no valid layout found, force fit with smallest acceptable cards
 	if (!hasValidLayout) {
@@ -285,7 +265,7 @@ export function shuffleArray<T>(array: T[]): T[] {
 /**
  * Initialize a new game with shuffled cards
  */
-export function initializeGame(difficulty: Difficulty = "orc"): Card[] {
+export function initializeGame(difficulty: Difficulty): Card[] {
 	const config = GRID_CONFIGS[difficulty]
 	const selectedImages = selectRandomImages(config.pairs)
 	const cardPairs = createCardPairs(selectedImages)

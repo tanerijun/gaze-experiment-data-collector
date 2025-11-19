@@ -1,3 +1,7 @@
+import type { difficulties } from "./game-data"
+
+export type Difficulty = (typeof difficulties)[number]
+
 export interface GridConfig {
 	pairs: number
 }
