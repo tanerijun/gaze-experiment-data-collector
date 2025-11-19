@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useCallback, useEffect, useState } from "react"
+import { ErrorPage } from "@/components/error-page"
 import GameBoard from "@/components/game-board"
 import GameNavbar from "@/components/game-navbar"
 import { useInterval } from "@/hooks/use-interval"
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/$difficulty")({
 			return { difficulty: difficulty as Difficulty }
 		},
 	},
+	errorComponent: ErrorPage,
 })
 
 function RouteComponent() {

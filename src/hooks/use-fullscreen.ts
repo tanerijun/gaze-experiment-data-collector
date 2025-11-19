@@ -1,6 +1,7 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <library needs any for general support> */
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
+import { useIsomorphicLayoutEffect } from "./use-isomorphic-layout-effect"
 
 export interface UseFullscreenOptions {
 	onEnter?: () => void
@@ -26,20 +27,23 @@ export function useFullscreen(
 	const optionsRef = useRef(options)
 
 	// Update options ref when options change
-	useEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		optionsRef.current = options
 	}, [options])
 
 	// Check if fullscreen is supported
-	const isSupported = Boolean(
-		document.fullscreenEnabled ||
-			(document as any).webkitFullscreenEnabled ||
-			(document as any).mozFullScreenEnabled ||
-			(document as any).msFullscreenEnabled,
-	)
+	const isSupported =
+		typeof window !== "undefined"
+			? Boolean(
+					document.fullscreenEnabled ||
+						(document as any).webkitFullscreenEnabled ||
+						(document as any).mozFullScreenEnabled ||
+						(document as any).msFullscreenEnabled,
+				)
+			: false
 
 	// Handle fullscreen change events
-	useEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		const handleFullscreenChange = () => {
 			const fullscreenElement =
 				document.fullscreenElement ||
