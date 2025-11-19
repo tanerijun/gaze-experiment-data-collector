@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from "react"
-import { calculateAccuracy, checkMatch, GRID_CONFIGS, initializeGame } from "@/lib/game-utils"
-import type { Card, Difficulty, GameState, GameStats as GameStatsType } from "@/lib/types"
+import {
+	calculateAccuracy,
+	checkMatch,
+	type Difficulty,
+	GRID_CONFIGS,
+	initializeGame,
+} from "@/lib/game-utils"
+import type { Card, GameState, GameStats as GameStatsType } from "@/lib/types"
 import GameBoard from "./game-board"
 import GameNavbar from "./game-navbar"
 

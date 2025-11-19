@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, Link } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 import FloatingCreditsButton from "@/components/floating-credits-button"
 import FloatingLeaderboardButton from "@/components/floating-leaderboard-button"
@@ -12,8 +12,7 @@ import {
 	VampireLevelIcon,
 } from "@/components/icons"
 import { type FullscreenElement, useFullscreen } from "@/hooks/use-fullscreen"
-import { GRID_CONFIGS } from "@/lib/game-utils"
-import type { Difficulty } from "@/lib/types"
+import { type Difficulty, GRID_CONFIGS } from "@/lib/game-utils"
 
 export const Route = createFileRoute("/")({ component: App })
 
@@ -170,10 +169,10 @@ function App() {
 							hoverBorder,
 							accentColor,
 						}) => (
-							<button
-								type="button"
+							<Link
+								to="/$difficulty"
+								params={{ difficulty: value }}
 								key={value}
-								onClick={() => onStartGame(value)}
 								className="group relative overflow-hidden rounded-lg p-3 text-left transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-800 cursor-pointer active:scale-95"
 							>
 								{/* Gradient Background with themed colors */}
@@ -216,7 +215,7 @@ function App() {
 
 								{/* Bottom border accent */}
 								<div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-							</button>
+							</Link>
 						),
 					)}
 				</div>

@@ -1,4 +1,7 @@
-import type { CalculatedLayout, Card, Difficulty, GridConfig, ImageItem } from "./types"
+import type { CalculatedLayout, Card, GridConfig, ImageItem } from "./types"
+
+export const difficulties = ["goblin", "troll", "orc", "golem", "vampire", "demon"] as const
+export type Difficulty = (typeof difficulties)[number]
 
 // Available categories
 const CATEGORIES = ["currencies", "fruits", "herbs", "meats", "plants", "undeads", "vegetables"]

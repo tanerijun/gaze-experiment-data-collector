@@ -1,5 +1,3 @@
-export type Difficulty = "goblin" | "troll" | "orc" | "golem" | "vampire" | "demon"
-
 export interface GridConfig {
 	pairs: number
 }
