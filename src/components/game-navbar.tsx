@@ -1,51 +1,51 @@
-import { useEffect, useState } from "react";
-import { formatTime } from "@/lib/game-utils";
-import type { GameStats } from "@/lib/types";
-import { type FullscreenElement, useFullscreen } from "../hooks/use-fullscreen";
+import { useEffect, useState } from "react"
+import { formatTime } from "@/lib/game-utils"
+import type { GameStats } from "@/lib/types"
+import { type FullscreenElement, useFullscreen } from "../hooks/use-fullscreen"
 
 interface GameNavbarProps {
-	stats: GameStats;
-	onBackToMenu: () => void;
+	stats: GameStats
+	onBackToMenu: () => void
 }
 
 const checkFullscreenState = (): boolean => {
-	const fullscreenElement = document.fullscreenElement as HTMLElement | null;
-	const fullscreenDoc = document as FullscreenElement;
-	const webkitElement = fullscreenDoc.webkitFullscreenElement as HTMLElement | null;
-	const mozElement = fullscreenDoc.mozFullScreenElement as HTMLElement | null;
-	const msElement = fullscreenDoc.msFullscreenElement as HTMLElement | null;
+	const fullscreenElement = document.fullscreenElement as HTMLElement | null
+	const fullscreenDoc = document as FullscreenElement
+	const webkitElement = fullscreenDoc.webkitFullscreenElement as HTMLElement | null
+	const mozElement = fullscreenDoc.mozFullScreenElement as HTMLElement | null
+	const msElement = fullscreenDoc.msFullscreenElement as HTMLElement | null
 
-	return !!(fullscreenElement || webkitElement || mozElement || msElement);
-};
+	return !!(fullscreenElement || webkitElement || mozElement || msElement)
+}
 
 export default function GameNavbar({ stats, onBackToMenu }: GameNavbarProps) {
-	const { toggleFullscreen, isFullscreenAvailable } = useFullscreen();
-	const [isFullscreenMode, setIsFullscreenMode] = useState(false);
+	const { toggleFullscreen, isFullscreenAvailable } = useFullscreen()
+	const [isFullscreenMode, setIsFullscreenMode] = useState(false)
 
 	useEffect(() => {
 		const handleFullscreenChange = () => {
-			setIsFullscreenMode(checkFullscreenState());
-		};
+			setIsFullscreenMode(checkFullscreenState())
+		}
 
 		// Set initial state after mounting
-		handleFullscreenChange();
+		handleFullscreenChange()
 
-		document.addEventListener("fullscreenchange", handleFullscreenChange);
-		document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
-		document.addEventListener("mozfullscreenchange", handleFullscreenChange);
-		document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+		document.addEventListener("fullscreenchange", handleFullscreenChange)
+		document.addEventListener("webkitfullscreenchange", handleFullscreenChange)
+		document.addEventListener("mozfullscreenchange", handleFullscreenChange)
+		document.addEventListener("MSFullscreenChange", handleFullscreenChange)
 
 		return () => {
-			document.removeEventListener("fullscreenchange", handleFullscreenChange);
-			document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
-			document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
-			document.removeEventListener("MSFullscreenChange", handleFullscreenChange);
-		};
-	}, []);
+			document.removeEventListener("fullscreenchange", handleFullscreenChange)
+			document.removeEventListener("webkitfullscreenchange", handleFullscreenChange)
+			document.removeEventListener("mozfullscreenchange", handleFullscreenChange)
+			document.removeEventListener("MSFullscreenChange", handleFullscreenChange)
+		}
+	}, [])
 
 	const handleFullscreenToggle = async () => {
-		await toggleFullscreen();
-	};
+		await toggleFullscreen()
+	}
 	return (
 		<div className="w-full">
 			{/* Completely transparent navbar */}
@@ -126,5 +126,5 @@ export default function GameNavbar({ stats, onBackToMenu }: GameNavbarProps) {
 				)}
 			</div>
 		</div>
-	);
+	)
 }

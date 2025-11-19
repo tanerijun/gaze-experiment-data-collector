@@ -34,7 +34,7 @@
 		"formatter": {
 			"quoteStyle": "double",
 			"lineWidth": 100,
-			"semicolons": null
+			"semicolons": "asNeeded"
 		}
 	}
 }

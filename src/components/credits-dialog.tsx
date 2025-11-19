@@ -2,8 +2,8 @@
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <workaround for dialog interaction> */
 
 interface CreditsDialogProps {
-	isOpen: boolean;
-	onClose: () => void;
+	isOpen: boolean
+	onClose: () => void
 }
 
 function CloseIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -23,7 +23,7 @@ function CloseIcon(props: React.SVGProps<SVGSVGElement>) {
 			<line x1="18" y1="6" x2="6" y2="18" />
 			<line x1="6" y1="6" x2="18" y2="18" />
 		</svg>
-	);
+	)
 }
 
 const CREDITS_DATA = [
@@ -35,10 +35,10 @@ const CREDITS_DATA = [
 	{ role: "Quality Assurance", name: "Bug Hunter Guild" },
 	{ role: "Project Manager", name: "Quest Master" },
 	{ role: "Special Thanks", name: "Coffee & Late Nights" },
-];
+]
 
 export default function CreditsDialog({ isOpen, onClose }: CreditsDialogProps) {
-	if (!isOpen) return null;
+	if (!isOpen) return null
 
 	return (
 		<div
@@ -98,5 +98,5 @@ export default function CreditsDialog({ isOpen, onClose }: CreditsDialogProps) {
 				<div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent" />
 			</div>
 		</div>
-	);
+	)
 }

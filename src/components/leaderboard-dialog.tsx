@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <workaround for dialog interaction> */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <workaround for dialog interaction> */
 
-import type { Difficulty } from "@/lib/types";
+import type { Difficulty } from "@/lib/types"
 import {
 	DemonLevelIcon,
 	GoblinLevelIcon,
@@ -9,17 +9,17 @@ import {
 	OrcLevelIcon,
 	TrollLevelIcon,
 	VampireLevelIcon,
-} from "./icons";
+} from "./icons"
 
 interface LeaderboardEntry {
-	rank: number;
-	playerName: string;
-	score: number;
+	rank: number
+	playerName: string
+	score: number
 }
 
 interface LeaderboardDialogProps {
-	isOpen: boolean;
-	onClose: () => void;
+	isOpen: boolean
+	onClose: () => void
 }
 
 // Dummy data for each difficulty (Top 5 only)
@@ -66,7 +66,7 @@ const DUMMY_LEADERBOARD_DATA: Record<Difficulty, LeaderboardEntry[]> = {
 		{ rank: 4, playerName: "DeathBringer", score: 51400 },
 		{ rank: 5, playerName: "ChaosReign", score: 50200 },
 	],
-};
+}
 
 const DIFFICULTY_CONFIG = [
 	{
@@ -117,7 +117,7 @@ const DIFFICULTY_CONFIG = [
 		borderColor: "border-rose-950",
 		accentColor: "via-rose-900",
 	},
-];
+]
 
 function CloseIcon(props: React.SVGProps<SVGSVGElement>) {
 	return (
@@ -136,11 +136,11 @@ function CloseIcon(props: React.SVGProps<SVGSVGElement>) {
 			<line x1="18" y1="6" x2="6" y2="18" />
 			<line x1="6" y1="6" x2="18" y2="18" />
 		</svg>
-	);
+	)
 }
 
 export default function LeaderboardDialog({ isOpen, onClose }: LeaderboardDialogProps) {
-	if (!isOpen) return null;
+	if (!isOpen) return null
 
 	return (
 		<div
@@ -253,5 +253,5 @@ export default function LeaderboardDialog({ isOpen, onClose }: LeaderboardDialog
 				<div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent" />
 			</div>
 		</div>
-	);
+	)
 }

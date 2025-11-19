@@ -1,77 +1,77 @@
-import { useCallback, useEffect, useState } from "react";
-import { calculateAccuracy, checkMatch, GRID_CONFIGS, initializeGame } from "@/lib/game-utils";
-import type { Card, Difficulty, GameState, GameStats as GameStatsType } from "@/lib/types";
-import GameBoard from "./game-board";
-import GameNavbar from "./game-navbar";
+import { useCallback, useEffect, useState } from "react"
+import { calculateAccuracy, checkMatch, GRID_CONFIGS, initializeGame } from "@/lib/game-utils"
+import type { Card, Difficulty, GameState, GameStats as GameStatsType } from "@/lib/types"
+import GameBoard from "./game-board"
+import GameNavbar from "./game-navbar"
 
 interface GamePageProps {
-	difficulty: Difficulty;
-	onBackToMenu: () => void;
+	difficulty: Difficulty
+	onBackToMenu: () => void
 }
 
 export default function GamePage({ difficulty, onBackToMenu }: GamePageProps) {
 	// Use a key to force complete re-mount when difficulty changes
-	const [cards, setCards] = useState<Card[]>(() => initializeGame(difficulty));
-	const [flippedCards, setFlippedCards] = useState<Card[]>([]);
-	const [gameState, setGameState] = useState<GameState>("playing");
+	const [cards, setCards] = useState<Card[]>(() => initializeGame(difficulty))
+	const [flippedCards, setFlippedCards] = useState<Card[]>([])
+	const [gameState, setGameState] = useState<GameState>("playing")
 	const [stats, setStats] = useState<GameStatsType>({
 		moves: 0,
 		matches: 0,
 		timeElapsed: 0,
 		accuracy: 0,
-	});
-	const [isChecking, setIsChecking] = useState(false);
+	})
+	const [isChecking, setIsChecking] = useState(false)
 
 	// Timer effect
 	useEffect(() => {
-		if (gameState !== "playing") return;
+		if (gameState !== "playing") return
 
 		const interval = setInterval(() => {
 			setStats((prev) => ({
 				...prev,
 				timeElapsed: prev.timeElapsed + 1,
-			}));
-		}, 1000);
+			}))
+		}, 1000)
 
-		return () => clearInterval(interval);
-	}, [gameState]);
+		return () => clearInterval(interval)
+	}, [gameState])
 
 	// Check for win condition
 	useEffect(() => {
-		if (cards.length === 0 || gameState !== "playing") return;
+		if (cards.length === 0 || gameState !== "playing") return
 
-		const allMatched = cards.every((card) => card.isMatched);
+		const allMatched = cards.every((card) => card.isMatched)
 		if (allMatched) {
 			queueMicrotask(() => {
-				setGameState("won");
-			});
+				setGameState("won")
+			})
 		}
-	}, [cards, gameState]);
+	}, [cards, gameState])
 
 	// Handle card click
 	const handleCardClick = useCallback(
 		(clickedCard: Card) => {
-			if (isChecking || flippedCards.length >= 2) return;
-			if (clickedCard.isFlipped || clickedCard.isMatched) return;
+			if (isChecking || flippedCards.length >= 2) return
+			if (clickedCard.isFlipped || clickedCard.isMatched) return
 
 			// Flip the card
 			setCards((prev) =>
 				prev.map((card) => (card.id === clickedCard.id ? { ...card, isFlipped: true } : card)),
-			);
+			)
 
-			const newFlippedCards = [...flippedCards, clickedCard];
-			setFlippedCards(newFlippedCards);
+			const newFlippedCards = [...flippedCards, clickedCard]
+			setFlippedCards(newFlippedCards)
 
 			// Check for match when 2 cards are flipped
 			if (newFlippedCards.length === 2) {
-				setIsChecking(true);
-				const [first, second] = newFlippedCards;
+				setIsChecking(true)
+				const [first, second] = newFlippedCards
 
 				// Increment moves
 				setStats((prev) => ({
 					...prev,
 					moves: prev.moves + 1,
-				}));
+				}))
 
 				if (checkMatch(first, second)) {
 					// Match found!
@@ -79,19 +79,19 @@ export default function GamePage({ difficulty, onBackToMenu }: GamePageProps) {
 						prev.map((card) =>
 							card.imageId === first.imageId ? { ...card, isMatched: true } : card,
 						),
-					);
+					)
 
 					setStats((prev) => {
-						const newMatches = prev.matches + 1;
+						const newMatches = prev.matches + 1
 						return {
 							...prev,
 							matches: newMatches,
 							accuracy: calculateAccuracy(newMatches, prev.moves),
-						};
-					});
+						}
+					})
 
-					setFlippedCards([]);
-					setIsChecking(false);
+					setFlippedCards([])
+					setIsChecking(false)
 				} else {
 					// No match - flip back after delay
 					setTimeout(() => {
@@ -101,15 +101,15 @@ export default function GamePage({ difficulty, onBackToMenu }: GamePageProps) {
 									? { ...card, isFlipped: false }
 									: card,
 							),
-						);
-						setFlippedCards([]);
-						setIsChecking(false);
-					}, 1000);
+						)
+						setFlippedCards([])
+						setIsChecking(false)
+					}, 1000)
 				}
 			}
 		},
 		[flippedCards, isChecking],
-	);
+	)
 
 	return (
 		<div
@@ -179,5 +179,5 @@ export default function GamePage({ difficulty, onBackToMenu }: GamePageProps) {
 				</div>
 			)}
 		</div>
-	);
+	)
 }

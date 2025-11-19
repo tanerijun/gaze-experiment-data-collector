@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import FloatingCreditsButton from "@/components/floating-credits-button";
-import FloatingLeaderboardButton from "@/components/floating-leaderboard-button";
+import { createFileRoute } from "@tanstack/react-router"
+import { useEffect, useState } from "react"
+import FloatingCreditsButton from "@/components/floating-credits-button"
+import FloatingLeaderboardButton from "@/components/floating-leaderboard-button"
 import {
 	CrossedSwordIcon,
 	DemonLevelIcon,
@@ -10,22 +10,22 @@ import {
 	OrcLevelIcon,
 	TrollLevelIcon,
 	VampireLevelIcon,
-} from "@/components/icons";
-import { type FullscreenElement, useFullscreen } from "@/hooks/use-fullscreen";
-import { GRID_CONFIGS } from "@/lib/game-utils";
-import type { Difficulty } from "@/lib/types";
+} from "@/components/icons"
+import { type FullscreenElement, useFullscreen } from "@/hooks/use-fullscreen"
+import { GRID_CONFIGS } from "@/lib/game-utils"
+import type { Difficulty } from "@/lib/types"
 
-export const Route = createFileRoute("/")({ component: App });
+export const Route = createFileRoute("/")({ component: App })
 
 const DIFFICULTY_CONFIG: Array<{
-	value: Difficulty;
-	label: string;
-	description: string;
-	Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-	bgColor: string;
-	borderColor: string;
-	hoverBorder: string;
-	accentColor: string;
+	value: Difficulty
+	label: string
+	description: string
+	Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
+	bgColor: string
+	borderColor: string
+	hoverBorder: string
+	accentColor: string
 }> = [
 	{
 		value: "goblin",
@@ -87,46 +87,46 @@ const DIFFICULTY_CONFIG: Array<{
 		hoverBorder: "group-hover:border-rose-900",
 		accentColor: "via-rose-900",
 	},
-];
+]
 
 const checkFullscreenState = (): boolean => {
-	const fullscreenElement = document.fullscreenElement as HTMLElement | null;
-	const fullscreenDoc = document as FullscreenElement;
-	const webkitElement = fullscreenDoc.webkitFullscreenElement as HTMLElement | null;
-	const mozElement = fullscreenDoc.mozFullScreenElement as HTMLElement | null;
-	const msElement = fullscreenDoc.msFullscreenElement as HTMLElement | null;
+	const fullscreenElement = document.fullscreenElement as HTMLElement | null
+	const fullscreenDoc = document as FullscreenElement
+	const webkitElement = fullscreenDoc.webkitFullscreenElement as HTMLElement | null
+	const mozElement = fullscreenDoc.mozFullScreenElement as HTMLElement | null
+	const msElement = fullscreenDoc.msFullscreenElement as HTMLElement | null
 
-	return !!(fullscreenElement || webkitElement || mozElement || msElement);
-};
+	return !!(fullscreenElement || webkitElement || mozElement || msElement)
+}
 
 function App() {
-	const { toggleFullscreen, isFullscreenAvailable } = useFullscreen();
-	const [isFullscreenMode, setIsFullscreenMode] = useState(false);
+	const { toggleFullscreen, isFullscreenAvailable } = useFullscreen()
+	const [isFullscreenMode, setIsFullscreenMode] = useState(false)
 
 	useEffect(() => {
 		const handleFullscreenChange = () => {
-			setIsFullscreenMode(checkFullscreenState());
-		};
+			setIsFullscreenMode(checkFullscreenState())
+		}
 
 		// Set initial state after mounting
-		handleFullscreenChange();
+		handleFullscreenChange()
 
-		document.addEventListener("fullscreenchange", handleFullscreenChange);
-		document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
-		document.addEventListener("mozfullscreenchange", handleFullscreenChange);
-		document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+		document.addEventListener("fullscreenchange", handleFullscreenChange)
+		document.addEventListener("webkitfullscreenchange", handleFullscreenChange)
+		document.addEventListener("mozfullscreenchange", handleFullscreenChange)
+		document.addEventListener("MSFullscreenChange", handleFullscreenChange)
 
 		return () => {
-			document.removeEventListener("fullscreenchange", handleFullscreenChange);
-			document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
-			document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
-			document.removeEventListener("MSFullscreenChange", handleFullscreenChange);
-		};
-	}, []);
+			document.removeEventListener("fullscreenchange", handleFullscreenChange)
+			document.removeEventListener("webkitfullscreenchange", handleFullscreenChange)
+			document.removeEventListener("mozfullscreenchange", handleFullscreenChange)
+			document.removeEventListener("MSFullscreenChange", handleFullscreenChange)
+		}
+	}, [])
 
 	const handleFullscreenToggle = async () => {
-		await toggleFullscreen();
-	};
+		await toggleFullscreen()
+	}
 
 	return (
 		<div
@@ -227,5 +227,5 @@ function App() {
 				</div>
 			</div>
 		</div>
-	);
+	)
 }

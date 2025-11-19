@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { TrophyIcon } from "./icons";
-import LeaderboardDialog from "./leaderboard-dialog";
+import { useState } from "react"
+import { TrophyIcon } from "./icons"
+import LeaderboardDialog from "./leaderboard-dialog"
 
 export default function FloatingLeaderboardButton() {
-	const [isDialogOpen, setIsDialogOpen] = useState(false);
+	const [isDialogOpen, setIsDialogOpen] = useState(false)
 
 	return (
 		<>
@@ -38,5 +38,5 @@ export default function FloatingLeaderboardButton() {
 			{/* Leaderboard Dialog */}
 			<LeaderboardDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} />
 		</>
-	);
+	)
 }

@@ -1,17 +1,17 @@
-import type { Card as CardType } from "@/lib/types";
+import type { Card as CardType } from "@/lib/types"
 
 interface CardProps {
-	card: CardType;
-	onClick: (card: CardType) => void;
-	disabled: boolean;
+	card: CardType
+	onClick: (card: CardType) => void
+	disabled: boolean
 }
 
 export default function Card({ card, onClick, disabled }: CardProps) {
 	const handleClick = () => {
 		if (!disabled && !card.isFlipped && !card.isMatched) {
-			onClick(card);
+			onClick(card)
 		}
-	};
+	}
 
 	return (
 		// biome-ignore lint/a11y/noStaticElementInteractions: <special card>
@@ -83,5 +83,5 @@ export default function Card({ card, onClick, disabled }: CardProps) {
 				</div>
 			</div>
 		</div>
-	);
+	)
 }
