@@ -1,6 +1,8 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <workaround for dialog interaction> */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <workaround for dialog interaction> */
 
+import { useState } from "react"
+import { calculateScore } from "@/lib/game-utils"
 import type { Difficulty } from "@/lib/types"
 import {
 	CloseIcon,
@@ -13,9 +15,10 @@ import {
 } from "./icons"
 
 interface LeaderboardEntry {
-	rank: number
 	playerName: string
-	score: number
+	moves: number
+	timeElapsed: number
+	accuracy: number
 }
 
 interface LeaderboardDialogProps {
@@ -26,46 +29,96 @@ interface LeaderboardDialogProps {
 // Dummy data for each difficulty (Top 5 only)
 const DUMMY_LEADERBOARD_DATA: Record<Difficulty, LeaderboardEntry[]> = {
 	goblin: [
-		{ rank: 1, playerName: "DragonSlayer", score: 9850 },
-		{ rank: 2, playerName: "KnightOfValor", score: 9200 },
-		{ rank: 3, playerName: "MysticMage", score: 8750 },
-		{ rank: 4, playerName: "ShadowHunter", score: 8500 },
-		{ rank: 5, playerName: "StormBringer", score: 8200 },
+		{
+			playerName: "DragonSlayer",
+			moves: 18,
+			timeElapsed: 45,
+			accuracy: 100,
+		},
+		{
+			playerName: "KnightOfValor",
+			moves: 18,
+			timeElapsed: 52,
+			accuracy: 100,
+		},
+		{ playerName: "MysticMage", moves: 20, timeElapsed: 48, accuracy: 100 },
+		{ playerName: "ShadowHunter", moves: 19, timeElapsed: 48, accuracy: 95 },
+		{ playerName: "StormBringer", moves: 20, timeElapsed: 45, accuracy: 90 },
 	],
 	troll: [
-		{ rank: 1, playerName: "MasterMind", score: 15420 },
-		{ rank: 2, playerName: "MemoryKing", score: 14880 },
-		{ rank: 3, playerName: "QuickThink", score: 14200 },
-		{ rank: 4, playerName: "BrainPower", score: 13750 },
-		{ rank: 5, playerName: "SharpEye", score: 13200 },
+		{ playerName: "MasterMind", moves: 10, timeElapsed: 65, accuracy: 100 },
+		{ playerName: "MemoryKing", moves: 11, timeElapsed: 72, accuracy: 98 },
+		{ playerName: "QuickThink", moves: 12, timeElapsed: 58, accuracy: 96 },
+		{ playerName: "BrainPower", moves: 12, timeElapsed: 75, accuracy: 92 },
+		{ playerName: "SharpEye", moves: 13, timeElapsed: 68, accuracy: 90 },
 	],
 	orc: [
-		{ rank: 1, playerName: "LegendaryHero", score: 22500 },
-		{ rank: 2, playerName: "ElitePlayer", score: 21800 },
-		{ rank: 3, playerName: "ChampionX", score: 21200 },
-		{ rank: 4, playerName: "ProGamer", score: 20650 },
-		{ rank: 5, playerName: "VictorySeeker", score: 20100 },
+		{
+			playerName: "LegendaryHero",
+			moves: 6,
+			timeElapsed: 120,
+			accuracy: 100,
+		},
+		{ playerName: "ElitePlayer", moves: 7, timeElapsed: 125, accuracy: 98 },
+		{ playerName: "ChampionX", moves: 8, timeElapsed: 115, accuracy: 96 },
+		{ playerName: "ProGamer", moves: 8, timeElapsed: 145, accuracy: 92 },
+		{
+			playerName: "VictorySeeker",
+			moves: 10,
+			timeElapsed: 138,
+			accuracy: 90,
+		},
 	],
 	golem: [
-		{ rank: 1, playerName: "GrandMaster", score: 31200 },
-		{ rank: 2, playerName: "UltimatePro", score: 30400 },
-		{ rank: 3, playerName: "SupremeRuler", score: 29600 },
-		{ rank: 4, playerName: "MightyConqueror", score: 28900 },
-		{ rank: 5, playerName: "PowerHouse", score: 28200 },
+		{ playerName: "GrandMaster", moves: 5, timeElapsed: 180, accuracy: 100 },
+		{ playerName: "UltimatePro", moves: 6, timeElapsed: 192, accuracy: 98 },
+		{
+			playerName: "SupremeRuler",
+			moves: 7,
+			timeElapsed: 188,
+			accuracy: 96,
+		},
+		{
+			playerName: "MightyConqueror",
+			moves: 8,
+			timeElapsed: 210,
+			accuracy: 92,
+		},
+		{ playerName: "PowerHouse", moves: 9, timeElapsed: 198, accuracy: 90 },
 	],
 	vampire: [
-		{ rank: 1, playerName: "ImmortalOne", score: 42000 },
-		{ rank: 2, playerName: "NightStalker", score: 41100 },
-		{ rank: 3, playerName: "DarkLord", score: 40200 },
-		{ rank: 4, playerName: "BloodPrince", score: 39300 },
-		{ rank: 5, playerName: "EternalHunter", score: 38400 },
+		{
+			playerName: "ImmortalOne",
+			moves: 3,
+			timeElapsed: 240,
+			accuracy: 100,
+		},
+		{
+			playerName: "NightStalker",
+			moves: 4,
+			timeElapsed: 258,
+			accuracy: 98,
+		},
+		{ playerName: "DarkLord", moves: 5, timeElapsed: 272, accuracy: 96 },
+		{ playerName: "BloodPrince", moves: 6, timeElapsed: 285, accuracy: 92 },
+		{
+			playerName: "EternalHunter",
+			moves: 7,
+			timeElapsed: 298,
+			accuracy: 90,
+		},
 	],
 	demon: [
-		{ rank: 1, playerName: "Apocalypse", score: 55000 },
-		{ rank: 2, playerName: "Inferno", score: 53800 },
-		{ rank: 3, playerName: "HellSpawn", score: 52600 },
-		{ rank: 4, playerName: "DeathBringer", score: 51400 },
-		{ rank: 5, playerName: "ChaosReign", score: 50200 },
+		{ playerName: "Apocalypse", moves: 3, timeElapsed: 320, accuracy: 100 },
+		{ playerName: "Inferno", moves: 4, timeElapsed: 335, accuracy: 98 },
+		{ playerName: "HellSpawn", moves: 5, timeElapsed: 358, accuracy: 96 },
+		{
+			playerName: "DeathBringer",
+			moves: 6,
+			timeElapsed: 378,
+			accuracy: 92,
+		},
+		{ playerName: "ChaosReign", moves: 7, timeElapsed: 398, accuracy: 90 },
 	],
 }
 
@@ -121,7 +174,11 @@ const DIFFICULTY_CONFIG = [
 ]
 
 export default function LeaderboardDialog({ isOpen, onClose }: LeaderboardDialogProps) {
+	const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>("goblin")
+
 	if (!isOpen) return null
+
+	const currentLeaderboard = DUMMY_LEADERBOARD_DATA[selectedDifficulty]
 
 	return (
 		<div
@@ -129,7 +186,7 @@ export default function LeaderboardDialog({ isOpen, onClose }: LeaderboardDialog
 			onClick={onClose}
 		>
 			<div
-				className="relative bg-linear-to-br from-stone-900 via-stone-800 to-stone-900 rounded-lg shadow-2xl border-4 border-stone-700 max-w-6xl w-full animate-in zoom-in-95 duration-200"
+				className="relative bg-linear-to-br from-stone-900 via-stone-800 to-stone-900 rounded-lg shadow-2xl border-4 border-stone-700 max-w-lg w-full animate-in zoom-in-95 duration-200"
 				onClick={(e) => e.stopPropagation()}
 			>
 				{/* Top border accent */}
@@ -144,89 +201,102 @@ export default function LeaderboardDialog({ isOpen, onClose }: LeaderboardDialog
 				{/* Header */}
 				<div className="relative p-4 border-b-2 border-stone-700">
 					<h2 className="text-2xl font-bold text-center bg-linear-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent">
-						Leaderboard - Top 5
+						Leaderboard
 					</h2>
+					<p>Top 5</p>
 					<button
 						type="button"
 						onClick={onClose}
-						className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-lg bg-stone-800 hover:bg-stone-700 border-2 border-stone-600 hover:border-stone-500 transition-all duration-200 text-stone-300 hover:text-stone-100 cursor-pointer"
+						className="absolute top-6 right-4 w-10 h-10 flex items-center justify-center rounded-lg bg-stone-800 hover:bg-stone-700 border-2 border-stone-600 hover:border-stone-500 transition-all duration-200 text-stone-300 hover:text-stone-100 cursor-pointer"
 						aria-label="Close leaderboard"
 					>
 						<CloseIcon className="size-6" />
 					</button>
 				</div>
 
+				{/* Tabs */}
+				<div className="flex justify-center gap-2 border-b border-stone-700 bg-stone-800/30 p-3">
+					{DIFFICULTY_CONFIG.map((config) => {
+						const isActive = selectedDifficulty === config.value
+						return (
+							<button
+								key={config.value}
+								onClick={() => setSelectedDifficulty(config.value)}
+								className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 ${
+									isActive
+										? `bg-amber-500/30 text-amber-300 border-2 border-amber-400`
+										: `bg-stone-800/50 text-stone-400 hover:text-stone-300 hover:bg-stone-800 border-2 border-transparent`
+								}`}
+								type="button"
+								title={config.label}
+							>
+								<config.Icon className="w-6 h-6" />
+							</button>
+						)
+					})}
+				</div>
+
 				{/* Content */}
-				<div className="p-4 overflow-x-auto overflow-y-auto max-h-[70vh] md:overflow-x-visible md:overflow-y-visible md:max-h-none">
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 min-w-max md:min-w-0">
-						{DIFFICULTY_CONFIG.map(({ value, label, Icon, bgColor, borderColor, accentColor }) => (
-							<div key={value} className="flex flex-col min-w-[180px] max-w-full mx-auto w-full">
-								{/* Column Header */}
-								<div
-									className={`relative overflow-hidden rounded-t-lg p-2 border-3 border-b-0 ${borderColor}`}
-								>
-									{/* Gradient Background */}
-									<div className={`absolute inset-0 bg-linear-to-br ${bgColor} opacity-60`} />
-
-									{/* Border */}
-									<div className={`absolute inset-0 ${borderColor} rounded-t-lg`} />
-
-									{/* Top accent line */}
-									<div
-										className={`absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent ${accentColor} to-transparent`}
-									/>
-
-									{/* Content */}
-									<div className="relative flex flex-col items-center gap-1">
-										<Icon className="w-6 h-6 text-stone-300" />
-										<h3 className="text-base font-bold text-stone-100">{label}</h3>
-									</div>
-								</div>
-
-								{/* Scores List */}
-								<div
-									className={`flex-1 bg-stone-900/50 rounded-b-lg border-3 border-t-0 ${borderColor} p-2`}
-								>
-									<div className="space-y-2">
-										{DUMMY_LEADERBOARD_DATA[value].map((entry, index) => (
-											<div key={entry.rank}>
-												<div className="flex items-center gap-2 py-1">
-													{/* Rank */}
-													<span
-														className={`shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold ${
-															entry.rank === 1
-																? "bg-amber-500 text-amber-950"
-																: entry.rank === 2
-																	? "bg-stone-400 text-stone-900"
-																	: entry.rank === 3
-																		? "bg-orange-600 text-orange-950"
-																		: "bg-stone-700 text-stone-300"
-														}`}
-													>
-														{entry.rank}
-													</span>
-
-													{/* Player Info */}
-													<div className="flex-1 min-w-0">
-														<p className="text-stone-200 text-xs font-medium truncate">
-															{entry.playerName}
-														</p>
-														<p className="text-stone-400 text-[10px]">
-															{entry.score.toLocaleString()}
-														</p>
-													</div>
-												</div>
-
-												{/* Separator (except after last item) */}
-												{index < DUMMY_LEADERBOARD_DATA[value].length - 1 && (
-													<div className="h-px bg-linear-to-r from-transparent via-stone-700 to-transparent" />
-												)}
+				<div className="p-6">
+					<div className="space-y-3">
+						{currentLeaderboard.map((entry, index) => {
+							const rank = index + 1
+							const score = calculateScore(entry.moves, entry.accuracy, entry.timeElapsed)
+							return (
+								<div key={`${entry.playerName}-${index}`}>
+									<div className="flex items-center gap-4">
+										{/* Rank Badge */}
+										<div className="shrink-0">
+											<div
+												className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold ${
+													rank === 1
+														? "bg-amber-500 text-amber-950"
+														: rank === 2
+															? "bg-stone-400 text-stone-900"
+															: rank === 3
+																? "bg-orange-600 text-orange-950"
+																: "bg-stone-700 text-stone-300"
+												}`}
+											>
+												{rank}
 											</div>
-										))}
+										</div>
+
+										{/* Player Info and Stats */}
+										<div className="flex-1 min-w-0">
+											<p className="text-stone-100 font-semibold text-sm mb-2">
+												{entry.playerName}
+											</p>
+
+											{/* Stats Grid */}
+											<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+												<div className="flex justify-between">
+													<span className="text-stone-400">Score:</span>
+													<span className="text-stone-200 font-semibold">{score.toFixed(2)}</span>
+												</div>
+												<div className="flex justify-between">
+													<span className="text-stone-400">Accuracy:</span>
+													<span className="text-stone-200 font-semibold">{entry.accuracy}%</span>
+												</div>
+												<div className="flex justify-between">
+													<span className="text-stone-400">Moves:</span>
+													<span className="text-stone-200 font-semibold">{entry.moves}</span>
+												</div>
+												<div className="flex justify-between">
+													<span className="text-stone-400">Time:</span>
+													<span className="text-stone-200 font-semibold">{entry.timeElapsed}s</span>
+												</div>
+											</div>
+										</div>
 									</div>
+
+									{/* Separator (except after last item) */}
+									{index < currentLeaderboard.length - 1 && (
+										<div className="h-px bg-linear-to-r from-transparent via-stone-700 to-transparent mt-3" />
+									)}
 								</div>
-							</div>
-						))}
+							)
+						})}
 					</div>
 				</div>
 

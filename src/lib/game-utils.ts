@@ -6,7 +6,7 @@ const ITEMS_PER_CATEGORY = 48
 
 // Grid configurations for each difficulty
 export const GRID_CONFIGS: Record<Difficulty, GridConfig> = {
-	goblin: { pairs: 16 },
+	goblin: { pairs: 2 },
 	troll: { pairs: 25 },
 	orc: { pairs: 49 },
 	golem: { pairs: 64 },
@@ -296,4 +296,23 @@ export function formatTime(seconds: number): string {
 	const mins = Math.floor(seconds / 60)
 	const secs = seconds % 60
 	return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+}
+
+/**
+ * Calculate leaderboard score based on moves, accuracy, and time
+ * Score = ((1000 / moves) * 0.6) + ((accuracy / 100) * 250) + ((60 / timeElapsed) * 150)
+ *
+ * Weighting:
+ * - 60% weight to efficiency (moves)
+ * - 25% weight to accuracy
+ * - 15% weight to speed
+ */
+export function calculateScore(moves: number, accuracy: number, timeElapsed: number): number {
+	if (moves === 0 || timeElapsed === 0) return 0
+
+	const efficiencyScore = (1000 / moves) * 0.6
+	const accuracyScore = (accuracy / 100) * 250
+	const speedScore = (60 / timeElapsed) * 150
+
+	return efficiencyScore + accuracyScore + speedScore
 }

@@ -5,7 +5,13 @@ import GameBoard from "@/components/game-board"
 import GameNavbar from "@/components/game-navbar"
 import { useInterval } from "@/hooks/use-interval"
 import { difficulties } from "@/lib/game-data"
-import { calculateAccuracy, checkMatch, GRID_CONFIGS, initializeGame } from "@/lib/game-utils"
+import {
+	calculateAccuracy,
+	calculateScore,
+	checkMatch,
+	GRID_CONFIGS,
+	initializeGame,
+} from "@/lib/game-utils"
 import type { Card, Difficulty, GameState, GameStats } from "@/lib/types"
 
 export const Route = createFileRoute("/$difficulty")({
@@ -164,6 +170,25 @@ function RouteComponent() {
 							<p className="text-yellow-100">
 								<span className="text-yellow-300 font-bold">💎 Matches:</span> {stats.matches}
 							</p>
+							<p className="text-yellow-100">
+								<span className="text-yellow-300 font-bold">⏱️ Time:</span> {stats.timeElapsed}s
+							</p>
+							<div className="mt-4 pt-4 border-t border-yellow-700/50">
+								<p className="text-yellow-200 font-bold mb-2">Score Breakdown:</p>
+								<p className="text-sm text-yellow-100">
+									Efficiency: {((1000 / stats.moves) * 0.6).toFixed(2)}
+								</p>
+								<p className="text-sm text-yellow-100">
+									Accuracy: {((stats.accuracy / 100) * 250).toFixed(2)}
+								</p>
+								<p className="text-sm text-yellow-100">
+									Speed: {((60 / stats.timeElapsed) * 150).toFixed(2)}
+								</p>
+								<p className="text-lg text-yellow-300 font-bold mt-2">
+									Total Score:{" "}
+									{calculateScore(stats.moves, stats.accuracy, stats.timeElapsed).toFixed(2)}
+								</p>
+							</div>
 						</div>
 						<Link
 							to="/"
