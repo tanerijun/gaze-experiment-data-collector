@@ -98,7 +98,7 @@ function App() {
 		>
 			<div className="max-w-3xl w-full z-10">
 				{/* Header */}
-				<div className="text-center mb-12">
+				<div className="text-center mb-12 mt-20 lg:mt-10">
 					<h1 className="text-5xl sm:text-7xl font-bold bg-linear-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent mb-4 drop-shadow-lg">
 						The Deep Vault
 					</h1>
@@ -171,18 +171,18 @@ function App() {
 				</div>
 
 				{/* Footer */}
-				<div className="mt-12 text-center text-stone-400 text-sm">
+				<div className="mt-12 text-center text-stone-400 text-sm mb-20 lg:mb-10">
 					<p>With your memory. Conquer the vault. Claim your victory.</p>
 					<div className="flex justify-center gap-4 mt-8">
 						<DialogButton
-							className="static lg:fixed z-20 bottom-6 left-6"
+							className="static lg:fixed z-20 bottom-2 left-2"
 							icon={<CrownIcon className="size-8" />}
 							label="Show leaderboard"
 							title="Leaderboard"
 							dialog={LeaderboardDialog}
 						/>
 						<DialogButton
-							className="static lg:fixed z-20 bottom-6 right-6"
+							className="static lg:fixed z-20 bottom-2 right-2"
 							icon={<ThreeFriendsIcon className="size-8" />}
 							label="Show credits"
 							title="Credits"

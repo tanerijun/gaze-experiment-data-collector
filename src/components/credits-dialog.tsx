@@ -50,12 +50,12 @@ export default function CreditsDialog({ isOpen, onClose }: CreditsDialogProps) {
 				</div>
 
 				{/* Content */}
-				<div className="p-6">
-					<div className="space-y-3">
+				<div className="p-4">
+					<div className="space-y-1">
 						{CREDITS_DATA.map((credit, index) => (
 							<div key={credit.role}>
 								<div className="py-2">
-									<p className="text-stone-400 text-xs uppercase tracking-wider font-bold mb-1">
+									<p className="text-stone-400 text-xs uppercase tracking-wider font-bold mb-2">
 										{credit.role}
 									</p>
 									{credit.names.map((name) => (

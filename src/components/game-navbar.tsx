@@ -8,72 +8,61 @@ interface GameNavbarProps {
 
 export default function GameNavbar({ stats }: GameNavbarProps) {
 	return (
-		<div className="w-full">
-			{/* Completely transparent navbar */}
-			<div className="px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
-				{/* Left: Menu Button */}
-				<Link
-					to="/"
-					className="group px-2 py-1 sm:px-3 sm:py-1.5 bg-stone-800/50 hover:bg-stone-700/50 text-stone-100 text-xs sm:text-sm font-semibold rounded border border-stone-600 hover:border-stone-500 transition-all duration-200 cursor-pointer"
-					aria-label="Back to menu"
-				>
-					<span>← Menu</span>
-				</Link>
+		<div className="w-full relative backdrop-blur-lg p-2 flex items-center justify-center">
+			{/* Menu Button */}
+			<Link
+				to="/"
+				className="absolute left-2 top-2 bg-stone-800/50 hover:bg-stone-700/50 rounded border border-stone-600 hover:border-stone-500 transition-all duration-200 cursor-pointer py-0 px-1 lg:py-2 lg:px-4"
+				aria-label="Back to menu"
+			>
+				<div className="flex gap-2">
+					<span>←</span>
+					<span className="hidden lg:block">Menu</span>
+				</div>
+			</Link>
 
-				{/* Center: Stats */}
-				<div className="flex items-center gap-2 sm:gap-4 md:gap-6">
-					{/* Time */}
-					<div className="flex flex-col items-center">
-						<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
-							Time
-						</span>
-						<span className="text-stone-100 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center">
-							{formatTime(stats.timeElapsed)}
-						</span>
-					</div>
-
-					{/* Vertical separator */}
-					<div className="h-6 sm:h-8 w-px bg-linear-to-b from-transparent via-stone-600 to-transparent" />
-
-					{/* Moves */}
-					<div className="flex flex-col items-center">
-						<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
-							Moves
-						</span>
-						<span className="text-stone-100 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center">
-							{stats.moves}
-						</span>
-					</div>
-
-					{/* Vertical separator */}
-					<div className="h-6 sm:h-8 w-px bg-linear-to-b from-transparent via-stone-600 to-transparent" />
-
-					{/* Matches */}
-					<div className="flex flex-col items-center">
-						<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
-							Matches
-						</span>
-						<span className="text-stone-100 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center">
-							{stats.matches}
-						</span>
-					</div>
-
-					{/* Vertical separator */}
-					<div className="h-6 sm:h-8 w-px bg-linear-to-b from-transparent via-stone-600 to-transparent" />
-
-					{/* Accuracy */}
-					<div className="flex flex-col items-center">
-						<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
-							Accuracy
-						</span>
-						<span className="text-stone-100 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center">
-							{stats.accuracy}%
-						</span>
-					</div>
+			<div className="flex items-center gap-2 sm:gap-4 md:gap-6">
+				<div className="flex flex-col items-center">
+					<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
+						Time
+					</span>
+					<span className="text-stone-100 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center">
+						{formatTime(stats.timeElapsed)}
+					</span>
 				</div>
 
-				{/* Right: Fullscreen Button */}
-				{/*<FullscreenButton />*/}
+				<div className="h-6 sm:h-8 w-px bg-linear-to-b from-transparent via-stone-600 to-transparent" />
+
+				<div className="flex flex-col items-center">
+					<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
+						Moves
+					</span>
+					<span className="text-stone-100 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center">
+						{stats.moves}
+					</span>
+				</div>
+
+				<div className="h-6 sm:h-8 w-px bg-linear-to-b from-transparent via-stone-600 to-transparent" />
+
+				<div className="flex flex-col items-center">
+					<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
+						Matches
+					</span>
+					<span className="text-stone-100 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center">
+						{stats.matches}
+					</span>
+				</div>
+
+				<div className="h-6 sm:h-8 w-px bg-linear-to-b from-transparent via-stone-600 to-transparent" />
+
+				<div className="flex flex-col items-center">
+					<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
+						Accuracy
+					</span>
+					<span className="text-stone-100 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center">
+						{stats.accuracy}%
+					</span>
+				</div>
 			</div>
 		</div>
 	)

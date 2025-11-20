@@ -42,7 +42,7 @@ export default function GameBoard({ cards, gridConfig, onCardClick, disabled }: 
 		let timeoutId: number
 
 		const handleResize = () => {
-			// Debounce resize events for better performance
+			// Debounce resize events
 			clearTimeout(timeoutId)
 			timeoutId = window.setTimeout(() => {
 				updateLayout()
@@ -62,7 +62,7 @@ export default function GameBoard({ cards, gridConfig, onCardClick, disabled }: 
 	return (
 		<div ref={containerRef} className="w-full h-full flex items-center justify-center">
 			<div
-				className="grid bg-linear-to-br from-stone-800 to-stone-900 rounded-xl shadow-2xl border-stone-700 transition-all duration-300 ease-in-out"
+				className="grid rounded-xl border-transparent transition-all duration-300 ease-in-out"
 				style={{
 					gridTemplateColumns: `repeat(${layout.cols}, ${layout.cardSize}px)`,
 					gridTemplateRows: `repeat(${layout.rows}, ${layout.cardSize}px)`,

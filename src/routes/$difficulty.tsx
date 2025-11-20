@@ -126,16 +126,10 @@ function RouteComponent() {
 			className="min-h-screen h-screen bg-cover bg-center bg-no-repeat text-stone-50 flex flex-col overflow-hidden"
 			style={{ backgroundImage: "url(/main-menu-bg.png)" }}
 		>
-			<div className="absolute inset-0 bg-black/40"></div>
+			<GameNavbar stats={stats} />
 
-			{/* Game Navbar */}
-			<div className="relative z-10 shrink-0">
-				<GameNavbar stats={stats} />
-			</div>
-
-			{/* Game Board Container - fills remaining space */}
-			<div className="flex-1 flex items-center justify-center relative z-10 overflow-hidden p-4">
-				{/* Game Board */}
+			{/* Game Board Container */}
+			<div className="flex-1 flex items-center backdrop-blur-md justify-center relative overflow-hidden">
 				{cards.length > 0 && (
 					<GameBoard
 						cards={cards}
@@ -148,8 +142,8 @@ function RouteComponent() {
 
 			{/* Win Message */}
 			{gameState === "won" && (
-				<div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-40">
-					<div className="bg-linear-to-br from-amber-950 via-amber-900 to-yellow-950 rounded-xl shadow-2xl border-4 border-yellow-700 p-8 max-w-md w-full text-center animate-bounce relative overflow-hidden">
+				<div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-40 animate-in fade-in duration-200">
+					<div className="bg-linear-to-br from-amber-950 via-amber-900 to-yellow-950 rounded-xl shadow-2xl border-4 border-yellow-700 p-8 max-w-md w-full text-center relative overflow-hidden animate-in zoom-in-95 duration-200">
 						{/* Top border accent */}
 						<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-yellow-400 to-transparent rounded-t-lg" />
 
@@ -159,10 +153,9 @@ function RouteComponent() {
 						<div className="absolute bottom-2 left-2 w-3 h-3 border-l-2 border-b-2 border-yellow-400" />
 						<div className="absolute bottom-2 right-2 w-3 h-3 border-r-2 border-b-2 border-yellow-400" />
 
-						<h2 className="text-4xl font-bold text-yellow-100 mb-4 drop-shadow-lg">⚔️ Victory! ⚔️</h2>
+						<h2 className="text-4xl font-bold text-yellow-100 mb-4 drop-shadow-lg">Victory!</h2>
 						<p className="text-yellow-200 mb-6">
-							You've conquered the memory trials in {stats.moves} moves and {stats.timeElapsed}{" "}
-							seconds!
+							You've conquered the trial in {stats.moves} moves and {stats.timeElapsed} seconds!
 						</p>
 						<div className="space-y-2 mb-8 text-left bg-amber-950/40 rounded-lg p-4 border border-yellow-700/50">
 							<p className="text-yellow-100">
