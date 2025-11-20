@@ -1,9 +1,12 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <workaround for dialog interaction> */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <workaround for dialog interaction> */
 
-import { useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
+import { difficulties } from "@/lib/game-data"
 import { calculateScore } from "@/lib/game-utils"
 import type { Difficulty } from "@/lib/types"
+import { getScores } from "@/server-functions/leaderboard"
 import {
 	CloseIcon,
 	DemonLevelIcon,
@@ -14,112 +17,9 @@ import {
 	VampireLevelIcon,
 } from "./icons"
 
-interface LeaderboardEntry {
-	playerName: string
-	moves: number
-	timeElapsed: number
-	accuracy: number
-}
-
 interface LeaderboardDialogProps {
 	isOpen: boolean
 	onClose: () => void
-}
-
-// Dummy data for each difficulty (Top 5 only)
-const DUMMY_LEADERBOARD_DATA: Record<Difficulty, LeaderboardEntry[]> = {
-	goblin: [
-		{
-			playerName: "DragonSlayer",
-			moves: 18,
-			timeElapsed: 45,
-			accuracy: 100,
-		},
-		{
-			playerName: "KnightOfValor",
-			moves: 18,
-			timeElapsed: 52,
-			accuracy: 100,
-		},
-		{ playerName: "MysticMage", moves: 20, timeElapsed: 48, accuracy: 100 },
-		{ playerName: "ShadowHunter", moves: 19, timeElapsed: 48, accuracy: 95 },
-		{ playerName: "StormBringer", moves: 20, timeElapsed: 45, accuracy: 90 },
-	],
-	troll: [
-		{ playerName: "MasterMind", moves: 10, timeElapsed: 65, accuracy: 100 },
-		{ playerName: "MemoryKing", moves: 11, timeElapsed: 72, accuracy: 98 },
-		{ playerName: "QuickThink", moves: 12, timeElapsed: 58, accuracy: 96 },
-		{ playerName: "BrainPower", moves: 12, timeElapsed: 75, accuracy: 92 },
-		{ playerName: "SharpEye", moves: 13, timeElapsed: 68, accuracy: 90 },
-	],
-	orc: [
-		{
-			playerName: "LegendaryHero",
-			moves: 6,
-			timeElapsed: 120,
-			accuracy: 100,
-		},
-		{ playerName: "ElitePlayer", moves: 7, timeElapsed: 125, accuracy: 98 },
-		{ playerName: "ChampionX", moves: 8, timeElapsed: 115, accuracy: 96 },
-		{ playerName: "ProGamer", moves: 8, timeElapsed: 145, accuracy: 92 },
-		{
-			playerName: "VictorySeeker",
-			moves: 10,
-			timeElapsed: 138,
-			accuracy: 90,
-		},
-	],
-	golem: [
-		{ playerName: "GrandMaster", moves: 5, timeElapsed: 180, accuracy: 100 },
-		{ playerName: "UltimatePro", moves: 6, timeElapsed: 192, accuracy: 98 },
-		{
-			playerName: "SupremeRuler",
-			moves: 7,
-			timeElapsed: 188,
-			accuracy: 96,
-		},
-		{
-			playerName: "MightyConqueror",
-			moves: 8,
-			timeElapsed: 210,
-			accuracy: 92,
-		},
-		{ playerName: "PowerHouse", moves: 9, timeElapsed: 198, accuracy: 90 },
-	],
-	vampire: [
-		{
-			playerName: "ImmortalOne",
-			moves: 3,
-			timeElapsed: 240,
-			accuracy: 100,
-		},
-		{
-			playerName: "NightStalker",
-			moves: 4,
-			timeElapsed: 258,
-			accuracy: 98,
-		},
-		{ playerName: "DarkLord", moves: 5, timeElapsed: 272, accuracy: 96 },
-		{ playerName: "BloodPrince", moves: 6, timeElapsed: 285, accuracy: 92 },
-		{
-			playerName: "EternalHunter",
-			moves: 7,
-			timeElapsed: 298,
-			accuracy: 90,
-		},
-	],
-	demon: [
-		{ playerName: "Apocalypse", moves: 3, timeElapsed: 320, accuracy: 100 },
-		{ playerName: "Inferno", moves: 4, timeElapsed: 335, accuracy: 98 },
-		{ playerName: "HellSpawn", moves: 5, timeElapsed: 358, accuracy: 96 },
-		{
-			playerName: "DeathBringer",
-			moves: 6,
-			timeElapsed: 378,
-			accuracy: 92,
-		},
-		{ playerName: "ChaosReign", moves: 7, timeElapsed: 398, accuracy: 90 },
-	],
 }
 
 const DIFFICULTY_CONFIG = [
@@ -175,10 +75,28 @@ const DIFFICULTY_CONFIG = [
 
 export default function LeaderboardDialog({ isOpen, onClose }: LeaderboardDialogProps) {
 	const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>("goblin")
+	const queryClient = useQueryClient()
+
+	// Prefetch all difficulty leaderboards when dialog opens
+	useEffect(() => {
+		if (isOpen) {
+			difficulties.forEach((difficulty) => {
+				queryClient.prefetchQuery({
+					queryKey: [difficulty],
+					queryFn: () => getScores({ data: { difficulty } }),
+					staleTime: 1000 * 30, // 30 seconds
+				})
+			})
+		}
+	}, [isOpen, queryClient])
+
+	const { data, isPending, isError } = useQuery({
+		queryKey: [selectedDifficulty],
+		queryFn: () => getScores({ data: { difficulty: selectedDifficulty } }),
+		staleTime: 1000 * 30, // 30 seconds
+	})
 
 	if (!isOpen) return null
-
-	const currentLeaderboard = DUMMY_LEADERBOARD_DATA[selectedDifficulty]
 
 	return (
 		<div
@@ -238,66 +156,92 @@ export default function LeaderboardDialog({ isOpen, onClose }: LeaderboardDialog
 
 				{/* Content */}
 				<div className="p-6">
-					<div className="space-y-3">
-						{currentLeaderboard.map((entry, index) => {
-							const rank = index + 1
-							const score = calculateScore(entry.moves, entry.accuracy, entry.timeElapsed)
-							return (
-								<div key={`${entry.playerName}-${index}`}>
-									<div className="flex items-center gap-4">
-										{/* Rank Badge */}
-										<div className="shrink-0">
-											<div
-												className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold ${
-													rank === 1
-														? "bg-amber-500 text-amber-950"
-														: rank === 2
-															? "bg-stone-400 text-stone-900"
-															: rank === 3
-																? "bg-orange-600 text-orange-950"
-																: "bg-stone-700 text-stone-300"
-												}`}
-											>
-												{rank}
+					{isPending && (
+						<div className="flex flex-col items-center justify-center py-8">
+							<div className="animate-spin">
+								<div className="w-8 h-8 border-4 border-stone-700 border-t-amber-400 rounded-full" />
+							</div>
+							<p className="text-stone-400 text-sm mt-4">Loading leaderboard...</p>
+						</div>
+					)}
+
+					{isError && (
+						<div className="flex flex-col items-center justify-center py-8">
+							<p className="text-red-400 text-sm">Error</p>
+							<p className="text-stone-500 text-xs mt-2">Try again later!</p>
+						</div>
+					)}
+
+					{!isPending && !isError && data && data.length > 0 && (
+						<div className="space-y-3">
+							{data.map((entry, index) => {
+								const rank = index + 1
+								const score = calculateScore(entry.moves, entry.accuracy)
+								return (
+									<div key={`${entry.playerName}-${index}`}>
+										<div className="flex items-center gap-4">
+											{/* Rank Badge */}
+											<div className="shrink-0">
+												<div
+													className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold ${
+														rank === 1
+															? "bg-amber-500 text-amber-950"
+															: rank === 2
+																? "bg-stone-400 text-stone-900"
+																: rank === 3
+																	? "bg-orange-600 text-orange-950"
+																	: "bg-stone-700 text-stone-300"
+													}`}
+												>
+													{rank}
+												</div>
+											</div>
+
+											{/* Player Info and Stats */}
+											<div className="flex-1 min-w-0">
+												<p className="text-stone-100 font-semibold text-sm mb-2">
+													{entry.playerName}
+												</p>
+
+												{/* Stats Grid */}
+												<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+													<div className="flex justify-between">
+														<span className="text-stone-400">Score:</span>
+														<span className="text-stone-200 font-semibold">{score.toFixed(2)}</span>
+													</div>
+													<div className="flex justify-between">
+														<span className="text-stone-400">Accuracy:</span>
+														<span className="text-stone-200 font-semibold">{entry.accuracy}%</span>
+													</div>
+													<div className="flex justify-between">
+														<span className="text-stone-400">Moves:</span>
+														<span className="text-stone-200 font-semibold">{entry.moves}</span>
+													</div>
+													<div className="flex justify-between">
+														<span className="text-stone-400">Time:</span>
+														<span className="text-stone-200 font-semibold">
+															{entry.timeElapsed}s
+														</span>
+													</div>
+												</div>
 											</div>
 										</div>
 
-										{/* Player Info and Stats */}
-										<div className="flex-1 min-w-0">
-											<p className="text-stone-100 font-semibold text-sm mb-2">
-												{entry.playerName}
-											</p>
-
-											{/* Stats Grid */}
-											<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-												<div className="flex justify-between">
-													<span className="text-stone-400">Score:</span>
-													<span className="text-stone-200 font-semibold">{score.toFixed(2)}</span>
-												</div>
-												<div className="flex justify-between">
-													<span className="text-stone-400">Accuracy:</span>
-													<span className="text-stone-200 font-semibold">{entry.accuracy}%</span>
-												</div>
-												<div className="flex justify-between">
-													<span className="text-stone-400">Moves:</span>
-													<span className="text-stone-200 font-semibold">{entry.moves}</span>
-												</div>
-												<div className="flex justify-between">
-													<span className="text-stone-400">Time:</span>
-													<span className="text-stone-200 font-semibold">{entry.timeElapsed}s</span>
-												</div>
-											</div>
-										</div>
+										{/* Separator (except after last item) */}
+										{index < data.length - 1 && (
+											<div className="h-px bg-linear-to-r from-transparent via-stone-700 to-transparent mt-3" />
+										)}
 									</div>
+								)
+							})}
+						</div>
+					)}
 
-									{/* Separator (except after last item) */}
-									{index < currentLeaderboard.length - 1 && (
-										<div className="h-px bg-linear-to-r from-transparent via-stone-700 to-transparent mt-3" />
-									)}
-								</div>
-							)
-						})}
-					</div>
+					{!isPending && !isError && (!data || data.length === 0) && (
+						<div className="flex flex-col items-center justify-center py-8">
+							<p className="text-stone-400 text-sm">No Data</p>
+						</div>
+					)}
 				</div>
 
 				{/* Bottom border accent */}

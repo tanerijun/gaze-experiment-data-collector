@@ -6,7 +6,7 @@ const ITEMS_PER_CATEGORY = 48
 
 // Grid configurations for each difficulty
 export const GRID_CONFIGS: Record<Difficulty, GridConfig> = {
-	goblin: { pairs: 2 },
+	goblin: { pairs: 16 },
 	troll: { pairs: 25 },
 	orc: { pairs: 49 },
 	golem: { pairs: 64 },
@@ -299,20 +299,50 @@ export function formatTime(seconds: number): string {
 }
 
 /**
- * Calculate leaderboard score based on moves, accuracy, and time
- * Score = ((1000 / moves) * 0.6) + ((accuracy / 100) * 250) + ((60 / timeElapsed) * 150)
+ * Calculate leaderboard score based on moves and accuracy
+ * Score = (100 - moves*2) + accuracy
  *
  * Weighting:
- * - 60% weight to efficiency (moves)
- * - 25% weight to accuracy
- * - 15% weight to speed
+ * - 50% weight to efficiency (moves) - max 100 points
+ * - 50% weight to accuracy - max 100 points
+ * Time is used as a tie breaker only
  */
-export function calculateScore(moves: number, accuracy: number, timeElapsed: number): number {
-	if (moves === 0 || timeElapsed === 0) return 0
+export function calculateScore(moves: number, accuracy: number): number {
+	if (moves === 0) return 0
 
-	const efficiencyScore = (1000 / moves) * 0.6
-	const accuracyScore = (accuracy / 100) * 250
-	const speedScore = (60 / timeElapsed) * 150
+	const efficiencyScore = Math.max(0, 100 - moves * 2)
+	const accuracyScore = accuracy
 
-	return efficiencyScore + accuracyScore + speedScore
+	return efficiencyScore + accuracyScore
+}
+
+/**
+ * Sort and filter leaderboard entries, keeping only top 5
+ * Primary sort: score (descending)
+ * Tie breaker: time elapsed (ascending - faster is better)
+ *
+ * @param entries - Array of leaderboard entries
+ * @param newEntry - Optional new entry to add before sorting
+ * @returns Top 5 entries sorted by score and time
+ */
+export function getTop5Leaderboard(
+	entries: Array<{ playerName: string; moves: number; timeElapsed: number; accuracy: number }>,
+	newEntry?: { playerName: string; moves: number; timeElapsed: number; accuracy: number },
+): Array<{ playerName: string; moves: number; timeElapsed: number; accuracy: number }> {
+	const allEntries = newEntry ? [...entries, newEntry] : entries
+
+	return allEntries
+		.sort((a, b) => {
+			const scoreA = calculateScore(a.moves, a.accuracy)
+			const scoreB = calculateScore(b.moves, b.accuracy)
+
+			// Primary sort: higher score first
+			if (scoreA !== scoreB) {
+				return scoreB - scoreA
+			}
+
+			// Tie breaker: lower time first (faster is better)
+			return a.timeElapsed - b.timeElapsed
+		})
+		.slice(0, 5)
 }

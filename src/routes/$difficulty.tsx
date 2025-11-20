@@ -1,8 +1,10 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useCallback, useEffect, useState } from "react"
 import { ErrorPage } from "@/components/error-page"
 import GameBoard from "@/components/game-board"
 import GameNavbar from "@/components/game-navbar"
+import NamePromptDialog from "@/components/name-prompt-dialog"
 import { useInterval } from "@/hooks/use-interval"
 import { difficulties } from "@/lib/game-data"
 import {
@@ -10,9 +12,11 @@ import {
 	calculateScore,
 	checkMatch,
 	GRID_CONFIGS,
+	getTop5Leaderboard,
 	initializeGame,
 } from "@/lib/game-utils"
 import type { Card, Difficulty, GameState, GameStats } from "@/lib/types"
+import { getScores, updateLeaderboard } from "@/server-functions/leaderboard"
 
 export const Route = createFileRoute("/$difficulty")({
 	component: RouteComponent,
@@ -40,8 +44,24 @@ function RouteComponent() {
 		accuracy: 0,
 	})
 	const [isChecking, setIsChecking] = useState(false)
+	const [showNamePrompt, setShowNamePrompt] = useState(false)
+	const queryClient = useQueryClient()
 
-	// Timer effect using useInterval
+	const submitScoreMutation = useMutation({
+		mutationFn: async (newEntry: {
+			difficulty: Difficulty
+			playerName: string
+			moves: number
+			accuracy: number
+			timeElapsed: number
+		}) => {
+			return await updateLeaderboard({ data: newEntry })
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: [difficulty] })
+		},
+	})
+
 	useInterval(
 		() => {
 			setStats((prev) => ({
@@ -52,17 +72,71 @@ function RouteComponent() {
 		gameState === "playing" ? 1000 : null,
 	)
 
-	// Check for win condition
+	// Check for win condition and high score
 	useEffect(() => {
 		if (cards.length === 0 || gameState !== "playing") return
 
 		const allMatched = cards.every((card) => card.isMatched)
 		if (allMatched) {
-			queueMicrotask(() => {
+			queueMicrotask(async () => {
 				setGameState("won")
+
+				try {
+					const currentLeaderboard = await getScores({ data: { difficulty } })
+					let isHighScore = false
+
+					// Check if this score would make top 5
+					if (currentLeaderboard.length < 5) {
+						isHighScore = true
+					} else {
+						// Get what top 5 would be with this new score
+						const tempEntry = {
+							playerName: "Player",
+							moves: stats.moves,
+							accuracy: stats.accuracy,
+							timeElapsed: stats.timeElapsed,
+						}
+						const wouldBeTop5 = getTop5Leaderboard(currentLeaderboard, tempEntry)
+						// Check if our temp entry is still in top 5
+						if (
+							wouldBeTop5.some(
+								(entry) =>
+									entry.moves === stats.moves &&
+									entry.accuracy === stats.accuracy &&
+									entry.timeElapsed === stats.timeElapsed,
+							)
+						) {
+							isHighScore = true
+						}
+					}
+
+					if (isHighScore) {
+						setShowNamePrompt(true)
+					}
+				} catch (error) {
+					console.error("Error checking high score:", error)
+				}
 			})
 		}
-	}, [cards, gameState])
+	}, [cards, gameState, stats, difficulty])
+
+	const handleNameSubmit = useCallback(
+		(playerName: string) => {
+			setShowNamePrompt(false)
+			submitScoreMutation.mutate({
+				difficulty,
+				playerName,
+				moves: stats.moves,
+				accuracy: stats.accuracy,
+				timeElapsed: stats.timeElapsed,
+			})
+		},
+		[difficulty, stats, submitScoreMutation],
+	)
+
+	const handleNamePromptCancel = useCallback(() => {
+		setShowNamePrompt(false)
+	}, [])
 
 	// Handle card click
 	const handleCardClick = useCallback(
@@ -185,11 +259,29 @@ function RouteComponent() {
 									Speed: {((60 / stats.timeElapsed) * 150).toFixed(2)}
 								</p>
 								<p className="text-lg text-yellow-300 font-bold mt-2">
-									Total Score:{" "}
-									{calculateScore(stats.moves, stats.accuracy, stats.timeElapsed).toFixed(2)}
+									Total Score: {calculateScore(stats.moves, stats.accuracy).toFixed(2)}
 								</p>
 							</div>
 						</div>
+
+						{/* High score submission status */}
+						<div className="space-y-3 mb-6">
+							{submitScoreMutation.isPending && (
+								<p className="text-blue-300 font-semibold text-sm">Submitting high score...</p>
+							)}
+
+							{submitScoreMutation.isSuccess && (
+								<p className="text-green-300 font-bold text-sm text-center">
+									NEW HIGHSCORE RECORDED!
+								</p>
+							)}
+
+							{submitScoreMutation.isError && (
+								<p className="text-red-300 font-semibold text-sm">HIGHSCORE UPDATE FAILED</p>
+							)}
+						</div>
+
+						{/* Return to menu button */}
 						<Link
 							to="/"
 							className="w-full group relative overflow-hidden py-3 px-6 bg-linear-to-br from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-amber-950 font-bold rounded-lg shadow-lg border-2 border-yellow-400 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
@@ -204,6 +296,12 @@ function RouteComponent() {
 					</div>
 				</div>
 			)}
+
+			<NamePromptDialog
+				isOpen={showNamePrompt}
+				onSubmit={handleNameSubmit}
+				onCancel={handleNamePromptCancel}
+			/>
 		</div>
 	)
 }
