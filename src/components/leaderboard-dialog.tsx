@@ -3,6 +3,7 @@
 
 import type { Difficulty } from "@/lib/types"
 import {
+	CloseIcon,
 	DemonLevelIcon,
 	GoblinLevelIcon,
 	GolemLevelIcon,
@@ -119,26 +120,6 @@ const DIFFICULTY_CONFIG = [
 	},
 ]
 
-function CloseIcon(props: React.SVGProps<SVGSVGElement>) {
-	return (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			width="1em"
-			height="1em"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			{...props}
-		>
-			<line x1="18" y1="6" x2="6" y2="18" />
-			<line x1="6" y1="6" x2="18" y2="18" />
-		</svg>
-	)
-}
-
 export default function LeaderboardDialog({ isOpen, onClose }: LeaderboardDialogProps) {
 	if (!isOpen) return null
 
@@ -171,7 +152,7 @@ export default function LeaderboardDialog({ isOpen, onClose }: LeaderboardDialog
 						className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-lg bg-stone-800 hover:bg-stone-700 border-2 border-stone-600 hover:border-stone-500 transition-all duration-200 text-stone-300 hover:text-stone-100 cursor-pointer"
 						aria-label="Close leaderboard"
 					>
-						<CloseIcon className="w-6 h-6" />
+						<CloseIcon className="size-6" />
 					</button>
 				</div>
 
@@ -179,7 +160,7 @@ export default function LeaderboardDialog({ isOpen, onClose }: LeaderboardDialog
 				<div className="p-4 overflow-x-auto overflow-y-auto max-h-[70vh] md:overflow-x-visible md:overflow-y-visible md:max-h-none">
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 min-w-max md:min-w-0">
 						{DIFFICULTY_CONFIG.map(({ value, label, Icon, bgColor, borderColor, accentColor }) => (
-							<div key={value} className="flex flex-col min-w-[180px] max-w-[200px] mx-auto w-full">
+							<div key={value} className="flex flex-col min-w-[180px] max-w-full mx-auto w-full">
 								{/* Column Header */}
 								<div
 									className={`relative overflow-hidden rounded-t-lg p-2 border-3 border-b-0 ${borderColor}`}

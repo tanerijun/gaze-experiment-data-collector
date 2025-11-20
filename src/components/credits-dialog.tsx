@@ -1,40 +1,16 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <workaround for dialog interaction> */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <workaround for dialog interaction> */
 
+import { CloseIcon } from "./icons"
+
 interface CreditsDialogProps {
 	isOpen: boolean
 	onClose: () => void
 }
 
-function CloseIcon(props: React.SVGProps<SVGSVGElement>) {
-	return (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			width="1em"
-			height="1em"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			{...props}
-		>
-			<line x1="18" y1="6" x2="6" y2="18" />
-			<line x1="6" y1="6" x2="18" y2="18" />
-		</svg>
-	)
-}
-
 const CREDITS_DATA = [
-	{ role: "Game Design", name: "Dark Dungeon Studios" },
-	{ role: "Lead Developer", name: "Shadow Coder" },
-	{ role: "UI/UX Design", name: "Mystic Designer" },
-	{ role: "Graphics & Icons", name: "Pixel Artisan" },
-	{ role: "Sound Design", name: "Echo Chamber Audio" },
-	{ role: "Quality Assurance", name: "Bug Hunter Guild" },
-	{ role: "Project Manager", name: "Quest Master" },
-	{ role: "Special Thanks", name: "Coffee & Late Nights" },
+	{ role: "Development", names: ["tanerijun"] },
+	{ role: "Graphics & Icons", names: ["Kenney", "Craftpix", "Game-icons"] },
 ]
 
 export default function CreditsDialog({ isOpen, onClose }: CreditsDialogProps) {
@@ -69,7 +45,7 @@ export default function CreditsDialog({ isOpen, onClose }: CreditsDialogProps) {
 						className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-lg bg-stone-800 hover:bg-stone-700 border-2 border-stone-600 hover:border-stone-500 transition-all duration-200 text-stone-300 hover:text-stone-100 cursor-pointer"
 						aria-label="Close credits"
 					>
-						<CloseIcon className="w-6 h-6" />
+						<CloseIcon className="size-6" />
 					</button>
 				</div>
 
@@ -77,12 +53,16 @@ export default function CreditsDialog({ isOpen, onClose }: CreditsDialogProps) {
 				<div className="p-6">
 					<div className="space-y-3">
 						{CREDITS_DATA.map((credit, index) => (
-							<div key={credit.name}>
+							<div key={credit.role}>
 								<div className="py-2">
 									<p className="text-stone-400 text-xs uppercase tracking-wider font-bold mb-1">
 										{credit.role}
 									</p>
-									<p className="text-stone-100 text-sm font-medium">{credit.name}</p>
+									{credit.names.map((name) => (
+										<p key={name} className="text-stone-100 text-sm font-medium">
+											{name}
+										</p>
+									))}
 								</div>
 
 								{/* Separator (except after last item) */}

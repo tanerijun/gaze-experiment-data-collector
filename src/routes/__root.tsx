@@ -1,7 +1,12 @@
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import type { QueryClient } from "@tanstack/react-query"
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools"
-import { createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router"
+import {
+	ClientOnly,
+	createRootRouteWithContext,
+	HeadContent,
+	Scripts,
+} from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import FullscreenButton from "@/components/fullscreen-button"
 import appCss from "../styles.css?url"
@@ -43,7 +48,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				{children}
-				<FullscreenButton className="fixed top-3 right-4 z-20" />
+				<ClientOnly>
+					<FullscreenButton className="fixed top-3 right-4 z-20" />
+				</ClientOnly>
 				<TanStackDevtools
 					config={{
 						position: "bottom-right",

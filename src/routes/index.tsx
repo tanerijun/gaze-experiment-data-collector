@@ -96,22 +96,7 @@ function App() {
 			className="min-h-screen bg-cover bg-center bg-no-repeat text-stone-50 flex items-center justify-center px-4"
 			style={{ backgroundImage: "url(/main-menu-bg.png)" }}
 		>
-			<DialogButton
-				className="absolute z-20 bottom-6 left-6"
-				icon={<CrownIcon className="size-8" />}
-				label="Show leaderboard"
-				title="Leaderboard"
-				dialog={LeaderboardDialog}
-			/>
-			<DialogButton
-				className="absolute z-20 bottom-6 right-6"
-				icon={<ThreeFriendsIcon className="size-8" />}
-				label="Show credits"
-				title="Credits"
-				dialog={CreditsDialog}
-			/>
-
-			<div className="max-w-3xl w-full relative z-10">
+			<div className="max-w-3xl w-full z-10">
 				{/* Header */}
 				<div className="text-center mb-12">
 					<h1 className="text-5xl sm:text-7xl font-bold bg-linear-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent mb-4 drop-shadow-lg">
@@ -188,6 +173,22 @@ function App() {
 				{/* Footer */}
 				<div className="mt-12 text-center text-stone-400 text-sm">
 					<p>With your memory. Conquer the vault. Claim your victory.</p>
+					<div className="flex justify-center gap-4 mt-8">
+						<DialogButton
+							className="static lg:fixed z-20 bottom-6 left-6"
+							icon={<CrownIcon className="size-8" />}
+							label="Show leaderboard"
+							title="Leaderboard"
+							dialog={LeaderboardDialog}
+						/>
+						<DialogButton
+							className="static lg:fixed z-20 bottom-6 right-6"
+							icon={<ThreeFriendsIcon className="size-8" />}
+							label="Show credits"
+							title="Credits"
+							dialog={CreditsDialog}
+						/>
+					</div>
 				</div>
 			</div>
 		</div>

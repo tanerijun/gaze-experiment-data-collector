@@ -13,7 +13,7 @@
 }
 
 body {
-    @apply font-main m-0 align-baseline bg-stone-950 text-stone-100 h-screen w-screen overflow-hidden;
+    @apply font-main m-0 align-baseline bg-stone-950 text-stone-100 h-screen w-screen;
     cursor:
       url('/cursor-arrow.png') 0 0,
       auto;

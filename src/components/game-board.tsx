@@ -18,13 +18,6 @@ export default function GameBoard({ cards, gridConfig, onCardClick, disabled }: 
 			window.innerWidth,
 			window.innerHeight,
 		)
-		console.log("Initial layout calculated:", {
-			pairs: gridConfig.pairs,
-			totalCards: gridConfig.pairs * 2,
-			viewport: { width: window.innerWidth, height: window.innerHeight },
-			layout: initialLayout,
-			orientation: window.innerWidth > window.innerHeight ? "landscape" : "portrait",
-		})
 		return initialLayout
 	})
 
@@ -36,13 +29,6 @@ export default function GameBoard({ cards, gridConfig, onCardClick, disabled }: 
 		const availableHeight = container.clientHeight
 
 		const newLayout = calculateOptimalLayout(gridConfig.pairs, availableWidth, availableHeight)
-		console.log("Layout calculated:", {
-			pairs: gridConfig.pairs,
-			totalCards: gridConfig.pairs * 2,
-			container: { width: availableWidth, height: availableHeight },
-			layout: newLayout,
-			orientation: availableWidth > availableHeight ? "landscape" : "portrait",
-		})
 		setLayout(newLayout)
 	}, [gridConfig.pairs])
 

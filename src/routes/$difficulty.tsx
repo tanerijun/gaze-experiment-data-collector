@@ -124,7 +124,7 @@ function RouteComponent() {
 	return (
 		<div
 			className="min-h-screen h-screen bg-cover bg-center bg-no-repeat text-stone-50 flex flex-col overflow-hidden"
-			style={{ backgroundImage: "url(/main_menu_bg.png)" }}
+			style={{ backgroundImage: "url(/main-menu-bg.png)" }}
 		>
 			<div className="absolute inset-0 bg-black/40"></div>
 
