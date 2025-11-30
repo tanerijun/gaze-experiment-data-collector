@@ -52,17 +52,6 @@ export default function GameNavbar({ stats }: GameNavbarProps) {
 						{stats.matches}
 					</span>
 				</div>
-
-				<div className="h-6 sm:h-8 w-px bg-linear-to-b from-transparent via-stone-600 to-transparent" />
-
-				<div className="flex flex-col items-center">
-					<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
-						Accuracy
-					</span>
-					<span className="text-stone-100 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center">
-						{stats.accuracy}%
-					</span>
-				</div>
 			</div>
 		</div>
 	)

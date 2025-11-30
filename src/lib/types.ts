@@ -1,7 +1,3 @@
-import type { difficulties } from "./game-data"
-
-export type Difficulty = (typeof difficulties)[number]
-
 export interface GridConfig {
 	pairs: number
 }
@@ -27,7 +23,6 @@ export interface GameStats {
 	moves: number
 	matches: number
 	timeElapsed: number // in seconds
-	accuracy: number // percentage
 }
 
 // Image metadata

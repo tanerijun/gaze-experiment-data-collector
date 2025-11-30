@@ -1,16 +1,9 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "the-deep-vault",
+	"name": "gaze-experiment-data-collector",
 	"compatibility_date": "2025-09-02",
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
 	"main": "@tanstack/react-start/server-entry",
-	"kv_namespaces": [
-		{
-			"binding": "the_deep_vault_leaderboard",
-			"id": "8a28bba480b4430aa6bcfde65f9cef99",
-			"remote": true
-		}
-	]
 }
