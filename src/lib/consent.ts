@@ -73,6 +73,7 @@ export const CONSENT_TEXT = {
 			"A working webcam",
 			"Permission to access your webcam",
 			"Permission to record your screen",
+			"Fullscreen mode (required for accurate click position tracking)",
 			"Modern browser (Chrome, Firefox, or Edge recommended)",
 		],
 	},

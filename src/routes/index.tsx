@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
+import { useCallback, useEffect, useRef } from "react"
 import { CrossedSwordIcon } from "@/components/icons"
+import { useFullscreen } from "@/hooks/use-fullscreen"
 import { CONSENT_TEXT, useConsentStore } from "@/lib/consent"
 import { useCustomDialog } from "@/lib/dialog/hooks"
 
@@ -8,6 +10,8 @@ export const Route = createFileRoute("/")({ component: App })
 function App() {
 	const { hasConsented, setConsent } = useConsentStore()
 	const { show } = useCustomDialog()
+	const { isFullscreen, isSupported, enter } = useFullscreen()
+	const hasPromptedRef = useRef(false)
 
 	const handleAboutClick = () => {
 		show({
@@ -122,6 +126,22 @@ function App() {
 							I Agree and Consent
 						</button>
 					)}
+					{hasConsented && !isFullscreen && (
+						<button
+							type="button"
+							onClick={async () => {
+								try {
+									await enter()
+									closeDialog()
+								} catch (error) {
+									console.error("Failed to enter fullscreen:", error)
+								}
+							}}
+							className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-stone-900"
+						>
+							Enter Fullscreen Mode
+						</button>
+					)}
 					<button
 						type="button"
 						onClick={closeDialog}
@@ -133,6 +153,100 @@ function App() {
 			),
 		})
 	}
+
+	const showFullscreenPrompt = useCallback(() => {
+		show({
+			size: "medium",
+			header: ({ closeDialog }) => (
+				<div className="flex items-center justify-between">
+					<h2 className="text-2xl font-bold text-amber-100">Fullscreen Required</h2>
+					<button
+						type="button"
+						onClick={closeDialog}
+						className="text-stone-400 hover:text-stone-200 transition-colors"
+						aria-label="Close dialog"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							className="h-6 w-6"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M6 18L18 6M6 6l12 12"
+							/>
+						</svg>
+					</button>
+				</div>
+			),
+			body: () => (
+				<div className="space-y-4 text-stone-200">
+					<p className="text-lg leading-relaxed">
+						For accurate data collection, this application must run in fullscreen mode.
+					</p>
+					<div className="bg-amber-950/50 border border-amber-800 rounded-lg p-4">
+						<h3 className="text-amber-100 font-semibold mb-2">Why fullscreen?</h3>
+						<ul className="list-disc list-inside space-y-2 text-sm">
+							<li>Ensures consistent screen dimensions for all participants</li>
+							<li>Allows accurate tracking of click positions</li>
+							<li>Prevents browser UI from interfering with data collection</li>
+							<li>Creates a controlled environment for research validity</li>
+						</ul>
+					</div>
+					<p className="text-sm text-stone-400">
+						Note: You can exit fullscreen at any time by pressing the{" "}
+						<kbd className="px-2 py-1 bg-stone-700 rounded border border-stone-600">ESC</kbd> key,
+						but data collection will be paused until you return to fullscreen mode.
+					</p>
+				</div>
+			),
+			footer: ({ closeDialog }) => (
+				<div className="flex justify-end gap-3">
+					<button
+						type="button"
+						onClick={async () => {
+							try {
+								await enter()
+								closeDialog()
+							} catch (error) {
+								console.error("Failed to enter fullscreen:", error)
+							}
+						}}
+						className="px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-900"
+					>
+						Enter Fullscreen
+					</button>
+					<button
+						type="button"
+						onClick={closeDialog}
+						className="px-6 py-2.5 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:ring-offset-stone-900"
+					>
+						Later
+					</button>
+				</div>
+			),
+		})
+	}, [show, enter])
+
+	// Prompt for fullscreen after consent is given (only once)
+	useEffect(() => {
+		if (hasConsented && !isFullscreen && isSupported && !hasPromptedRef.current) {
+			hasPromptedRef.current = true
+			// Small delay to let the consent dialog close smoothly
+			const timer = setTimeout(() => {
+				showFullscreenPrompt()
+			}, 500)
+			return () => clearTimeout(timer)
+		}
+		// Reset flag if consent is removed
+		if (!hasConsented) {
+			hasPromptedRef.current = false
+		}
+	}, [hasConsented, isFullscreen, isSupported, showFullscreenPrompt])
 
 	return (
 		<div
@@ -187,7 +301,12 @@ function App() {
 							</div>
 							<div className="flex items-center gap-2">
 								{hasConsented && (
-									<span className="text-green-400 text-sm font-semibold">✓ Consented</span>
+									<div className="flex flex-col items-end gap-1">
+										<span className="text-green-400 text-xs font-semibold">✓ Consented</span>
+										{isFullscreen && (
+											<span className="text-blue-400 text-xs font-semibold">✓ Fullscreen</span>
+										)}
+									</div>
 								)}
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -214,13 +333,13 @@ function App() {
 					<Link
 						to="/game"
 						className={`group relative overflow-hidden rounded-xl p-8 text-center transition-all duration-300 focus:outline-none w-full ${
-							hasConsented
+							hasConsented && isFullscreen
 								? "hover:scale-105 cursor-pointer active:scale-95 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-800"
 								: "cursor-not-allowed opacity-50"
 						}`}
-						disabled={!hasConsented}
+						disabled={!hasConsented || !isFullscreen}
 						onClick={(e) => {
-							if (!hasConsented) {
+							if (!hasConsented || !isFullscreen) {
 								e.preventDefault()
 							}
 						}}
@@ -234,17 +353,19 @@ function App() {
 						{/* Border */}
 						<div
 							className={`absolute inset-0 border-4 rounded-xl transition-colors duration-300 ${
-								hasConsented ? "border-amber-800 group-hover:border-amber-700" : "border-amber-900"
+								hasConsented && isFullscreen
+									? "border-amber-800 group-hover:border-amber-700"
+									: "border-amber-900"
 							}`}
 						/>
 
 						{/* Top accent line */}
-						{hasConsented && (
+						{hasConsented && isFullscreen && (
 							<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 						)}
 
 						{/* Corner decorations */}
-						{hasConsented && (
+						{hasConsented && isFullscreen && (
 							<>
 								<div className="absolute top-1 left-1 w-3 h-3 border-l-2 border-t-2 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
 								<div className="absolute top-1 right-1 w-3 h-3 border-r-2 border-t-2 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -257,31 +378,37 @@ function App() {
 						<div className="relative flex flex-col items-center gap-4">
 							<CrossedSwordIcon
 								className={`size-16 shrink-0 drop-shadow-lg transition-colors ${
-									hasConsented ? "text-amber-300" : "text-amber-800"
+									hasConsented && isFullscreen ? "text-amber-300" : "text-amber-800"
 								}`}
 							/>
 							<div className="flex-1">
 								<h2
 									className={`text-3xl font-bold drop-shadow-md mb-2 transition-colors ${
-										hasConsented ? "text-amber-100 group-hover:text-amber-50" : "text-amber-800"
+										hasConsented && isFullscreen
+											? "text-amber-100 group-hover:text-amber-50"
+											: "text-amber-800"
 									}`}
 								>
 									2. PLAY GAME
 								</h2>
 								<p
 									className={`text-sm transition-colors ${
-										hasConsented ? "text-amber-200 group-hover:text-amber-100" : "text-amber-800"
+										hasConsented && isFullscreen
+											? "text-amber-200 group-hover:text-amber-100"
+											: "text-amber-800"
 									}`}
 								>
-									{hasConsented
+									{hasConsented && isFullscreen
 										? "16 pairs to match • Recording enabled"
-										: "Complete consent before playing"}
+										: hasConsented
+											? "Enter fullscreen mode to play"
+											: "Complete consent before playing"}
 								</p>
 							</div>
 						</div>
 
 						{/* Bottom border accent */}
-						{hasConsented && (
+						{hasConsented && isFullscreen && (
 							<div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 						)}
 					</Link>
@@ -290,9 +417,11 @@ function App() {
 				{/* Footer */}
 				<div className="mt-12 text-center text-stone-400 text-sm">
 					<p>
-						{hasConsented
+						{hasConsented && isFullscreen
 							? "Thank you for participating in gaze estimation research"
-							: "Read the About section to learn more and provide consent"}
+							: hasConsented
+								? "Enter fullscreen mode to begin data collection"
+								: "Read the About section to learn more and provide consent"}
 					</p>
 				</div>
 			</div>

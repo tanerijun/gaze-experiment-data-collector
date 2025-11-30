@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useCallback, useEffect, useState } from "react"
+import FullscreenMonitor from "@/components/fullscreen-monitor"
 import GameBoard from "@/components/game-board"
 import GameNavbar from "@/components/game-navbar"
 import { useInterval } from "@/hooks/use-interval"
@@ -20,6 +21,7 @@ function RouteComponent() {
 		timeElapsed: 0,
 	})
 	const [isChecking, setIsChecking] = useState(false)
+	const [isPausedByFullscreen, setIsPausedByFullscreen] = useState(false)
 
 	useInterval(
 		() => {
@@ -28,7 +30,7 @@ function RouteComponent() {
 				timeElapsed: prev.timeElapsed + 1,
 			}))
 		},
-		gameState === "playing" ? 1000 : null,
+		gameState === "playing" && !isPausedByFullscreen ? 1000 : null,
 	)
 
 	// Check for win condition
@@ -105,6 +107,13 @@ function RouteComponent() {
 			className="min-h-screen h-screen bg-cover bg-center bg-no-repeat text-stone-50 flex flex-col overflow-hidden"
 			style={{ backgroundImage: "url(/main-menu-bg.png)" }}
 		>
+			{/* Fullscreen Monitor - pauses game when user exits fullscreen */}
+			<FullscreenMonitor
+				enabled={gameState === "playing"}
+				onExitFullscreen={() => setIsPausedByFullscreen(true)}
+				onEnterFullscreen={() => setIsPausedByFullscreen(false)}
+			/>
+
 			<GameNavbar stats={stats} />
 
 			{/* Game Board Container */}
@@ -114,7 +123,7 @@ function RouteComponent() {
 						cards={cards}
 						gridConfig={GRID_CONFIG}
 						onCardClick={handleCardClick}
-						disabled={isChecking || gameState === "won"}
+						disabled={isChecking || gameState === "won" || isPausedByFullscreen}
 					/>
 				)}
 			</div>
