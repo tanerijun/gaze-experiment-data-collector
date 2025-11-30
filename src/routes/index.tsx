@@ -1,63 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { CrossedSwordIcon } from "@/components/icons"
-import {
-	useAlertDialog,
-	useConfirmDialog,
-	useSelectPromptDialog,
-	useTextPromptDialog,
-} from "@/lib/dialog/hooks"
 
 export const Route = createFileRoute("/")({ component: App })
 
 function App() {
-	const { alert } = useAlertDialog()
-	const { confirm } = useConfirmDialog()
-	const { prompt } = useTextPromptDialog()
-	const { select } = useSelectPromptDialog()
-
-	const handleTestAlert = async () => {
-		await alert({
-			title: "Welcome!",
-			message: "This is a test alert dialog. Click OK to close.",
-			confirmText: "OK",
-		})
-	}
-
-	const handleTestConfirm = async () => {
-		const confirmed = await confirm({
-			title: "Confirmation",
-			message: "Do you want to continue with this test?",
-			confirmText: "Yes",
-			cancelText: "No",
-		})
-		console.log("Confirmed:", confirmed)
-	}
-
-	const handleTestPrompt = async () => {
-		const name = await prompt({
-			title: "Enter Your Name",
-			message: "What should we call you?",
-			placeholder: "Your name...",
-			confirmText: "Submit",
-			cancelText: "Cancel",
-		})
-		console.log("Name:", name)
-	}
-
-	const handleTestSelect = async () => {
-		const selected = await select({
-			title: "Choose Options",
-			message: "Select your preferences:",
-			options: [
-				{ value: "easy", label: "Easy" },
-				{ value: "medium", label: "Medium" },
-				{ value: "hard", label: "Hard" },
-			],
-			confirmText: "Select",
-			cancelText: "Cancel",
-		})
-		console.log("Selected:", selected)
-	}
 	return (
 		<div
 			className="min-h-screen bg-cover bg-center bg-no-repeat text-stone-50 flex items-center justify-center px-4"
@@ -118,38 +64,6 @@ function App() {
 				{/* Footer */}
 				<div className="mt-12 text-center text-stone-400 text-sm">
 					<p>Test your memory. Conquer the vault. Claim your victory.</p>
-
-					{/* Demo Dialog Buttons */}
-					<div className="flex flex-wrap gap-2 justify-center mt-6">
-						<button
-							type="button"
-							onClick={handleTestAlert}
-							className="group relative overflow-hidden py-2 px-4 bg-linear-to-br from-stone-700 to-stone-600 hover:from-stone-600 hover:to-stone-500 text-stone-100 font-bold rounded-lg shadow-lg border-2 border-stone-500 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer text-sm"
-						>
-							<span className="relative z-10">Alert</span>
-						</button>
-						<button
-							type="button"
-							onClick={handleTestConfirm}
-							className="group relative overflow-hidden py-2 px-4 bg-linear-to-br from-stone-700 to-stone-600 hover:from-stone-600 hover:to-stone-500 text-stone-100 font-bold rounded-lg shadow-lg border-2 border-stone-500 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer text-sm"
-						>
-							<span className="relative z-10">Confirm</span>
-						</button>
-						<button
-							type="button"
-							onClick={handleTestPrompt}
-							className="group relative overflow-hidden py-2 px-4 bg-linear-to-br from-stone-700 to-stone-600 hover:from-stone-600 hover:to-stone-500 text-stone-100 font-bold rounded-lg shadow-lg border-2 border-stone-500 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer text-sm"
-						>
-							<span className="relative z-10">Prompt</span>
-						</button>
-						<button
-							type="button"
-							onClick={handleTestSelect}
-							className="group relative overflow-hidden py-2 px-4 bg-linear-to-br from-stone-700 to-stone-600 hover:from-stone-600 hover:to-stone-500 text-stone-100 font-bold rounded-lg shadow-lg border-2 border-stone-500 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer text-sm"
-						>
-							<span className="relative z-10">Select</span>
-						</button>
-					</div>
 				</div>
 			</div>
 		</div>
