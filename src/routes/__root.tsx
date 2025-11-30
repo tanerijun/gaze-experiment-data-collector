@@ -6,6 +6,7 @@ import {
 	Scripts,
 } from "@tanstack/react-router"
 import FullscreenButton from "@/components/fullscreen-button"
+import { DialogProvider } from "@/lib/dialog/provider"
 import appCss from "../styles.css?url"
 
 // import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools"
@@ -51,6 +52,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				{children}
 				<ClientOnly>
 					<FullscreenButton className="fixed top-2 right-2 z-20" />
+					<DialogProvider />
 				</ClientOnly>
 				{/*<TanStackDevtools
 					config={{
