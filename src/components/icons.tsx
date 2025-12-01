@@ -1,5 +1,129 @@
 import type { SVGProps } from "react"
 
+export function CheckmarkIcon(props: SVGProps<SVGSVGElement>) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="1em"
+			height="1em"
+			viewBox="0 0 512 512"
+			{...props}
+		>
+			<path
+				fill="currentColor"
+				d="M17.47 250.9C88.82 328.1 158 397.6 224.5 485.5c72.3-143.8 146.3-288.1 268.4-444.37L460 26.06C356.9 135.4 276.8 238.9 207.2 361.9c-48.4-43.6-126.62-105.3-174.38-137z"
+			/>
+		</svg>
+	)
+}
+
+export function AlertIcon(props: SVGProps<SVGSVGElement>) {
+	// MdiAlertOctagramOutline
+	return (
+		<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>
+			{/* Icon from Material Design Icons by Pictogrammers - https://github.com/Templarian/MaterialDesign/blob/master/LICENSE */}
+			<path
+				fill="currentColor"
+				d="M2.2 16.06L3.88 12L2.2 7.94l4.06-1.68L7.94 2.2L12 3.88l4.06-1.68l1.68 4.06l4.06 1.68L20.12 12l1.68 4.06l-4.06 1.68l-1.68 4.06L12 20.12L7.94 21.8l-1.68-4.06zM4.81 9l1.24 3l-1.24 3l2.98 1.21L9 19.19l3-1.24l3 1.24l1.21-2.98L19.19 15l-1.24-3l1.24-3l-2.98-1.21L15 4.81l-3 1.24l-3-1.24l-1.21 2.98zM11 15h2v2h-2zm0-8h2v6h-2z"
+			/>
+		</svg>
+	)
+}
+
+export function LoadingIcon(props: SVGProps<SVGSVGElement>) {
+	// SvgSpinnersBarsRotateFade
+	return (
+		<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>
+			<g>
+				<rect width="2" height="5" x="11" y="1" fill="currentColor" opacity=".14" />
+				<rect
+					width="2"
+					height="5"
+					x="11"
+					y="1"
+					fill="currentColor"
+					opacity=".29"
+					transform="rotate(30 12 12)"
+				/>
+				<rect
+					width="2"
+					height="5"
+					x="11"
+					y="1"
+					fill="currentColor"
+					opacity=".43"
+					transform="rotate(60 12 12)"
+				/>
+				<rect
+					width="2"
+					height="5"
+					x="11"
+					y="1"
+					fill="currentColor"
+					opacity=".57"
+					transform="rotate(90 12 12)"
+				/>
+				<rect
+					width="2"
+					height="5"
+					x="11"
+					y="1"
+					fill="currentColor"
+					opacity=".71"
+					transform="rotate(120 12 12)"
+				/>
+				<rect
+					width="2"
+					height="5"
+					x="11"
+					y="1"
+					fill="currentColor"
+					opacity=".86"
+					transform="rotate(150 12 12)"
+				/>
+				<rect width="2" height="5" x="11" y="1" fill="currentColor" transform="rotate(180 12 12)" />
+				<animateTransform
+					attributeName="transform"
+					calcMode="discrete"
+					dur="0.75s"
+					repeatCount="indefinite"
+					type="rotate"
+					values="0 12 12;30 12 12;60 12 12;90 12 12;120 12 12;150 12 12;180 12 12;210 12 12;240 12 12;270 12 12;300 12 12;330 12 12;360 12 12"
+				/>
+			</g>
+		</svg>
+	)
+}
+
+export function RecorderIcon(props: SVGProps<SVGSVGElement>) {
+	// IonVideocamOutline
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="1em"
+			height="1em"
+			viewBox="0 0 512 512"
+			{...props}
+		>
+			<path
+				fill="none"
+				stroke="currentColor"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="32"
+				d="M374.79 308.78L457.5 367a16 16 0 0 0 22.5-14.62V159.62A16 16 0 0 0 457.5 145l-82.71 58.22A16 16 0 0 0 368 216.3v79.4a16 16 0 0 0 6.79 13.08"
+			/>
+			<path
+				fill="none"
+				stroke="currentColor"
+				strokeMiterlimit="10"
+				strokeWidth="32"
+				d="M268 384H84a52.15 52.15 0 0 1-52-52V180a52.15 52.15 0 0 1 52-52h184.48A51.68 51.68 0 0 1 320 179.52V332a52.15 52.15 0 0 1-52 52Z"
+			/>
+		</svg>
+	)
+}
+
 export function CloseIcon(props: SVGProps<SVGSVGElement>) {
 	return (
 		<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>
