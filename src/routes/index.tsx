@@ -1,19 +1,17 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { useCallback, useEffect, useRef, useState } from "react"
-import CalibrationOverlay, { type CalibrationResult } from "@/components/calibration-overlay"
+import { createFileRoute } from "@tanstack/react-router"
 import { CrossedSwordIcon } from "@/components/icons"
-import { useFullscreen } from "@/hooks/use-fullscreen"
+import ParticipantForm from "@/components/participant-form"
 import { CONSENT_TEXT, useConsentStore } from "@/lib/consent"
 import { useCustomDialog } from "@/lib/dialog/hooks"
+import { useRecordingStore } from "@/lib/recording-store"
 
 export const Route = createFileRoute("/")({ component: App })
 
 function App() {
-	const { hasConsented, setConsent } = useConsentStore()
 	const { show } = useCustomDialog()
-	const { isFullscreen, isSupported, enter } = useFullscreen()
-	const hasPromptedRef = useRef(false)
-	const [showCalibration, setShowCalibration] = useState(false)
+	const hasConsented = useConsentStore((s) => s.hasConsented)
+	const setConsent = useConsentStore((s) => s.setConsent)
+	const participant = useRecordingStore((s) => s.participant)
 
 	const handleAboutClick = () => {
 		show({
@@ -128,22 +126,6 @@ function App() {
 							I Agree and Consent
 						</button>
 					)}
-					{hasConsented && !isFullscreen && (
-						<button
-							type="button"
-							onClick={async () => {
-								try {
-									await enter()
-									closeDialog()
-								} catch (error) {
-									console.error("Failed to enter fullscreen:", error)
-								}
-							}}
-							className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-stone-900"
-						>
-							Enter Fullscreen Mode
-						</button>
-					)}
 					<button
 						type="button"
 						onClick={closeDialog}
@@ -156,298 +138,274 @@ function App() {
 		})
 	}
 
-	const showFullscreenPrompt = useCallback(() => {
+	const handleParticipantInfoClick = () => {
 		show({
 			size: "medium",
-			header: ({ closeDialog }) => (
-				<div className="flex items-center justify-between">
-					<h2 className="text-2xl font-bold text-amber-100">Fullscreen Required</h2>
-					<button
-						type="button"
-						onClick={closeDialog}
-						className="text-stone-400 hover:text-stone-200 transition-colors"
-						aria-label="Close dialog"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							className="h-6 w-6"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M6 18L18 6M6 6l12 12"
-							/>
-						</svg>
-					</button>
-				</div>
-			),
-			body: () => (
-				<div className="space-y-4 text-stone-200">
-					<p className="text-lg leading-relaxed">
-						For accurate data collection, this application must run in fullscreen mode.
-					</p>
-					<div className="bg-amber-950/50 border border-amber-800 rounded-lg p-4">
-						<h3 className="text-amber-100 font-semibold mb-2">Why fullscreen?</h3>
-						<ul className="list-disc list-inside space-y-2 text-sm">
-							<li>Ensures consistent screen dimensions for all participants</li>
-							<li>Allows accurate tracking of click positions</li>
-							<li>Prevents browser UI from interfering with data collection</li>
-							<li>Creates a controlled environment for research validity</li>
-						</ul>
-					</div>
-					<p className="text-sm text-stone-400">
-						Note: You can exit fullscreen at any time by pressing the{" "}
-						<kbd className="px-2 py-1 bg-stone-700 rounded border border-stone-600">ESC</kbd> key,
-						but data collection will be paused until you return to fullscreen mode.
+			header: () => (
+				<div>
+					<h2 className="text-2xl font-bold bg-linear-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent drop-shadow-lg">
+						Participant Info
+					</h2>
+					<p className="text-stone-300 text-left text-sm mt-2">
+						Please provide the following information to begin the experiment
 					</p>
 				</div>
 			),
-			footer: ({ closeDialog }) => (
-				<div className="flex justify-end gap-3">
-					<button
-						type="button"
-						onClick={async () => {
-							try {
-								await enter()
-								closeDialog()
-							} catch (error) {
-								console.error("Failed to enter fullscreen:", error)
-							}
-						}}
-						className="px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-900"
-					>
-						Enter Fullscreen
-					</button>
-					<button
-						type="button"
-						onClick={closeDialog}
-						className="px-6 py-2.5 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:ring-offset-stone-900"
-					>
-						Later
-					</button>
-				</div>
+			body: ({ closeDialog }) => (
+				<ParticipantForm onComplete={closeDialog} onCancel={closeDialog} />
 			),
 		})
-	}, [show, enter])
+	}
 
-	// Prompt for fullscreen after consent is given (only once)
-	useEffect(() => {
-		if (hasConsented && !isFullscreen && isSupported && !hasPromptedRef.current) {
-			hasPromptedRef.current = true
-			// Small delay to let the consent dialog close smoothly
-			const timer = setTimeout(() => {
-				showFullscreenPrompt()
-			}, 500)
-			return () => clearTimeout(timer)
-		}
-		// Reset flag if consent is removed
-		if (!hasConsented) {
-			hasPromptedRef.current = false
-		}
-	}, [hasConsented, isFullscreen, isSupported, showFullscreenPrompt])
-
-	const handleCalibrationComplete = (results: CalibrationResult[]) => {
-		console.log("Calibration complete! Results:", results)
+	const handleStartExperiment = () => {
+		// TODO
 	}
 
 	return (
-		<>
-			{/* Calibration Overlay */}
-			{showCalibration && (
-				<CalibrationOverlay
-					onComplete={handleCalibrationComplete}
-					onClose={() => setShowCalibration(false)}
-				/>
-			)}
-			<div
-				className="min-h-screen bg-cover bg-center bg-no-repeat text-stone-50 flex items-center justify-center px-4"
-				style={{ backgroundImage: "url(/main-menu-bg.png)" }}
-			>
-				<div className="max-w-2xl w-full z-10">
-					{/* Header */}
-					<div className="text-center mb-12">
-						<h1 className="text-5xl sm:text-7xl font-bold bg-linear-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent mb-4 drop-shadow-lg">
-							The Deep Vault
-						</h1>
-						<p className="text-amber-200 text-lg sm:text-xl">
-							Gaze Estimation Data Collection Platform
-						</p>
-						<p className="text-stone-400 text-sm mt-2">
-							Help train AI by playing a memory matching game
-						</p>
-					</div>
+		<div
+			className="min-h-screen bg-cover bg-center bg-no-repeat text-stone-50 flex items-center justify-center px-4"
+			style={{ backgroundImage: "url(/main-menu-bg.png)" }}
+		>
+			<div className="max-w-2xl w-full z-10">
+				{/* Header */}
+				<div className="text-center mb-12">
+					<h1 className="text-5xl sm:text-7xl font-bold bg-linear-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent mb-4 drop-shadow-lg">
+						The Deep Vault
+					</h1>
+					<p className="text-stone-400 text-lg sm:text-xl">
+						Gaze Estimation Data Collection Platform
+					</p>
+				</div>
 
-					{/* Menu Buttons */}
-					<div className="flex flex-col gap-6">
-						{/* About Button */}
-						<button
-							type="button"
-							onClick={handleAboutClick}
-							className="group relative overflow-hidden rounded-xl p-6 text-center transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-800 cursor-pointer active:scale-95 w-full"
-						>
-							{/* Gradient Background */}
-							<div className="absolute inset-0 bg-linear-to-br from-stone-800 via-stone-700 to-stone-800 opacity-80" />
+				{/* Menu Buttons */}
+				<div className="flex flex-col gap-6">
+					{/* 1. About/Consent Button */}
+					<button
+						type="button"
+						onClick={handleAboutClick}
+						className="group relative overflow-hidden rounded-xl p-6 text-center transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-800 cursor-pointer active:scale-95 w-full"
+					>
+						{/* Gradient Background */}
+						<div className="absolute inset-0 bg-linear-to-br from-stone-800 via-stone-700 to-stone-800 opacity-80" />
 
-							{/* Glassmorphism backdrop blur layer */}
-							<div className="absolute inset-0 backdrop-blur-xs rounded-xl" />
+						{/* Glassmorphism backdrop blur layer */}
+						<div className="absolute inset-0 backdrop-blur-xs rounded-xl" />
 
-							{/* Border */}
-							<div className="absolute inset-0 border-4 border-stone-600 rounded-xl transition-colors duration-300 group-hover:border-stone-500" />
+						{/* Border */}
+						<div className="absolute inset-0 border-4 border-stone-600 rounded-xl transition-colors duration-300 group-hover:border-stone-500" />
 
-							{/* Top accent line */}
-							<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+						{/* Top accent line */}
+						<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-							{/* Content */}
-							<div className="relative flex items-center justify-center gap-4">
-								<div className="flex-1 text-left pl-4">
-									<h2 className="text-2xl font-bold text-stone-200 group-hover:text-stone-100 transition-colors drop-shadow-md">
-										1. ABOUT
-									</h2>
-									<p className="text-stone-400 text-sm group-hover:text-stone-300 transition-colors mt-1">
-										{hasConsented
-											? "Review data collection information"
-											: "Read about data collection & consent"}
-									</p>
-								</div>
-								<div className="flex items-center gap-2">
-									{hasConsented && (
-										<div className="flex flex-col items-end gap-1">
-											<span className="text-green-400 text-xs font-semibold">✓ Consented</span>
-											{isFullscreen && (
-												<span className="text-blue-400 text-xs font-semibold">✓ Fullscreen</span>
-											)}
-										</div>
-									)}
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										className="h-8 w-8 text-stone-400 group-hover:text-stone-300 transition-colors"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke="currentColor"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-										/>
-									</svg>
-								</div>
+						{/* Content */}
+						<div className="relative flex items-center justify-center gap-4">
+							<div className="flex-1 text-left pl-4">
+								<h2 className="text-2xl font-bold text-stone-200 group-hover:text-stone-100 transition-colors drop-shadow-md">
+									1. ABOUT
+								</h2>
+								<p className="text-stone-400 text-sm group-hover:text-stone-300 transition-colors mt-1">
+									{hasConsented
+										? "Review data collection information"
+										: "Read about data collection & consent"}
+								</p>
 							</div>
+							<div className="flex items-center gap-2">
+								{hasConsented && (
+									<span className="text-green-400 text-xs font-semibold">✓ Consented</span>
+								)}
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									className="h-8 w-8 text-stone-400 group-hover:text-stone-300 transition-colors"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+									/>
+								</svg>
+							</div>
+						</div>
 
-							{/* Bottom border accent */}
-							<div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-						</button>
+						{/* Bottom border accent */}
+						<div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+					</button>
 
-						{/* Play Game Button */}
-						<Link
-							to="/game"
-							className={`group relative overflow-hidden rounded-xl p-8 text-center transition-all duration-300 focus:outline-none w-full ${
-								hasConsented && isFullscreen
-									? "hover:scale-105 cursor-pointer active:scale-95 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-800"
-									: "cursor-not-allowed opacity-50"
+					{/* 2. Participant Information Button */}
+					<button
+						type="button"
+						onClick={handleParticipantInfoClick}
+						disabled={!hasConsented}
+						className={`group relative overflow-hidden rounded-xl p-6 text-center transition-all duration-300 focus:outline-none w-full ${
+							hasConsented
+								? "hover:scale-105 cursor-pointer active:scale-95 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-800"
+								: "cursor-not-allowed opacity-50"
+						}`}
+					>
+						{/* Gradient Background */}
+						<div className="absolute inset-0 bg-linear-to-br from-stone-800 via-stone-700 to-stone-800 opacity-80" />
+
+						{/* Glassmorphism backdrop blur layer */}
+						<div className="absolute inset-0 backdrop-blur-xs rounded-xl" />
+
+						{/* Border */}
+						<div
+							className={`absolute inset-0 border-4 rounded-xl transition-colors duration-300 ${
+								hasConsented ? "border-stone-600 group-hover:border-stone-500" : "border-stone-700"
 							}`}
-							disabled={!hasConsented || !isFullscreen}
-							onClick={(e) => {
-								if (!hasConsented || !isFullscreen) {
-									e.preventDefault()
-								}
-							}}
-						>
-							{/* Gradient Background */}
-							<div className="absolute inset-0 bg-linear-to-br from-amber-950 via-amber-900 to-yellow-950 opacity-80" />
+						/>
 
-							{/* Glassmorphism backdrop blur layer */}
-							<div className="absolute inset-0 backdrop-blur-xs rounded-xl" />
+						{/* Top accent line */}
+						{hasConsented && (
+							<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+						)}
 
-							{/* Border */}
-							<div
-								className={`absolute inset-0 border-4 rounded-xl transition-colors duration-300 ${
-									hasConsented && isFullscreen
-										? "border-amber-800 group-hover:border-amber-700"
-										: "border-amber-900"
+						{/* Content */}
+						<div className="relative flex items-center justify-center gap-4">
+							<div className="flex-1 text-left pl-4">
+								<h2
+									className={`text-2xl font-bold transition-colors drop-shadow-md ${
+										hasConsented ? "text-stone-200 group-hover:text-stone-100" : "text-stone-600"
+									}`}
+								>
+									2. PARTICIPANT INFO
+								</h2>
+								<p
+									className={`text-sm transition-colors mt-1 ${
+										hasConsented ? "text-stone-400 group-hover:text-stone-300" : "text-stone-600"
+									}`}
+								>
+									{participant
+										? "Click to edit information"
+										: hasConsented
+											? "Enter your information"
+											: "Complete consent first"}
+								</p>
+							</div>
+							<div className="flex items-center gap-2">
+								{participant && (
+									<span className="text-green-400 text-xs font-semibold">✓ Complete</span>
+								)}
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									className={`h-8 w-8 transition-colors ${
+										hasConsented ? "text-stone-400 group-hover:text-stone-300" : "text-stone-600"
+									}`}
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+									/>
+								</svg>
+							</div>
+						</div>
+
+						{/* Bottom border accent */}
+						{hasConsented && (
+							<div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+						)}
+					</button>
+
+					{/* 3. Start Experiment Button */}
+					<button
+						type="button"
+						onClick={handleStartExperiment}
+						disabled={!hasConsented || !participant}
+						className={`group relative overflow-hidden rounded-xl p-8 text-center transition-all duration-300 focus:outline-none w-full ${
+							hasConsented && participant
+								? "hover:scale-105 cursor-pointer active:scale-95 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-800"
+								: "cursor-not-allowed opacity-50"
+						}`}
+					>
+						{/* Gradient Background */}
+						<div className="absolute inset-0 bg-linear-to-br from-amber-950 via-amber-900 to-yellow-950 opacity-80" />
+
+						{/* Glassmorphism backdrop blur layer */}
+						<div className="absolute inset-0 backdrop-blur-xs rounded-xl" />
+
+						{/* Border */}
+						<div
+							className={`absolute inset-0 border-4 rounded-xl transition-colors duration-300 ${
+								hasConsented && participant
+									? "border-amber-800 group-hover:border-amber-700"
+									: "border-amber-900"
+							}`}
+						/>
+
+						{/* Top accent line */}
+						{hasConsented && participant && (
+							<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+						)}
+
+						{/* Corner decorations */}
+						{hasConsented && participant && (
+							<>
+								<div className="absolute top-1 left-1 w-3 h-3 border-l-2 border-t-2 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+								<div className="absolute top-1 right-1 w-3 h-3 border-r-2 border-t-2 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+								<div className="absolute bottom-1 left-1 w-3 h-3 border-l-2 border-b-2 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+								<div className="absolute bottom-1 right-1 w-3 h-3 border-r-2 border-b-2 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+							</>
+						)}
+
+						{/* Content */}
+						<div className="relative flex flex-col items-center gap-4">
+							<CrossedSwordIcon
+								className={`size-16 shrink-0 drop-shadow-lg transition-colors ${
+									hasConsented && participant ? "text-amber-300" : "text-amber-800"
 								}`}
 							/>
-
-							{/* Top accent line */}
-							{hasConsented && isFullscreen && (
-								<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-							)}
-
-							{/* Corner decorations */}
-							{hasConsented && isFullscreen && (
-								<>
-									<div className="absolute top-1 left-1 w-3 h-3 border-l-2 border-t-2 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-									<div className="absolute top-1 right-1 w-3 h-3 border-r-2 border-t-2 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-									<div className="absolute bottom-1 left-1 w-3 h-3 border-l-2 border-b-2 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-									<div className="absolute bottom-1 right-1 w-3 h-3 border-r-2 border-b-2 border-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-								</>
-							)}
-
-							{/* Content */}
-							<div className="relative flex flex-col items-center gap-4">
-								<CrossedSwordIcon
-									className={`size-16 shrink-0 drop-shadow-lg transition-colors ${
-										hasConsented && isFullscreen ? "text-amber-300" : "text-amber-800"
+							<div className="flex-1">
+								<h2
+									className={`text-3xl font-bold drop-shadow-md mb-2 transition-colors ${
+										hasConsented && participant
+											? "text-amber-100 group-hover:text-amber-50"
+											: "text-amber-800"
 									}`}
-								/>
-								<div className="flex-1">
-									<h2
-										className={`text-3xl font-bold drop-shadow-md mb-2 transition-colors ${
-											hasConsented && isFullscreen
-												? "text-amber-100 group-hover:text-amber-50"
-												: "text-amber-800"
-										}`}
-									>
-										2. PLAY GAME
-									</h2>
-									<p
-										className={`text-sm transition-colors ${
-											hasConsented && isFullscreen
-												? "text-amber-200 group-hover:text-amber-100"
-												: "text-amber-800"
-										}`}
-									>
-										{hasConsented && isFullscreen
-											? "16 pairs to match • Recording enabled"
-											: hasConsented
-												? "Enter fullscreen mode to play"
-												: "Complete consent before playing"}
-									</p>
-								</div>
+								>
+									3. START EXPERIMENT
+								</h2>
+								<p
+									className={`text-sm transition-colors ${
+										hasConsented && participant
+											? "text-amber-200 group-hover:text-amber-100"
+											: "text-amber-800"
+									}`}
+								>
+									{hasConsented && participant
+										? "Begin setup & data collection"
+										: !hasConsented
+											? "Complete consent first"
+											: "Enter participant info first"}
+								</p>
 							</div>
+						</div>
 
-							{/* Bottom border accent */}
-							{hasConsented && isFullscreen && (
-								<div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-							)}
-						</Link>
-					</div>
+						{/* Bottom border accent */}
+						{hasConsented && participant && (
+							<div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+						)}
+					</button>
+				</div>
 
-					{/* Footer */}
-					<div className="mt-12 text-center space-y-4">
-						<p className="text-stone-400 text-sm">
-							{hasConsented && isFullscreen
-								? "Thank you for participating in gaze estimation research"
-								: hasConsented
-									? "Enter fullscreen mode to begin data collection"
-									: "Read the About section to learn more and provide consent"}
-						</p>
-						{/* Test Calibration Button */}
-						<button
-							type="button"
-							onClick={() => setShowCalibration(true)}
-							className="px-4 py-2 bg-stone-700 hover:bg-stone-600 text-stone-300 text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500"
-						>
-							Test Calibration Overlay
-						</button>
-					</div>
+				{/* Footer */}
+				<div className="mt-12 text-center space-y-4">
+					<p className="text-stone-400 text-sm">
+						{!hasConsented
+							? "Step 1: Read the About section to learn more and provide consent"
+							: !participant
+								? "Step 2: Enter your participant information"
+								: "Step 3: Click 'Start Experiment' to begin data collection"}
+					</p>
 				</div>
 			</div>
-		</>
+		</div>
 	)
 }
