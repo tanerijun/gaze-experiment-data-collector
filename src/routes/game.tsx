@@ -1,10 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { useCallback, useEffect, useState } from "react"
-import FullscreenMonitor from "@/components/fullscreen-monitor"
-import GameBoard from "@/components/game-board"
-import GameNavbar from "@/components/game-navbar"
+import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { ExportDialog } from "@/components/export-dialog"
+import { FullscreenMonitor } from "@/components/fullscreen-monitor"
+import { GameBoard } from "@/components/game-board"
+import { GameNavbar } from "@/components/game-navbar"
+import { RecordingIndicator } from "@/components/recording-indicator"
 import { useInterval } from "@/hooks/use-interval"
+import { extractCardPositions } from "@/lib/click-tracker"
 import { checkMatch, GRID_CONFIG, initializeGame } from "@/lib/game-utils"
+import { useRecordingStore } from "@/lib/recording-store"
 import type { Card, GameState, GameStats } from "@/lib/types"
 
 export const Route = createFileRoute("/game")({
@@ -22,6 +26,28 @@ function RouteComponent() {
 	})
 	const [isChecking, setIsChecking] = useState(false)
 	const [isPausedByFullscreen, setIsPausedByFullscreen] = useState(false)
+	const hasInitialized = useRef(false)
+	const navigate = useNavigate()
+	const isRecording = useRecordingStore((state) => state.isRecording)
+	const setCardPositions = useRecordingStore((state) => state.setCardPositions)
+	const markGameStart = useRecordingStore((state) => state.markGameStart)
+	const markGameEnd = useRecordingStore((state) => state.markGameEnd)
+	const updateGameMetadata = useRecordingStore((state) => state.updateGameMetadata)
+	const setShowExportDialog = useRecordingStore((state) => state.setShowExportDialog)
+	const showExportDialog = useRecordingStore((state) => state.showExportDialog)
+	const stopRecording = useRecordingStore((state) => state.stopRecording)
+	const resetSession = useRecordingStore((state) => state.resetSession)
+
+	// Set card positions and mark game start when component mounts
+	useEffect(() => {
+		if (cards.length > 0 && isRecording && !hasInitialized.current) {
+			hasInitialized.current = true
+			// Extract card positions from DOM and save it
+			const positions = extractCardPositions(cards)
+			setCardPositions(positions)
+			markGameStart()
+		}
+	}, [cards, isRecording, setCardPositions, markGameStart])
 
 	useInterval(
 		() => {
@@ -40,8 +66,17 @@ function RouteComponent() {
 		const allMatched = cards.every((card) => card.isMatched)
 		if (allMatched) {
 			setGameState("won")
+			// Mark game end and update metadata
+			if (isRecording) {
+				markGameEnd()
+				updateGameMetadata({
+					duration: stats.timeElapsed,
+					totalMoves: stats.moves,
+					totalMatches: stats.matches,
+				})
+			}
 		}
-	}, [cards, gameState])
+	}, [cards, gameState, isRecording, markGameEnd, updateGameMetadata, stats])
 
 	// Handle card click
 	const handleCardClick = useCallback(
@@ -62,11 +97,20 @@ function RouteComponent() {
 				setIsChecking(true)
 				const [first, second] = newFlippedCards
 
-				// Increment moves
-				setStats((prev) => ({
-					...prev,
-					moves: prev.moves + 1,
-				}))
+				setStats((prev) => {
+					const newStats = {
+						...prev,
+						moves: prev.moves + 1,
+					}
+
+					if (isRecording) {
+						updateGameMetadata({
+							totalMoves: newStats.moves,
+						})
+					}
+
+					return newStats
+				})
 
 				if (checkMatch(first, second)) {
 					// Match found!
@@ -76,10 +120,20 @@ function RouteComponent() {
 						),
 					)
 
-					setStats((prev) => ({
-						...prev,
-						matches: prev.matches + 1,
-					}))
+					setStats((prev) => {
+						const newStats = {
+							...prev,
+							matches: prev.matches + 1,
+						}
+
+						if (isRecording) {
+							updateGameMetadata({
+								totalMatches: newStats.matches,
+							})
+						}
+
+						return newStats
+					})
 
 					setFlippedCards([])
 					setIsChecking(false)
@@ -99,14 +153,43 @@ function RouteComponent() {
 				}
 			}
 		},
-		[flippedCards, isChecking],
+		[flippedCards, isChecking, isRecording, updateGameMetadata],
 	)
+
+	const handleReturnToMenu = async () => {
+		try {
+			// Stop recording and clean up
+			await stopRecording()
+
+			// Exit fullscreen if in fullscreen mode
+			if (document.fullscreenElement) {
+				await document.exitFullscreen().catch((err) => {
+					console.warn("Failed to exit fullscreen:", err)
+				})
+			}
+
+			// Reset session state
+			resetSession()
+
+			// Navigate to main menu
+			navigate({ to: "/" })
+		} catch (error) {
+			console.error("Failed to return to menu:", error)
+			alert("Failed to return to menu. Please try again.")
+		}
+	}
 
 	return (
 		<div
 			className="min-h-screen h-screen bg-cover bg-center bg-no-repeat text-stone-50 flex flex-col overflow-hidden"
 			style={{ backgroundImage: "url(/main-menu-bg.png)" }}
 		>
+			{/* Recording Indicator */}
+			<RecordingIndicator />
+
+			{/* Export Dialog */}
+			{showExportDialog && <ExportDialog onClose={() => setShowExportDialog(false)} />}
+
 			{/* Fullscreen Monitor - pauses game when user exits fullscreen */}
 			<FullscreenMonitor
 				enabled={gameState === "playing"}
@@ -158,10 +241,43 @@ function RouteComponent() {
 							</p>
 						</div>
 
+						{/* Export data button (if recording) */}
+						{isRecording && (
+							<button
+								type="button"
+								onClick={() => setShowExportDialog(true)}
+								className="w-full group relative overflow-hidden py-3 px-6 bg-linear-to-br from-green-700 to-emerald-600 hover:from-green-600 hover:to-emerald-500 text-white font-bold rounded-lg shadow-lg border-2 border-green-400 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer mb-3"
+							>
+								{/* Button shine effect */}
+								<div className="absolute inset-0 bg-linear-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+
+								{/* Top border accent */}
+								<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-green-200 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+								<span className="relative z-10 flex items-center justify-center">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										className="h-5 w-5 mr-2"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+											d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+										/>
+									</svg>
+									Export Session Data
+								</span>
+							</button>
+						)}
+
 						{/* Return to menu button */}
-						<Link
-							to="/"
-							className="w-full group relative overflow-hidden py-3 px-6 bg-linear-to-br from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-amber-950 font-bold rounded-lg shadow-lg border-2 border-yellow-400 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer block"
+						<button
+							type="button"
+							onClick={handleReturnToMenu}
+							className="w-full group relative overflow-hidden py-3 px-6 bg-linear-to-br from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-amber-950 font-bold rounded-lg shadow-lg border-2 border-yellow-400 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
 						>
 							{/* Button shine effect */}
 							<div className="absolute inset-0 bg-linear-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
@@ -169,7 +285,7 @@ function RouteComponent() {
 							{/* Top border accent */}
 							<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-200 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 							<span className="relative z-10">Return to Menu</span>
-						</Link>
+						</button>
 					</div>
 				</div>
 			)}

@@ -244,3 +244,35 @@ export async function getStorageEstimate(): Promise<{
 		return { usage: 0, quota: 0, percentage: 0 }
 	}
 }
+
+/**
+ * Calculate total size of video chunks for a session efficiently
+ * Uses a cursor to avoid loading blobs into memory
+ */
+export async function calculateSessionVideoSize(sessionId: string): Promise<number> {
+	const db = await initDB()
+
+	return new Promise((resolve, reject) => {
+		const transaction = db.transaction([VIDEO_CHUNKS_STORE], "readonly")
+		const store = transaction.objectStore(VIDEO_CHUNKS_STORE)
+		const index = store.index("sessionId")
+		const request = index.openCursor(IDBKeyRange.only(sessionId))
+
+		let totalSize = 0
+
+		request.onsuccess = (event) => {
+			const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result
+			if (cursor) {
+				// Browsers are smart enough not to load the full Blob binary into RAM
+				// if we only touch the .size property.
+				const chunk = cursor.value
+				totalSize += chunk.data.size
+				cursor.continue()
+			} else {
+				resolve(totalSize)
+			}
+		}
+
+		request.onerror = () => reject(new Error("Failed to calculate session video size"))
+	})
+}
