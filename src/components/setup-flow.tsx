@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
 import { useRecordingStore } from "@/lib/recording-store"
 import type { CalibrationData } from "@/lib/types"
-import CalibrationOverlay, { type CalibrationResult } from "./calibration-overlay"
+import { CalibrationOverlay, type CalibrationResult } from "./calibration-overlay"
 import { AlertIcon, CheckmarkIcon, LoadingIcon } from "./icons"
-import WebcamPreview from "./webcam-preview"
+import { WebcamPreview } from "./webcam-preview"
 
 type SetupStep = "webcam" | "screen-recording" | "fullscreen" | "calibration" | "complete"
 

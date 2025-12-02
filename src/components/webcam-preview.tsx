@@ -7,7 +7,7 @@ interface WebcamPreviewProps {
 	onPermissionDenied?: (error: Error) => void
 }
 
-export default function WebcamPreview({
+export function WebcamPreview({
 	onStreamReady,
 	onPermissionGranted,
 	onPermissionDenied,
