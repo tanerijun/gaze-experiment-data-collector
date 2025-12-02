@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { CrossedSwordIcon } from "@/components/icons"
 import ParticipantForm from "@/components/participant-form"
+import { SessionCleanupDialog } from "@/components/session-recovery-dialog"
 import { SetupFlow } from "@/components/setup-flow"
 import { CONSENT_TEXT, useConsentStore } from "@/lib/consent"
 import { useCustomDialog } from "@/lib/dialog/hooks"
+import { getAllSessions } from "@/lib/indexed-db"
 import { useRecordingStore } from "@/lib/recording-store"
 
 export const Route = createFileRoute("/")({ component: App })
@@ -16,6 +18,22 @@ function App() {
 	const participant = useRecordingStore((s) => s.participant)
 	const navigate = useNavigate()
 	const [showSetupFlow, setShowSetupFlow] = useState(false)
+	const [showCleanup, setShowCleanup] = useState(false)
+	const [hasStaleSessions, setHasStaleSessions] = useState(false)
+
+	useEffect(() => {
+		const checkStorage = async () => {
+			try {
+				const sessions = await getAllSessions()
+				// Check if any session is stuck in 'recording' or 'error' state
+				const isStale = sessions.some((s) => s.status === "recording" || s.status === "error")
+				setHasStaleSessions(isStale)
+			} catch (e) {
+				console.error("Failed to check storage:", e)
+			}
+		}
+		checkStorage()
+	}, [])
 
 	const handleAboutClick = () => {
 		show({
@@ -177,6 +195,18 @@ function App() {
 
 	return (
 		<>
+			{showCleanup && (
+				<SessionCleanupDialog
+					onClose={() => {
+						setShowCleanup(false)
+						// Re-check sessions when dialog closes to see if we should hide the button
+						getAllSessions().then((s) =>
+							setHasStaleSessions(s.some((x) => x.status === "recording" || x.status === "error")),
+						)
+					}}
+				/>
+			)}
+
 			{showSetupFlow && <SetupFlow onComplete={handleSetupComplete} onCancel={handleSetupCancel} />}
 
 			<div
@@ -184,6 +214,30 @@ function App() {
 				style={{ backgroundImage: "url(/main-menu-bg.png)" }}
 			>
 				<div className="max-w-2xl w-full z-10">
+					{hasStaleSessions && (
+						<button
+							type="button"
+							onClick={() => setShowCleanup(true)}
+							className="absolute bottom-4 left-4 z-40 flex items-center gap-2 bg-red-950/80 hover:bg-red-900 text-red-200 px-4 py-2 rounded-lg backdrop-blur-sm border border-red-800 transition-all shadow-lg animate-in fade-in slide-in-from-bottom-4 hover:scale-105"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								className="h-5 w-5"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+								/>
+							</svg>
+							<span className="text-sm font-semibold">Clear Incomplete Data</span>
+						</button>
+					)}
+
 					{/* Header */}
 					<div className="text-center mb-12">
 						<h1 className="text-5xl sm:text-7xl font-bold bg-linear-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent mb-4 drop-shadow-lg">
