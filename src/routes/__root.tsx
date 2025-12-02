@@ -5,7 +5,7 @@ import {
 	HeadContent,
 	Scripts,
 } from "@tanstack/react-router"
-import FullscreenButton from "@/components/fullscreen-button"
+import { FullscreenButton } from "@/components/fullscreen-button"
 import { DialogProvider } from "@/lib/dialog/provider"
 import appCss from "../styles.css?url"
 

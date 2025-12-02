@@ -1,8 +1,15 @@
+import { useLocation } from "@tanstack/react-router"
 import { useFullscreen } from "@/hooks/use-fullscreen"
 import { cn } from "@/lib/utils"
 
-export default function FullscreenButton({ className }: { className?: string }) {
+export function FullscreenButton({ className }: { className?: string }) {
 	const { isFullscreen, isSupported, toggle } = useFullscreen()
+	const location = useLocation()
+
+	// Hide button on game route (game must stay fullscreen)
+	if (location.pathname === "/game") {
+		return null
+	}
 
 	if (!isSupported) {
 		return null
