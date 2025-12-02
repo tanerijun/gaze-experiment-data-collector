@@ -1,12 +1,14 @@
 import type { Card as CardType } from "@/lib/types"
 
-interface CardProps {
+export function Card({
+	card,
+	onClick,
+	disabled,
+}: {
 	card: CardType
 	onClick: (card: CardType) => void
 	disabled: boolean
-}
-
-export default function Card({ card, onClick, disabled }: CardProps) {
+}) {
 	const handleClick = () => {
 		if (!disabled && !card.isFlipped && !card.isMatched) {
 			onClick(card)
@@ -17,6 +19,7 @@ export default function Card({ card, onClick, disabled }: CardProps) {
 		// biome-ignore lint/a11y/noStaticElementInteractions: <special card>
 		// biome-ignore lint/a11y/useKeyWithClickEvents: <special card>
 		<div
+			data-card-id={card.id}
 			className={`relative w-full h-full cursor-pointer transition-transform duration-200 ${
 				!disabled && !card.isFlipped && !card.isMatched ? "hover:scale-[1.03]" : ""
 			}`}

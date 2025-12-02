@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { calculateOptimalLayout } from "@/lib/game-utils"
 import type { Card as CardType, GridConfig } from "@/lib/types"
-import Card from "./card"
+import { Card } from "./card"
 
 interface GameBoardProps {
 	cards: CardType[]
@@ -10,7 +10,7 @@ interface GameBoardProps {
 	disabled: boolean
 }
 
-export default function GameBoard({ cards, gridConfig, onCardClick, disabled }: GameBoardProps) {
+export function GameBoard({ cards, gridConfig, onCardClick, disabled }: GameBoardProps) {
 	const containerRef = useRef<HTMLDivElement>(null)
 	const [layout, setLayout] = useState(() => {
 		const initialLayout = calculateOptimalLayout(
