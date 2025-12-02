@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useEffectEvent, useState } from "react"
 import { useFullscreen } from "@/hooks/use-fullscreen"
 
 interface FullscreenMonitorProps {
@@ -7,25 +7,31 @@ interface FullscreenMonitorProps {
 	onEnterFullscreen?: () => void
 }
 
-export default function FullscreenMonitor({
+function doNothing() {
+	return
+}
+
+export function FullscreenMonitor({
 	enabled = true,
 	onExitFullscreen,
 	onEnterFullscreen,
 }: FullscreenMonitorProps) {
 	const { isFullscreen, enter, isSupported } = useFullscreen()
 	const [showWarning, setShowWarning] = useState(false)
+	const handleExitFullscreen = useEffectEvent(onExitFullscreen || doNothing)
+	const handleEnterFullscreen = useEffectEvent(onEnterFullscreen || doNothing)
 
 	useEffect(() => {
 		if (!enabled || !isSupported) return
 
 		if (!isFullscreen) {
 			setShowWarning(true)
-			onExitFullscreen?.()
+			handleExitFullscreen()
 		} else {
 			setShowWarning(false)
-			onEnterFullscreen?.()
+			handleEnterFullscreen()
 		}
-	}, [isFullscreen, enabled, isSupported, onExitFullscreen, onEnterFullscreen])
+	}, [isFullscreen, enabled, isSupported])
 
 	if (!enabled || !showWarning || !isSupported) {
 		return null
