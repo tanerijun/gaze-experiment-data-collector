@@ -57,7 +57,7 @@ interface RecordingState {
 	markGameStart: () => void
 	markGameEnd: () => void
 	updateGameMetadata: (metadata: Partial<GameMetadata>) => void
-	resetSession: () => void
+	resetSession: (softReset?: boolean) => void
 
 	// UI actions
 	setShowParticipantDialog: (show: boolean) => void
@@ -272,8 +272,8 @@ export const useRecordingStore = create<RecordingState>()(
 				}
 			},
 
-			resetSession: () => {
-				const { clickTracker, webcamStream, screenStream } = get()
+			resetSession: (softReset = false) => {
+				const { clickTracker, webcamStream, screenStream, participant } = get()
 
 				// Clean up
 				clickTracker?.stop()
@@ -284,7 +284,7 @@ export const useRecordingStore = create<RecordingState>()(
 
 				set({
 					sessionId: null,
-					participant: null,
+					participant: softReset ? participant : null,
 					calibrationData: null,
 					recordingManager: null,
 					clickTracker: null,

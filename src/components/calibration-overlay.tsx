@@ -1,16 +1,12 @@
 import { useState } from "react"
+import { FullscreenMonitor } from "./fullscreen-monitor"
+import { AlertIcon, CheckmarkIcon } from "./icons"
 
 interface CalibrationPoint {
 	id: string
 	x: number // percentage
 	y: number // percentage
 	label: string
-}
-
-interface CalibrationOverlayProps {
-	onComplete?: (results: CalibrationResult[]) => void
-	onClose?: () => void
-	showIntro?: boolean
 }
 
 export interface CalibrationResult {
@@ -34,27 +30,44 @@ const CALIBRATION_POINTS: CalibrationPoint[] = [
 	{ id: "bottom-right", x: 95, y: 95, label: "Bottom Right" },
 ]
 
-export default function CalibrationOverlay({
+export function CalibrationOverlay({
 	onComplete,
 	onClose,
+	onCancel,
 	showIntro = true,
-}: CalibrationOverlayProps) {
+}: {
+	onComplete?: (results: CalibrationResult[]) => void
+	onClose?: () => void
+	onCancel?: () => void
+	showIntro?: boolean
+}) {
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [isPulsing, setIsPulsing] = useState(false)
 	const [results, setResults] = useState<CalibrationResult[]>([])
 	const [isComplete, setIsComplete] = useState(false)
 	const [showingIntro, setShowingIntro] = useState(showIntro)
-
+	const [isFailed, setIsFailed] = useState(false)
 	const currentPoint = CALIBRATION_POINTS[currentIndex]
 
-	// Check if calibration is complete
-	if (currentIndex >= CALIBRATION_POINTS.length && !isComplete) {
-		setIsComplete(true)
-		onComplete?.(results)
+	const handleFullscreenExit = () => {
+		// If we are already done or showing intro, it's fine
+		if (isComplete || showingIntro) return
+
+		// Otherwise, FAIL the calibration
+		setIsFailed(true)
+	}
+
+	const handleRestart = async () => {
+		setCurrentIndex(0)
+		setIsPulsing(false)
+		setResults([])
+		setIsComplete(false)
+		setIsFailed(false)
+		setShowingIntro(true)
 	}
 
 	const handlePointClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		if (isPulsing || isComplete) return
+		if (isPulsing || isComplete || isFailed) return
 
 		const result: CalibrationResult = {
 			pointId: currentPoint.id,
@@ -68,28 +81,75 @@ export default function CalibrationOverlay({
 		setResults((prev) => [...prev, result])
 		setIsPulsing(true)
 
-		// Pulse for 1 second, then move to next point
+		// Pulse for a bit, then move to next point
 		setTimeout(() => {
 			setIsPulsing(false)
-			setCurrentIndex((prev) => prev + 1)
+			if (currentIndex < CALIBRATION_POINTS.length - 1) {
+				setCurrentIndex((prev) => prev + 1)
+			} else {
+				setIsComplete(true)
+				onComplete?.([...results, result])
+			}
 		}, 1000)
 	}
 
-	const handleRestart = () => {
-		setCurrentIndex(0)
-		setIsPulsing(false)
-		setResults([])
-		setIsComplete(false)
+	const handleStartCalibration = async () => {
+		if (!document.fullscreenElement) {
+			try {
+				await document.documentElement.requestFullscreen()
+			} catch (e) {
+				console.error("Fullscreen request failed", e)
+			}
+		}
+		setShowingIntro(false)
 	}
 
-	const handleStartCalibration = () => {
-		setShowingIntro(false)
+	if (isFailed) {
+		return (
+			<div className="fixed inset-0 z-50 bg-stone-950 flex items-center justify-center p-4">
+				<div className="max-w-md w-full bg-stone-800 border-4 border-red-600 rounded-xl p-8 shadow-2xl text-center relative overflow-hidden">
+					<div className="absolute inset-0 bg-red-950/20 pointer-events-none" />
+
+					<div className="relative z-10">
+						<div className="flex justify-center mb-6">
+							<div className="p-4 bg-red-950/50 rounded-full border border-red-800">
+								<AlertIcon className="h-16 w-16 text-red-500" />
+							</div>
+						</div>
+
+						<h2 className="text-3xl font-bold text-red-100 mb-2">Calibration Failed</h2>
+
+						<p className="text-stone-300 mb-8 text-lg">
+							You exited fullscreen mode during calibration. The data is now invalid.
+						</p>
+
+						<div className="flex flex-col gap-3">
+							<button
+								type="button"
+								onClick={handleRestart}
+								className="w-full px-6 py-4 bg-red-700 hover:bg-red-600 text-white font-bold rounded-lg transition-colors shadow-lg active:scale-95"
+							>
+								Restart Calibration
+							</button>
+							<button
+								type="button"
+								onClick={onCancel}
+								className="w-full px-6 py-3 bg-stone-700 hover:bg-stone-600 text-stone-300 font-semibold rounded-lg transition-colors"
+							>
+								{"Abort & Exit"}
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		)
 	}
 
 	// Show intro dialog
 	if (showingIntro) {
 		return (
 			<div className="fixed inset-0 z-50 bg-stone-950 flex items-center justify-center p-4">
+				<FullscreenMonitor enabled={true} />
 				<div className="max-w-lg bg-stone-800 border-4 border-amber-600 rounded-xl p-8 shadow-2xl">
 					<div className="space-y-6 text-center">
 						<h2 className="text-3xl font-bold text-amber-100">Gaze Calibration</h2>
@@ -130,6 +190,10 @@ export default function CalibrationOverlay({
 
 	return (
 		<div className="fixed inset-0 z-50 bg-stone-950 flex items-center justify-center">
+			<FullscreenMonitor
+				enabled={!isFailed && !isComplete}
+				onExitFullscreen={handleFullscreenExit}
+			/>
 			{/* Calibration point */}
 			{!isComplete && currentPoint && (
 				<button
@@ -197,20 +261,7 @@ export default function CalibrationOverlay({
 			{isComplete && (
 				<div className="text-center space-y-6 animate-in fade-in zoom-in-95 duration-300">
 					<div className="flex justify-center">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							className="h-20 w-20 text-green-500"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-							/>
-						</svg>
+						<CheckmarkIcon className="size-20 text-green-500" />
 					</div>
 					<h2 className="text-2xl font-bold text-amber-100">Calibration Complete!</h2>
 					<p className="text-stone-300">All calibration points captured successfully!</p>

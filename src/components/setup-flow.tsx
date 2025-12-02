@@ -50,7 +50,7 @@ export function SetupFlow({
 	const [error, setError] = useState<string | null>(null)
 	const [isRequestingFullscreen, setIsRequestingFullscreen] = useState(false)
 	const [isStartingRecording, setIsStartingRecording] = useState(false)
-	const { setCalibrationData, startVideoStreams, finalizeSetup } = useRecordingStore()
+	const { setCalibrationData, startVideoStreams, finalizeSetup, resetSession } = useRecordingStore()
 
 	// Monitor Fullscreen state
 	useEffect(() => {
@@ -63,6 +63,11 @@ export function SetupFlow({
 		document.addEventListener("fullscreenchange", handleFullscreenChange)
 		return () => document.removeEventListener("fullscreenchange", handleFullscreenChange)
 	}, [currentStep])
+
+	const handleAbort = () => {
+		resetSession(true)
+		onCancel()
+	}
 
 	const handleWebcamStreamReady = (stream: MediaStream) => {
 		if (!webcamStream) {
@@ -285,6 +290,7 @@ export function SetupFlow({
 			<CalibrationOverlay
 				onComplete={handleCalibrationComplete}
 				onClose={handleCalibrationClose}
+				onCancel={handleAbort}
 				showIntro={true}
 			/>
 		)
