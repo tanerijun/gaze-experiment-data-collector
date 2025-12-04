@@ -64,7 +64,13 @@ export class ClickTracker {
 		let targetX: number | null = null
 		let targetY: number | null = null
 
-		if (cardElement) {
+		if (spiritElement) {
+			// For explicit calibration clicks (dungeon spirit)
+			const rect = spiritElement.getBoundingClientRect()
+			targetX = rect.left + rect.width / 2
+			targetY = rect.top + rect.height / 2
+		} else if (cardElement) {
+			// For implicit clicks on cards
 			cardId = cardElement.getAttribute("data-card-id")
 			const rect = cardElement.getBoundingClientRect()
 			targetX = rect.left + rect.width / 2
