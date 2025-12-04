@@ -24,6 +24,9 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 		recordingDuration,
 		webcamMimeType,
 		screenMimeType,
+		screenResolution,
+		screenStreamResolution,
+		webcamResolution,
 	} = useRecordingStore()
 
 	const handleExport = async () => {
@@ -44,8 +47,12 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 				participant,
 				recordingStartTime,
 				recordingDuration,
-				screenResolution: { width: window.screen.width, height: window.screen.height },
-				webcamResolution: { width: 1280, height: 720 }, // Default, should be from actual stream
+				screenResolution: screenResolution || {
+					width: window.screen.width,
+					height: window.screen.height,
+				},
+				screenStreamResolution: screenStreamResolution || { width: 0, height: 0 },
+				webcamResolution: webcamResolution || { width: 1280, height: 720 },
 				initialCalibration: calibrationData,
 				cardPositions,
 				gameStartTimestamp,

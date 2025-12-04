@@ -26,11 +26,14 @@ interface RecordingState {
 	recordingStartTime: number
 	recordingDuration: number
 
-	// Video streams
+	// Video streams and resolutions
 	webcamStream: MediaStream | null
 	screenStream: MediaStream | null
 	webcamMimeType: string | undefined
 	screenMimeType: string | undefined
+	screenResolution: { width: number; height: number } | null
+	screenStreamResolution: { width: number; height: number } | null
+	webcamResolution: { width: number; height: number } | null
 
 	// Game data
 	clicks: ClickData[]
@@ -86,6 +89,9 @@ export const useRecordingStore = create<RecordingState>()(
 			screenStream: null,
 			webcamMimeType: undefined,
 			screenMimeType: undefined,
+			screenResolution: null,
+			screenStreamResolution: null,
+			webcamResolution: null,
 			clicks: [],
 			cardPositions: [],
 			gameStartTimestamp: 0,
@@ -129,8 +135,15 @@ export const useRecordingStore = create<RecordingState>()(
 						sessionId,
 						participant,
 					})
-					const { webcamStream, screenStream, webcamMimeType, screenMimeType } =
-						await manager.startRecording()
+					const {
+						webcamStream,
+						screenStream,
+						webcamMimeType,
+						screenMimeType,
+						screenResolution,
+						screenStreamResolution,
+						webcamResolution,
+					} = await manager.startRecording()
 					const recordingStartTime = Date.now()
 
 					set({
@@ -143,6 +156,9 @@ export const useRecordingStore = create<RecordingState>()(
 						screenStream,
 						webcamMimeType,
 						screenMimeType,
+						screenResolution,
+						screenStreamResolution,
+						webcamResolution,
 					})
 				} catch (error) {
 					console.error("Failed to start video streams:", error)
@@ -301,6 +317,11 @@ export const useRecordingStore = create<RecordingState>()(
 					recordingDuration: 0,
 					webcamStream: null,
 					screenStream: null,
+					webcamMimeType: undefined,
+					screenMimeType: undefined,
+					screenResolution: null,
+					screenStreamResolution: null,
+					webcamResolution: null,
 					clicks: [],
 					cardPositions: [],
 					gameStartTimestamp: 0,

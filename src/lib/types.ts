@@ -103,6 +103,10 @@ export interface SessionData {
 		width: number
 		height: number
 	}
+	screenStreamResolution: {
+		width: number
+		height: number
+	}
 	webcamResolution: {
 		width: number
 		height: number
@@ -131,6 +135,10 @@ export interface RecordingSession {
 		width: number
 		height: number
 	}
+	screenStreamResolution: {
+		width: number
+		height: number
+	}
 	webcamResolution: {
 		width: number
 		height: number
@@ -138,5 +146,5 @@ export interface RecordingSession {
 	status: "recording" | "completed" | "error"
 	initialCalibration?: CalibrationData
 	webcamMimeType?: string
-  screenMimeType?: string
+	screenMimeType?: string
 }

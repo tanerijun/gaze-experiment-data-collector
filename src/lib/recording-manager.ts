@@ -65,6 +65,9 @@ export class RecordingManager {
 		screenStream: MediaStream
 		webcamMimeType: string
 		screenMimeType: string
+		screenResolution: { width: number; height: number }
+		screenStreamResolution: { width: number; height: number }
+		webcamResolution: { width: number; height: number }
 	}> {
 		if (this.isRecording) {
 			throw new Error("Recording is already in progress")
@@ -88,10 +91,15 @@ export class RecordingManager {
 				this.screenRecorder.startScreenRecording(),
 			])
 
-			const [webcamResolution, screenResolution] = await Promise.all([
+			const [webcamResolution, screenStreamResolution] = await Promise.all([
 				getStreamResolution(webcamStream),
 				getStreamResolution(screenStream),
 			])
+
+			const screenResolution = {
+				width: window.screen.width,
+				height: window.screen.height,
+			}
 
 			const webcamMimeType = this.webcamRecorder.getMimeType()
 			const screenMimeType = this.screenRecorder.getMimeType()
@@ -104,6 +112,7 @@ export class RecordingManager {
 				participant: this.participant,
 				recordingStartTime: this.recordingStartTime,
 				screenResolution,
+				screenStreamResolution,
 				webcamResolution,
 				status: "recording",
 				webcamMimeType: this.webcamRecorder.getMimeType(),
@@ -111,7 +120,15 @@ export class RecordingManager {
 			}
 
 			await storeSession(session)
-			return { webcamStream, screenStream, webcamMimeType, screenMimeType }
+			return {
+				webcamStream,
+				screenStream,
+				webcamMimeType,
+				screenMimeType,
+				screenResolution,
+				screenStreamResolution,
+				webcamResolution,
+			}
 		} catch (error) {
 			// Clean up on error
 			await this.cleanup()

@@ -21,6 +21,10 @@ export interface ExportData {
 		width: number
 		height: number
 	}
+	screenStreamResolution: {
+		width: number
+		height: number
+	}
 	webcamResolution: {
 		width: number
 		height: number

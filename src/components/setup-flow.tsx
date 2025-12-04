@@ -50,7 +50,8 @@ export function SetupFlow({
 	const [error, setError] = useState<string | null>(null)
 	const [isRequestingFullscreen, setIsRequestingFullscreen] = useState(false)
 	const [isStartingRecording, setIsStartingRecording] = useState(false)
-	const { setCalibrationData, startVideoStreams, finalizeSetup, resetSession } = useRecordingStore()
+	const { setCalibrationData, startVideoStreams, finalizeSetup, resetSession, recordingStartTime } =
+		useRecordingStore()
 
 	// Monitor Fullscreen state
 	useEffect(() => {
@@ -138,7 +139,7 @@ export function SetupFlow({
 				screenX: result.screenX,
 				screenY: result.screenY,
 				timestamp: result.timestamp,
-				videoTimestamp: 0, // Will be calculated relative to recording start
+				videoTimestamp: result.timestamp - recordingStartTime,
 			})),
 		}
 
