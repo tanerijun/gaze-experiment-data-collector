@@ -153,7 +153,7 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 						{/* Spirit emoji overlay */}
 						<div
 							className={`absolute text-2xl transition-all duration-300 ${
-								isClicked ? "opacity-100 scale-110" : "opacity-90"
+								isClicked ? "opacity-100" : "opacity-90"
 							}`}
 							style={{
 								left: "50%",
