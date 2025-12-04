@@ -6,9 +6,15 @@ import type { GameStats } from "@/lib/types"
 
 interface GameNavbarProps {
 	stats: GameStats
+	secondsUntilSpirit?: number
+	showSpiritTimer?: boolean
 }
 
-export function GameNavbar({ stats }: GameNavbarProps) {
+export function GameNavbar({
+	stats,
+	secondsUntilSpirit = 0,
+	showSpiritTimer = false,
+}: GameNavbarProps) {
 	const navigate = useNavigate()
 	const { stopRecording, resetSession } = useRecordingStore()
 	const { confirm } = useConfirmDialog()
@@ -85,6 +91,22 @@ export function GameNavbar({ stats }: GameNavbarProps) {
 						{stats.matches}
 					</span>
 				</div>
+
+				{showSpiritTimer && (
+					<>
+						<div className="h-6 sm:h-8 w-px bg-linear-to-b from-transparent via-stone-600 to-transparent" />
+
+						<div className="flex flex-col items-center">
+							<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
+								Next Spirit
+							</span>
+							<span className="text-purple-300 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center flex items-center justify-center gap-2">
+								<span>👻</span>
+								<span>{secondsUntilSpirit}s</span>
+							</span>
+						</div>
+					</>
+				)}
 			</div>
 		</div>
 	)

@@ -1,11 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { DungeonSpiritOverlay } from "@/components/dungeon-spirit-overlay"
 import { ExportDialog } from "@/components/export-dialog"
 import { FullscreenMonitor } from "@/components/fullscreen-monitor"
 import { GameBoard } from "@/components/game-board"
 import { GameNavbar } from "@/components/game-navbar"
 import { RecordingIndicator } from "@/components/recording-indicator"
 import { useInterval } from "@/hooks/use-interval"
+import { useSpiritTimer } from "@/hooks/use-spirit-timer"
 import { extractCardPositions } from "@/lib/click-tracker"
 import { checkMatch, GRID_CONFIG, initializeGame } from "@/lib/game-utils"
 import { useRecordingStore } from "@/lib/recording-store"
@@ -37,6 +39,14 @@ function RouteComponent() {
 	const showExportDialog = useRecordingStore((state) => state.showExportDialog)
 	const stopRecording = useRecordingStore((state) => state.stopRecording)
 	const resetSession = useRecordingStore((state) => state.resetSession)
+
+	// Spirit timer for explicit clicks
+	const { secondsUntilSpirit, showSpirit, spiritPosition, onSpiritClick } = useSpiritTimer({
+		enabled: gameState === "playing" && !isPausedByFullscreen && isRecording,
+		onSpiritClick: () => {
+			// Spirit click is automatically tracked by click tracker as "explicit"
+		},
+	})
 
 	// Set card positions and mark game start when component mounts
 	useEffect(() => {
@@ -197,7 +207,16 @@ function RouteComponent() {
 				onEnterFullscreen={() => setIsPausedByFullscreen(false)}
 			/>
 
-			<GameNavbar stats={stats} />
+			<GameNavbar
+				stats={stats}
+				secondsUntilSpirit={secondsUntilSpirit}
+				showSpiritTimer={isRecording}
+			/>
+
+			{/* Dungeon Spirit Overlay */}
+			{showSpirit && spiritPosition && (
+				<DungeonSpiritOverlay position={spiritPosition} onSpiritClick={onSpiritClick} />
+			)}
 
 			{/* Game Board Container */}
 			<div className="flex-1 flex items-center backdrop-blur-md justify-center relative overflow-hidden">
