@@ -137,4 +137,6 @@ export interface RecordingSession {
 	}
 	status: "recording" | "completed" | "error"
 	initialCalibration?: CalibrationData
+	webcamMimeType?: string
+  screenMimeType?: string
 }

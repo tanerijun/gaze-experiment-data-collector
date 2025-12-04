@@ -227,12 +227,10 @@ export function SetupFlow({
 						What happens next:
 					</h4>
 					<ol className="list-decimal list-inside space-y-1 text-stone-300 text-sm">
-						<li>Browser will ask which window/tab to share</li>
+						<li>Browser will ask which screen to share</li>
 						<li>
-							Please select <strong className="text-amber-200">this browser tab</strong>
+							Please select <strong className="text-amber-200">"entire screen"</strong>
 						</li>
-						<li>Click "Share" to allow screen recording</li>
-						<li>Then you'll enter fullscreen mode</li>
 					</ol>
 				</div>
 

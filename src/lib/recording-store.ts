@@ -29,6 +29,8 @@ interface RecordingState {
 	// Video streams
 	webcamStream: MediaStream | null
 	screenStream: MediaStream | null
+	webcamMimeType: string | undefined
+	screenMimeType: string | undefined
 
 	// Game data
 	clicks: ClickData[]
@@ -82,6 +84,8 @@ export const useRecordingStore = create<RecordingState>()(
 			recordingDuration: 0,
 			webcamStream: null,
 			screenStream: null,
+			webcamMimeType: undefined,
+			screenMimeType: undefined,
 			clicks: [],
 			cardPositions: [],
 			gameStartTimestamp: 0,
@@ -125,7 +129,8 @@ export const useRecordingStore = create<RecordingState>()(
 						sessionId,
 						participant,
 					})
-					const { webcamStream, screenStream } = await manager.startRecording()
+					const { webcamStream, screenStream, webcamMimeType, screenMimeType } =
+						await manager.startRecording()
 					const recordingStartTime = Date.now()
 
 					set({
@@ -136,6 +141,8 @@ export const useRecordingStore = create<RecordingState>()(
 						recordingStartTime,
 						webcamStream,
 						screenStream,
+						webcamMimeType,
+						screenMimeType,
 					})
 				} catch (error) {
 					console.error("Failed to start video streams:", error)

@@ -33,7 +33,13 @@ export class VideoRecorder {
 	 * Get the best supported MIME type
 	 */
 	private getDefaultMimeType(): string {
-		const types = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm", "video/mp4"]
+		const types = [
+			"video/mp4;codecs=avc1,mp4a.40.2",
+			"video/mp4",
+			"video/webm;codecs=vp9,opus",
+			"video/webm;codecs=vp8,opus",
+			"video/webm",
+		]
 
 		for (const type of types) {
 			if (MediaRecorder.isTypeSupported(type)) {
@@ -42,6 +48,13 @@ export class VideoRecorder {
 		}
 
 		return "video/webm"
+	}
+
+	/**
+	 * Get the actual MIME type being used
+	 */
+	getMimeType(): string {
+		return this.mimeType
 	}
 
 	/**
@@ -80,15 +93,34 @@ export class VideoRecorder {
 		try {
 			this.stream = await navigator.mediaDevices.getDisplayMedia({
 				video: {
-					displaySurface: "window",
+					displaySurface: "monitor",
 				},
+				// @ts-expect-error: it exists
+				monitorTypeSurfaces: "include",
 				audio: false,
 			})
+
+			const track = this.stream.getVideoTracks()[0]
+			const settings = track.getSettings()
+
+			// Force share "entire screen"
+			if (settings.displaySurface && settings.displaySurface !== "monitor") {
+				track.stop()
+				this.stream = null
+
+				throw new Error("INVALID_SURFACE")
+			}
+
 			await this.startRecording(this.stream)
 			return this.stream
 		} catch (error) {
-			if (error instanceof Error && error.name === "NotAllowedError") {
-				throw new Error("Screen recording permission was denied")
+			if (error instanceof Error) {
+				if (error.message === "INVALID_SURFACE") {
+					throw new Error("You selected a Window or Tab. Please select 'Entire Screen'.")
+				}
+				if (error.name === "NotAllowedError") {
+					throw new Error("Screen recording permission was denied")
+				}
 			}
 			throw new Error(`Failed to start screen recording: ${error}`)
 		}

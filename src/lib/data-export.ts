@@ -31,6 +31,18 @@ export interface ExportData {
 	clicks: ClickData[]
 	gameEndTimestamp: number
 	gameMetadata: GameMetadata
+	webcamMimeType?: string
+	screenMimeType?: string
+}
+
+/**
+ * Helper to determine file extension from MIME type
+ */
+function getExtension(mimeType?: string): string {
+	if (!mimeType) return "webm" // Default fallback
+	if (mimeType.includes("mp4")) return "mp4"
+	if (mimeType.includes("x-matroska")) return "mkv"
+	return "webm"
 }
 
 /**
@@ -44,6 +56,9 @@ export async function createDataPackage(exportData: ExportData): Promise<Blob> {
 		getVideoChunks(sessionId, "webcam"),
 		getVideoChunks(sessionId, "screen"),
 	])
+
+	const webcamExt = getExtension(exportData.webcamMimeType)
+	const screenExt = getExtension(exportData.screenMimeType)
 
 	// Combine chunks into blobs
 	const webcamBlob = new Blob(
@@ -61,8 +76,8 @@ export async function createDataPackage(exportData: ExportData): Promise<Blob> {
 
 	// Create ZIP file
 	const zip = new JSZip()
-	zip.file("webcam.webm", webcamBlob, { compression: "STORE" })
-	zip.file("screen.webm", screenBlob, { compression: "STORE" })
+	zip.file(`webcam.${webcamExt}`, webcamBlob, { compression: "STORE" })
+	zip.file(`screen.${screenExt}`, screenBlob, { compression: "STORE" })
 	zip.file("metadata.json", jsonBlob, { compression: "DEFLATE" })
 
 	// Generate ZIP

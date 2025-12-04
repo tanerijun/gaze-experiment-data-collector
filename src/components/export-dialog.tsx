@@ -22,6 +22,8 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 		gameMetadata,
 		recordingStartTime,
 		recordingDuration,
+		webcamMimeType,
+		screenMimeType,
 	} = useRecordingStore()
 
 	const handleExport = async () => {
@@ -50,6 +52,8 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 				clicks,
 				gameEndTimestamp,
 				gameMetadata,
+				webcamMimeType,
+				screenMimeType,
 			}
 
 			setProgress(40)
