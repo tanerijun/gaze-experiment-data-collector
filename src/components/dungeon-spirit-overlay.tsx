@@ -119,11 +119,11 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 							}}
 						/>
 
-						{/* Middle ring - purple/violet */}
+						{/* Middle ring */}
 						<div
 							className={`absolute rounded-full border-2 transition-all duration-300 ${
 								isClicked
-									? "border-green-400 scale-125 opacity-100"
+									? "border-green-400 scale-100 opacity-100"
 									: "border-purple-400 scale-100 opacity-100"
 							}`}
 							style={{
@@ -137,7 +137,7 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 						{/* Inner orb - glowing purple */}
 						<div
 							className={`absolute rounded-full shadow-lg transition-all duration-300 ${
-								isClicked ? "scale-125 bg-green-500" : "scale-100 bg-purple-500"
+								isClicked ? "scale-100 bg-green-500" : "scale-100 bg-purple-500"
 							}`}
 							style={{
 								width: "20px",
