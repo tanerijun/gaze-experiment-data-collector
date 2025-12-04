@@ -11,6 +11,7 @@ import type {
 	GameMetadata,
 	ParticipantInfo,
 } from "./types"
+import { calculateVideoAlignment } from "./video-alignment"
 
 export interface ExportData {
 	sessionId: string
@@ -55,10 +56,11 @@ function getExtension(mimeType?: string): string {
 export async function createDataPackage(exportData: ExportData): Promise<Blob> {
 	const sessionId = exportData.sessionId
 
-	// Get video chunks from IndexedDB
-	const [webcamChunks, screenChunks] = await Promise.all([
+	// Get video chunks and alignment info from IndexedDB
+	const [webcamChunks, screenChunks, alignmentInfo] = await Promise.all([
 		getVideoChunks(sessionId, "webcam"),
 		getVideoChunks(sessionId, "screen"),
+		calculateVideoAlignment(sessionId),
 	])
 
 	const webcamExt = getExtension(exportData.webcamMimeType)
@@ -74,7 +76,12 @@ export async function createDataPackage(exportData: ExportData): Promise<Blob> {
 		{ type: "video/webm" },
 	)
 
-	const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], {
+	const exportDataWithAlignment = {
+		...exportData,
+		videoAlignment: alignmentInfo,
+	}
+
+	const jsonBlob = new Blob([JSON.stringify(exportDataWithAlignment, null, 2)], {
 		type: "application/json",
 	})
 

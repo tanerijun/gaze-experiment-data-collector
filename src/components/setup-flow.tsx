@@ -49,9 +49,15 @@ export function SetupFlow({
 	const [webcamStream, setWebcamStream] = useState<MediaStream | null>(null)
 	const [error, setError] = useState<string | null>(null)
 	const [isRequestingFullscreen, setIsRequestingFullscreen] = useState(false)
-	const [isStartingRecording, setIsStartingRecording] = useState(false)
-	const { setCalibrationData, startVideoStreams, finalizeSetup, resetSession, recordingStartTime } =
-		useRecordingStore()
+	const [isPreparingStreams, setIsPreparingStreams] = useState(false)
+	const {
+		setCalibrationData,
+		prepareVideoStreams,
+		startRecording,
+		finalizeSetup,
+		resetSession,
+		recordingStartTime,
+	} = useRecordingStore()
 
 	// Monitor Fullscreen state
 	useEffect(() => {
@@ -94,34 +100,40 @@ export function SetupFlow({
 	}
 
 	const handleScreenRecordingContinue = async () => {
-		// Start video streams first (this will prompt for screen recording permission)
-		setIsStartingRecording(true)
+		// Prepare video streams (get permissions but don't start recording to disk yet)
+		setIsPreparingStreams(true)
 		setError(null)
 
 		try {
-			await startVideoStreams()
+			await prepareVideoStreams()
 			// After screen recording permission granted, move to fullscreen
 			setCurrentStep("fullscreen")
-			setIsStartingRecording(false)
+			setIsPreparingStreams(false)
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Failed to start video streams")
-			setIsStartingRecording(false)
+			setError(err instanceof Error ? err.message : "Failed to prepare video streams")
+			setIsPreparingStreams(false)
 		}
 	}
 
 	const handleFullscreenContinue = async () => {
-		// Request fullscreen
 		setIsRequestingFullscreen(true)
 		setError(null)
 
 		try {
+			// Enter fullscreen first
 			if (!document.fullscreenElement) {
 				await document.documentElement.requestFullscreen()
 			}
+
+			await startRecording()
+
+			// Move to calibration
 			setCurrentStep("calibration")
 		} catch (err) {
-			console.error("Fullscreen error:", err)
-			setError("Failed to enter fullscreen. Please try again.")
+			console.error("Fullscreen/Recording error:", err)
+			setError(
+				err instanceof Error ? err.message : "Failed to enter fullscreen or start recording.",
+			)
 		} finally {
 			setIsRequestingFullscreen(false)
 		}
@@ -250,7 +262,7 @@ export function SetupFlow({
 
 				{/* Buttons */}
 				<div className="flex gap-3">
-					{!isStartingRecording && (
+					{!isPreparingStreams && (
 						<button
 							type="button"
 							onClick={() => setCurrentStep("webcam")}
@@ -262,19 +274,19 @@ export function SetupFlow({
 					<button
 						type="button"
 						onClick={handleScreenRecordingContinue}
-						disabled={isStartingRecording}
+						disabled={isPreparingStreams}
 						className="flex-1 group relative overflow-hidden px-6 py-3 bg-linear-to-br from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-amber-950 font-bold rounded-lg shadow-lg border-2 border-yellow-400 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-black"
 					>
 						<div className="absolute inset-0 bg-linear-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
 						<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-200 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 						<span className="relative z-10 flex items-center justify-center">
-							{isStartingRecording ? (
+							{isPreparingStreams ? (
 								<>
 									<LoadingIcon className="-ml-1 mr-3 h-5 w-5" />
-									Starting Recording...
+									Getting Permissions...
 								</>
 							) : (
-								"Start Recording"
+								"Get Screen Permission"
 							)}
 						</span>
 					</button>
@@ -316,12 +328,12 @@ export function SetupFlow({
 					</ol>
 				</div>
 
-				<div className="bg-green-950/30 border border-green-800 rounded-lg p-4 mb-6">
-					<p className="text-green-200 text-sm flex items-start">
+				<div className="bg-blue-950/30 border border-blue-800 rounded-lg p-4 mb-6">
+					<p className="text-blue-200 text-sm flex items-start">
 						<CheckmarkIcon className="size-5 mr-2 mt-0.5 shrink-0" />
 						<span>
-							<strong>Recording active:</strong> Screen and webcam recording are already running in
-							the background.
+							<strong>Permissions granted:</strong> Streams are ready. Recording will start when you
+							enter fullscreen.
 						</span>
 					</p>
 				</div>
@@ -362,10 +374,10 @@ export function SetupFlow({
 							{isRequestingFullscreen ? (
 								<>
 									<LoadingIcon className="-ml-1 mr-3 h-5 w-5" />
-									Entering Fullscreen...
+									Starting Recording...
 								</>
 							) : (
-								"Enter Fullscreen & Continue"
+								"Enter Fullscreen & Start Recording"
 							)}
 						</span>
 					</button>

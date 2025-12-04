@@ -52,7 +52,8 @@ interface RecordingState {
 	// Actions
 	setParticipant: (participant: ParticipantInfo) => void
 	setCalibrationData: (calibration: CalibrationData) => void
-	startVideoStreams: () => Promise<void>
+	prepareVideoStreams: () => Promise<void>
+	startRecording: () => Promise<void>
 	finalizeSetup: () => Promise<void>
 	stopRecording: () => Promise<void>
 	pauseRecording: () => void
@@ -118,15 +119,15 @@ export const useRecordingStore = create<RecordingState>()(
 				set({ calibrationData: calibration })
 			},
 
-			startVideoStreams: async () => {
-				const { participant, isRecording } = get()
+			prepareVideoStreams: async () => {
+				const { participant, recordingManager } = get()
 
 				if (!participant) {
 					throw new Error("Participant info is required")
 				}
 
-				if (isRecording) {
-					throw new Error("Recording is already in progress")
+				if (recordingManager) {
+					throw new Error("Video streams are already prepared")
 				}
 
 				try {
@@ -135,6 +136,8 @@ export const useRecordingStore = create<RecordingState>()(
 						sessionId,
 						participant,
 					})
+
+					// Initialize streams and get permissions (does NOT start recording to disk)
 					const {
 						webcamStream,
 						screenStream,
@@ -143,15 +146,13 @@ export const useRecordingStore = create<RecordingState>()(
 						screenResolution,
 						screenStreamResolution,
 						webcamResolution,
-					} = await manager.startRecording()
-					const recordingStartTime = Date.now()
+					} = await manager.initializeStreams()
 
 					set({
 						sessionId,
 						recordingManager: manager,
-						isRecording: true,
+						isRecording: false, // Not recording yet, just prepared
 						isPaused: false,
-						recordingStartTime,
 						webcamStream,
 						screenStream,
 						webcamMimeType,
@@ -161,7 +162,35 @@ export const useRecordingStore = create<RecordingState>()(
 						webcamResolution,
 					})
 				} catch (error) {
-					console.error("Failed to start video streams:", error)
+					console.error("Failed to prepare video streams:", error)
+					throw error
+				}
+			},
+
+			startRecording: async () => {
+				const { recordingManager, isRecording } = get()
+
+				if (!recordingManager) {
+					throw new Error("Video streams must be prepared first. Call prepareVideoStreams() first.")
+				}
+
+				if (isRecording) {
+					throw new Error("Recording is already in progress")
+				}
+
+				try {
+					// Start writing to disk (IndexedDB) for both streams simultaneously
+					await recordingManager.startRecordingToDisk()
+
+					// Set recording start time immediately after recording starts
+					const recordingStartTime = Date.now()
+
+					set({
+						isRecording: true,
+						recordingStartTime,
+					})
+				} catch (error) {
+					console.error("Failed to start recording to disk:", error)
 					throw error
 				}
 			},

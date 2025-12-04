@@ -58,60 +58,50 @@ export class VideoRecorder {
 	}
 
 	/**
-	 * Start recording from webcam
+	 * Initialize stream and get permissions (does NOT start recording to disk)
+	 * Returns the stream for preview purposes
 	 */
-	async startWebcamRecording(): Promise<MediaStream> {
-		if (this.type !== "webcam") {
-			throw new Error("This recorder is not configured for webcam recording")
-		}
-
-		try {
-			this.stream = await navigator.mediaDevices.getUserMedia({
-				video: {
-					width: { ideal: 1280 },
-					height: { ideal: 720 },
-					frameRate: { ideal: 30 },
-				},
-				audio: false,
-			})
-
-			await this.startRecording(this.stream)
+	async initializeStream(): Promise<MediaStream> {
+		if (this.stream) {
+			// Stream already initialized
 			return this.stream
-		} catch (error) {
-			throw new Error(`Failed to start webcam recording: ${error}`)
-		}
-	}
-
-	/**
-	 * Start screen recording
-	 */
-	async startScreenRecording(): Promise<MediaStream> {
-		if (this.type !== "screen") {
-			throw new Error("This recorder is not configured for screen recording")
 		}
 
 		try {
-			this.stream = await navigator.mediaDevices.getDisplayMedia({
-				video: {
-					displaySurface: "monitor",
-				},
-				// @ts-expect-error: it exists
-				monitorTypeSurfaces: "include",
-				audio: false,
-			})
+			if (this.type === "webcam") {
+				this.stream = await navigator.mediaDevices.getUserMedia({
+					video: {
+						width: { ideal: 1280 },
+						height: { ideal: 720 },
+						frameRate: { ideal: 30 },
+					},
+					audio: false,
+				})
+			} else if (this.type === "screen") {
+				this.stream = await navigator.mediaDevices.getDisplayMedia({
+					video: {
+						displaySurface: "monitor",
+					},
+					// @ts-expect-error: it exists
+					monitorTypeSurfaces: "include",
+					audio: false,
+				})
 
-			const track = this.stream.getVideoTracks()[0]
-			const settings = track.getSettings()
+				const track = this.stream.getVideoTracks()[0]
+				const settings = track.getSettings()
 
-			// Force share "entire screen"
-			if (settings.displaySurface && settings.displaySurface !== "monitor") {
-				track.stop()
-				this.stream = null
-
-				throw new Error("INVALID_SURFACE")
+				// Force share "entire screen"
+				if (settings.displaySurface && settings.displaySurface !== "monitor") {
+					track.stop()
+					this.stream = null
+					throw new Error("INVALID_SURFACE")
+				}
 			}
 
-			await this.startRecording(this.stream)
+			if (!this.stream) {
+				throw new Error("Failed to initialize stream")
+			}
+
 			return this.stream
 		} catch (error) {
 			if (error instanceof Error) {
@@ -119,17 +109,28 @@ export class VideoRecorder {
 					throw new Error("You selected a Window or Tab. Please select 'Entire Screen'.")
 				}
 				if (error.name === "NotAllowedError") {
-					throw new Error("Screen recording permission was denied")
+					throw new Error(
+						`${this.type === "webcam" ? "Webcam" : "Screen recording"} permission was denied`,
+					)
 				}
 			}
-			throw new Error(`Failed to start screen recording: ${error}`)
+			throw new Error(`Failed to initialize ${this.type} stream: ${error}`)
 		}
 	}
 
 	/**
-	 * Start recording from a given stream
+	 * Start recording to disk (IndexedDB)
+	 * Must call initializeStream() first
 	 */
-	private async startRecording(stream: MediaStream): Promise<void> {
+	async startRecording(): Promise<void> {
+		if (!this.stream) {
+			throw new Error("Stream not initialized. Call initializeStream() first.")
+		}
+
+		if (this.mediaRecorder) {
+			throw new Error("Recording already started")
+		}
+
 		this.startTime = Date.now()
 
 		const options: MediaRecorderOptions = {
@@ -137,7 +138,7 @@ export class VideoRecorder {
 			videoBitsPerSecond: this.videoBitsPerSecond,
 		}
 
-		this.mediaRecorder = new MediaRecorder(stream, options)
+		this.mediaRecorder = new MediaRecorder(this.stream, options)
 
 		// Handle data available event - stream chunks to IndexedDB
 		this.mediaRecorder.ondataavailable = (event) => {
@@ -194,6 +195,7 @@ export class VideoRecorder {
 				if (this.pendingWrites.size > 0) {
 					await Promise.all(this.pendingWrites)
 				}
+
 				this.cleanupAndResolve(resolve)
 			}
 

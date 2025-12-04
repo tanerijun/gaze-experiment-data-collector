@@ -276,3 +276,52 @@ export async function calculateSessionVideoSize(sessionId: string): Promise<numb
 		request.onerror = () => reject(new Error("Failed to calculate session video size"))
 	})
 }
+
+/**
+ * Get the timestamp of the very first chunk for a specific stream
+ */
+export async function getFirstChunkTimestamp(
+	sessionId: string,
+	type: "webcam" | "screen",
+): Promise<number | null> {
+	const db = await initDB()
+
+	return new Promise((resolve, reject) => {
+		const transaction = db.transaction([VIDEO_CHUNKS_STORE], "readonly")
+		const store = transaction.objectStore(VIDEO_CHUNKS_STORE)
+		const index = store.index("sessionType")
+
+		// Get only the first record
+		const request = index.openCursor(IDBKeyRange.only([sessionId, type]), "next")
+
+		request.onsuccess = (event) => {
+			const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result
+			if (cursor) {
+				resolve(cursor.value.timestamp)
+			} else {
+				resolve(null)
+			}
+		}
+
+		request.onerror = () => reject(new Error("Failed to get first chunk timestamp"))
+	})
+}
+
+/**
+ * Count total chunks for a session
+ */
+export async function countVideoChunks(
+	sessionId: string,
+	type: "webcam" | "screen",
+): Promise<number> {
+	const db = await initDB()
+	return new Promise((resolve, reject) => {
+		const transaction = db.transaction([VIDEO_CHUNKS_STORE], "readonly")
+		const store = transaction.objectStore(VIDEO_CHUNKS_STORE)
+		const index = store.index("sessionType")
+		const request = index.count(IDBKeyRange.only([sessionId, type]))
+
+		request.onsuccess = () => resolve(request.result)
+		request.onerror = () => reject(new Error("Failed to count chunks"))
+	})
+}

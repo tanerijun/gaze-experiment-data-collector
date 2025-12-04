@@ -17,8 +17,8 @@ export class RecordingManager {
 	private sessionId: string
 	private participant: ParticipantInfo
 	private initialCalibration: CalibrationData | null = null
-	private webcamRecorder: VideoRecorder | null = null
-	private screenRecorder: VideoRecorder | null = null
+	private webcamRecorder: VideoRecorder
+	private screenRecorder: VideoRecorder
 	private recordingStartTime: number = 0
 	private isRecording = false
 	private clicks: ClickData[] = []
@@ -39,6 +39,19 @@ export class RecordingManager {
 	}) {
 		this.sessionId = options.sessionId
 		this.participant = options.participant
+
+		// Create recorders but don't initialize streams yet
+		this.webcamRecorder = new VideoRecorder({
+			sessionId: this.sessionId,
+			type: "webcam",
+			videoBitsPerSecond: 3000000,
+		})
+
+		this.screenRecorder = new VideoRecorder({
+			sessionId: this.sessionId,
+			type: "screen",
+			videoBitsPerSecond: 5000000,
+		})
 	}
 
 	/**
@@ -58,9 +71,10 @@ export class RecordingManager {
 	}
 
 	/**
-	 * Start recording both webcam and screen
+	 * Initialize streams and get permissions (does NOT start writing to disk)
+	 * This allows UI to show previews and user to select screens before recording starts
 	 */
-	async startRecording(): Promise<{
+	async initializeStreams(): Promise<{
 		webcamStream: MediaStream
 		screenStream: MediaStream
 		webcamMimeType: string
@@ -69,28 +83,14 @@ export class RecordingManager {
 		screenStreamResolution: { width: number; height: number }
 		webcamResolution: { width: number; height: number }
 	}> {
-		if (this.isRecording) {
-			throw new Error("Recording is already in progress")
-		}
-
 		try {
-			this.webcamRecorder = new VideoRecorder({
-				sessionId: this.sessionId,
-				type: "webcam",
-				videoBitsPerSecond: 3000000,
-			})
-
-			this.screenRecorder = new VideoRecorder({
-				sessionId: this.sessionId,
-				type: "screen",
-				videoBitsPerSecond: 5000000,
-			})
-
+			// Initialize both streams concurrently
 			const [webcamStream, screenStream] = await Promise.all([
-				this.webcamRecorder.startWebcamRecording(),
-				this.screenRecorder.startScreenRecording(),
+				this.webcamRecorder.initializeStream(),
+				this.screenRecorder.initializeStream(),
 			])
 
+			// Get resolutions
 			const [webcamResolution, screenStreamResolution] = await Promise.all([
 				getStreamResolution(webcamStream),
 				getStreamResolution(screenStream),
@@ -104,8 +104,59 @@ export class RecordingManager {
 			const webcamMimeType = this.webcamRecorder.getMimeType()
 			const screenMimeType = this.screenRecorder.getMimeType()
 
+			return {
+				webcamStream,
+				screenStream,
+				webcamMimeType,
+				screenMimeType,
+				screenResolution,
+				screenStreamResolution,
+				webcamResolution,
+			}
+		} catch (error) {
+			// Clean up on error
+			await this.cleanup()
+			throw error
+		}
+	}
+
+	/**
+	 * Start recording to disk (IndexedDB) for both streams simultaneously
+	 * Must call initializeStreams() first
+	 */
+	async startRecordingToDisk(): Promise<void> {
+		if (this.isRecording) {
+			throw new Error("Recording is already in progress")
+		}
+
+		try {
+			// Start both recorders writing to disk simultaneously
+			await Promise.all([
+				this.webcamRecorder.startRecording(),
+				this.screenRecorder.startRecording(),
+			])
+
+			// Set recording start time immediately after both recorders start
 			this.recordingStartTime = Date.now()
 			this.isRecording = true
+
+			// Create and store the session in IndexedDB
+			const webcamStream = this.webcamRecorder.getStream()
+			const screenStream = this.screenRecorder.getStream()
+
+			if (!webcamStream || !screenStream) {
+				throw new Error("Streams not initialized")
+			}
+
+			const [webcamResolution, screenStreamResolution] = await Promise.all([
+				getStreamResolution(webcamStream),
+				getStreamResolution(screenStream),
+			])
+
+			const screenResolution = {
+				width: window.screen.width,
+				height: window.screen.height,
+			}
 
 			const session: RecordingSession = {
 				sessionId: this.sessionId,
@@ -120,15 +171,6 @@ export class RecordingManager {
 			}
 
 			await storeSession(session)
-			return {
-				webcamStream,
-				screenStream,
-				webcamMimeType,
-				screenMimeType,
-				screenResolution,
-				screenStreamResolution,
-				webcamResolution,
-			}
 		} catch (error) {
 			// Clean up on error
 			await this.cleanup()
@@ -169,8 +211,14 @@ export class RecordingManager {
 	 * Cleanup resources
 	 */
 	private async cleanup(): Promise<void> {
-		this.webcamRecorder = null
-		this.screenRecorder = null
+		// Note: We don't null out the recorders since they're created in constructor
+		// Just stop any active streams
+		const webcamStream = this.webcamRecorder.getStream()
+		const screenStream = this.screenRecorder.getStream()
+
+		webcamStream?.getTracks().forEach((track) => track.stop())
+		screenStream?.getTracks().forEach((track) => track.stop())
+
 		this.isRecording = false
 	}
 
@@ -284,16 +332,16 @@ export class RecordingManager {
 	 * Pause recording (both webcam and screen)
 	 */
 	pauseRecording(): void {
-		this.webcamRecorder?.pause()
-		this.screenRecorder?.pause()
+		this.webcamRecorder.pause()
+		this.screenRecorder.pause()
 	}
 
 	/**
 	 * Resume recording (both webcam and screen)
 	 */
 	resumeRecording(): void {
-		this.webcamRecorder?.resume()
-		this.screenRecorder?.resume()
+		this.webcamRecorder.resume()
+		this.screenRecorder.resume()
 	}
 }
 
