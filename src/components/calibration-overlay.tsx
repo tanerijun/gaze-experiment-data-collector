@@ -57,7 +57,7 @@ export function CalibrationOverlay({
 		setIsFailed(true)
 	}
 
-	const handleRestart = async () => {
+	const handleRestartCalibrationOnly = async () => {
 		setCurrentIndex(0)
 		setIsPulsing(false)
 		setResults([])
@@ -119,26 +119,24 @@ export function CalibrationOverlay({
 
 						<h2 className="text-3xl font-bold text-red-100 mb-2">Calibration Failed</h2>
 
-						<p className="text-stone-300 mb-8 text-lg">
-							You exited fullscreen mode during calibration. The data is now invalid.
-						</p>
-
-						<div className="flex flex-col gap-3">
-							<button
-								type="button"
-								onClick={handleRestart}
-								className="w-full px-6 py-4 bg-red-700 hover:bg-red-600 text-white font-bold rounded-lg transition-colors shadow-lg active:scale-95"
-							>
-								Restart Calibration
-							</button>
-							<button
-								type="button"
-								onClick={onCancel}
-								className="w-full px-6 py-3 bg-stone-700 hover:bg-stone-600 text-stone-300 font-semibold rounded-lg transition-colors"
-							>
-								{"Abort & Exit"}
-							</button>
+						<div className="text-stone-300 mb-8 text-lg space-y-3">
+							<p>
+								You exited fullscreen mode during calibration. The video recordings are now invalid
+								and will be discarded.
+							</p>
+							<p className="text-amber-200 font-semibold">
+								⚠️ Fullscreen must NOT be exited during the experiment, or you will need to start
+								over.
+							</p>
 						</div>
+
+						<button
+							type="button"
+							onClick={onCancel}
+							className="w-full px-6 py-4 bg-red-700 hover:bg-red-600 text-white font-bold rounded-lg transition-colors shadow-lg active:scale-95"
+						>
+							{"Abort & Exit"}
+						</button>
 					</div>
 				</div>
 			</div>
@@ -268,7 +266,7 @@ export function CalibrationOverlay({
 					<div className="flex gap-4">
 						<button
 							type="button"
-							onClick={handleRestart}
+							onClick={handleRestartCalibrationOnly}
 							className="px-6 py-3 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:ring-offset-stone-950"
 						>
 							Restart Calibration
