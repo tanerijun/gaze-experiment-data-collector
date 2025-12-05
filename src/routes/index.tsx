@@ -25,9 +25,9 @@ function App() {
 		const checkStorage = async () => {
 			try {
 				const sessions = await getAllSessions()
-				// Check if any session is stuck in 'recording' or 'error' state
-				const isStale = sessions.some((s) => s.status === "recording" || s.status === "error")
-				setHasStaleSessions(isStale)
+				// Show manager if there are any sessions at all
+				const hasAnySessions = sessions.length > 0
+				setHasStaleSessions(hasAnySessions)
 			} catch (e) {
 				console.error("Failed to check storage:", e)
 			}
@@ -200,9 +200,7 @@ function App() {
 					onClose={() => {
 						setShowCleanup(false)
 						// Re-check sessions when dialog closes to see if we should hide the button
-						getAllSessions().then((s) =>
-							setHasStaleSessions(s.some((x) => x.status === "recording" || x.status === "error")),
-						)
+						getAllSessions().then((s) => setHasStaleSessions(s.length > 0))
 					}}
 				/>
 			)}
@@ -218,7 +216,7 @@ function App() {
 						<button
 							type="button"
 							onClick={() => setShowCleanup(true)}
-							className="absolute bottom-4 left-4 z-40 flex items-center gap-2 bg-red-950/80 hover:bg-red-900 text-red-200 px-4 py-2 rounded-lg backdrop-blur-sm border border-red-800 transition-all shadow-lg animate-in fade-in slide-in-from-bottom-4 hover:scale-105"
+							className="absolute bottom-4 left-4 z-40 flex items-center gap-2 bg-amber-950/80 hover:bg-amber-900 text-amber-200 px-4 py-2 rounded-lg backdrop-blur-sm border border-amber-800 transition-all shadow-lg animate-in fade-in slide-in-from-bottom-4 hover:scale-105"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -231,10 +229,10 @@ function App() {
 									strokeLinecap="round"
 									strokeLinejoin="round"
 									strokeWidth={2}
-									d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+									d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
 								/>
 							</svg>
-							<span className="text-sm font-semibold">Clear Incomplete Data</span>
+							<span className="font-semibold">Manage Sessions</span>
 						</button>
 					)}
 

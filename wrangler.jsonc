@@ -6,4 +6,13 @@
 		"nodejs_compat"
 	],
 	"main": "@tanstack/react-start/server-entry",
+	"r2_buckets": [
+		{
+			"binding": "GAZE_EXPERIMENT_BUCKET",
+			"bucket_name": "gaze-experiment-data"
+		}
+	],
+	"vars": {
+		"R2_BUCKET_NAME": "gaze-experiment-data"
+	}
 }

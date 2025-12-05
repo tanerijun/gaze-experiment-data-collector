@@ -9,6 +9,7 @@ import { RecordingIndicator } from "@/components/recording-indicator"
 import { useInterval } from "@/hooks/use-interval"
 import { useSpiritTimer } from "@/hooks/use-spirit-timer"
 import { extractCardPositions } from "@/lib/click-tracker"
+import { useConfirmDialog } from "@/lib/dialog/hooks"
 import { checkMatch, GRID_CONFIG, initializeGame } from "@/lib/game-utils"
 import { useRecordingStore } from "@/lib/recording-store"
 import type { Card, GameState, GameStats } from "@/lib/types"
@@ -39,6 +40,8 @@ function RouteComponent() {
 	const showExportDialog = useRecordingStore((state) => state.showExportDialog)
 	const stopRecording = useRecordingStore((state) => state.stopRecording)
 	const resetSession = useRecordingStore((state) => state.resetSession)
+	const hasUploaded = useRecordingStore((state) => state.hasUploaded)
+	const { confirm } = useConfirmDialog()
 
 	// Spirit timer for explicit clicks
 	const { secondsUntilSpirit, showSpirit, spiritPosition, onSpiritClick } = useSpiritTimer({
@@ -76,7 +79,6 @@ function RouteComponent() {
 		const allMatched = cards.every((card) => card.isMatched)
 		if (allMatched) {
 			setGameState("won")
-			// Mark game end and update metadata
 			if (isRecording) {
 				markGameEnd()
 				updateGameMetadata({
@@ -84,9 +86,14 @@ function RouteComponent() {
 					totalMoves: stats.moves,
 					totalMatches: stats.matches,
 				})
+				setTimeout(() => {
+					stopRecording(true).catch((err) => {
+						console.error("Failed to stop recording:", err)
+					})
+				}, 1000) // wait for a bit just to be safe
 			}
 		}
-	}, [cards, gameState, isRecording, markGameEnd, updateGameMetadata, stats])
+	}, [cards, gameState, isRecording, markGameEnd, updateGameMetadata, stats, stopRecording])
 
 	// Handle card click
 	const handleCardClick = useCallback(
@@ -168,8 +175,26 @@ function RouteComponent() {
 
 	const handleReturnToMenu = async () => {
 		try {
-			// Stop recording and clean up
-			await stopRecording()
+			// Warn user if they haven't uploaded yet
+			if (!hasUploaded) {
+				const shouldContinue = await confirm({
+					title: "Data Not Uploaded",
+					message:
+						"You haven't uploaded your data yet. If you return to the menu now, your recording data will be lost. Are you sure you want to continue?",
+					confirmText: "Yes, Return to Menu",
+					cancelText: "Cancel",
+				})
+
+				if (!shouldContinue) {
+					return
+				}
+			}
+
+			// Stop recording if still recording (in case game wasn't completed)
+			// Pass false to indicate game was NOT completed (user quit early)
+			if (isRecording) {
+				await stopRecording(false)
+			}
 
 			// Exit fullscreen if in fullscreen mode
 			if (document.fullscreenElement) {
@@ -189,6 +214,11 @@ function RouteComponent() {
 		}
 	}
 
+	const handleExportDialogClose = () => {
+		setShowExportDialog(false)
+		handleReturnToMenu()
+	}
+
 	return (
 		<div
 			className="min-h-screen h-screen bg-cover bg-center bg-no-repeat text-stone-50 flex flex-col overflow-hidden"
@@ -198,7 +228,7 @@ function RouteComponent() {
 			<RecordingIndicator />
 
 			{/* Export Dialog */}
-			{showExportDialog && <ExportDialog onClose={() => setShowExportDialog(false)} />}
+			{showExportDialog && <ExportDialog onClose={handleExportDialogClose} />}
 
 			{/* Fullscreen Monitor - pauses game when user exits fullscreen */}
 			<FullscreenMonitor
@@ -260,8 +290,8 @@ function RouteComponent() {
 							</p>
 						</div>
 
-						{/* Export data button (if recording) */}
-						{isRecording && (
+						{/* Upload data button */}
+						{gameState === "won" && (
 							<button
 								type="button"
 								onClick={() => setShowExportDialog(true)}
@@ -287,7 +317,7 @@ function RouteComponent() {
 											d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
 										/>
 									</svg>
-									Export Session Data
+									Upload Data
 								</span>
 							</button>
 						)}

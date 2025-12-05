@@ -123,7 +123,7 @@ export function downloadZip(blob: Blob, filename: string): void {
 export function generateExportFilename(sessionId: string, participantName: string): string {
 	const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
 	const sanitizedName = participantName.replace(/[^a-z0-9]/gi, "_").toLowerCase()
-	return `gaze-experiment-${sessionId}-${sanitizedName}-${timestamp}.zip`
+	return `${sanitizedName}-${timestamp}-${sessionId}.zip`
 }
 
 /**
@@ -201,45 +201,6 @@ export function validateExportData(data: ExportData): {
 		valid: errors.length === 0,
 		errors,
 	}
-}
-
-/**
- * Upload to Cloudflare R2
- */
-export async function uploadToR2(
-	blob: Blob,
-	uploadUrl: string, // Presigned URL
-	onProgress?: (progress: number) => void, // Callback for UI progress bar
-): Promise<void> {
-	return new Promise((resolve, reject) => {
-		const xhr = new XMLHttpRequest()
-
-		xhr.open("PUT", uploadUrl)
-		xhr.setRequestHeader("Content-Type", "application/zip")
-
-		// Track upload progress
-		xhr.upload.onprogress = (event) => {
-			if (event.lengthComputable && onProgress) {
-				// Calculate percentage (0 to 100)
-				const percentComplete = (event.loaded / event.total) * 100
-				onProgress(percentComplete)
-			}
-		}
-
-		xhr.onload = () => {
-			if (xhr.status >= 200 && xhr.status < 300) {
-				resolve()
-			} else {
-				reject(new Error(`Upload failed with status: ${xhr.status}`))
-			}
-		}
-
-		xhr.onerror = () => {
-			reject(new Error("Network error during upload"))
-		}
-
-		xhr.send(blob)
-	})
 }
 
 /**

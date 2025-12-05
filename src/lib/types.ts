@@ -131,6 +131,7 @@ export interface RecordingSession {
 	sessionId: string
 	participant: ParticipantInfo
 	recordingStartTime: number
+	recordingDuration?: number
 	screenResolution: {
 		width: number
 		height: number
@@ -143,8 +144,14 @@ export interface RecordingSession {
 		width: number
 		height: number
 	}
-	status: "recording" | "completed" | "error"
+	status: "recording" | "completed" | "uploaded" | "error"
 	initialCalibration?: CalibrationData
 	webcamMimeType?: string
 	screenMimeType?: string
+	// Game data
+	clicks?: ClickData[]
+	cardPositions?: CardPosition[]
+	gameStartTimestamp?: number
+	gameEndTimestamp?: number
+	gameMetadata?: GameMetadata
 }

@@ -4,6 +4,11 @@
 declare namespace Cloudflare {
 	interface Env {
 		the_deep_vault_leaderboard: KVNamespace;
+		GAZE_EXPERIMENT_BUCKET: R2Bucket;
+		R2_ACCOUNT_ID: string;
+		R2_ACCESS_KEY_ID: string;
+		R2_SECRET_ACCESS_KEY: string;
+		R2_BUCKET_NAME: string;
 	}
 }
 interface Env extends Cloudflare.Env {}
@@ -7659,7 +7664,7 @@ interface IncomingRequestCfPropertiesTLSClientAuthPlaceholder {
     certNotAfter: "";
 }
 /** Possible outcomes of TLS verification */
-declare type CertVerificationStatus = 
+declare type CertVerificationStatus =
 /** Authentication succeeded */
 "SUCCESS"
 /** No certificate was presented */
@@ -7723,7 +7728,7 @@ interface D1ExecResult {
     count: number;
     duration: number;
 }
-type D1SessionConstraint = 
+type D1SessionConstraint =
 // Indicates that the first query should go to the primary, and the rest queries
 // using the same D1DatabaseSession will go to any replica that is consistent with
 // the bookmark maintained by the session (returned by the first query).
@@ -8304,7 +8309,7 @@ declare namespace Rpc {
     // The reason for using a generic type here is to build a serializable subset of structured
     //   cloneable composite types. This allows types defined with the "interface" keyword to pass the
     //   serializable check as well. Otherwise, only types defined with the "type" keyword would pass.
-    type Serializable<T> = 
+    type Serializable<T> =
     // Structured cloneables
     BaseType
     // Structured cloneable composites

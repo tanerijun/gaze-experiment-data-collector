@@ -48,6 +48,7 @@ interface RecordingState {
 	showCalibration: boolean
 	showExportDialog: boolean
 	hasCompletedSetup: boolean
+	hasUploaded: boolean
 
 	// Actions
 	setParticipant: (participant: ParticipantInfo) => void
@@ -55,7 +56,7 @@ interface RecordingState {
 	prepareVideoStreams: () => Promise<void>
 	startRecording: () => Promise<void>
 	finalizeSetup: () => Promise<void>
-	stopRecording: () => Promise<void>
+	stopRecording: (isGameCompleted?: boolean) => Promise<void>
 	pauseRecording: () => void
 	resumeRecording: () => void
 	addClick: (click: ClickData) => void
@@ -71,6 +72,7 @@ interface RecordingState {
 	setShowCalibration: (show: boolean) => void
 	setShowExportDialog: (show: boolean) => void
 	completeSetup: () => void
+	markAsUploaded: () => void
 }
 
 export const useRecordingStore = create<RecordingState>()(
@@ -109,6 +111,7 @@ export const useRecordingStore = create<RecordingState>()(
 			showCalibration: false,
 			showExportDialog: false,
 			hasCompletedSetup: false,
+			hasUploaded: false,
 
 			// Actions
 			setParticipant: (participant) => {
@@ -229,10 +232,10 @@ export const useRecordingStore = create<RecordingState>()(
 				}
 			},
 
-			stopRecording: async () => {
+			stopRecording: async (isGameCompleted: boolean = false) => {
 				const { recordingManager, clickTracker } = get()
 
-				await recordingManager?.stopRecording()
+				await recordingManager?.stopRecording(isGameCompleted)
 				clickTracker?.stop()
 
 				// Stop streams explicitly to be safe (manager should have handled it)
@@ -367,6 +370,7 @@ export const useRecordingStore = create<RecordingState>()(
 					showCalibration: false,
 					showExportDialog: false,
 					hasCompletedSetup: false,
+					hasUploaded: false,
 				})
 			},
 
@@ -376,6 +380,7 @@ export const useRecordingStore = create<RecordingState>()(
 			setShowCalibration: (show) => set({ showCalibration: show }),
 			setShowExportDialog: (show) => set({ showExportDialog: show }),
 			completeSetup: () => set({ hasCompletedSetup: true }),
+			markAsUploaded: () => set({ hasUploaded: true }),
 		}),
 		{
 			name: "recording-storage",

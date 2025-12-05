@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react"
-import { formatBytes, getEstimatedExportSize } from "@/lib/data-export"
+import {
+	createDataPackage,
+	formatBytes,
+	generateExportFilename,
+	getEstimatedExportSize,
+} from "@/lib/data-export"
 import { deleteSession, getAllSessions } from "@/lib/indexed-db"
 import type { RecordingSession } from "@/lib/types"
+import { formatUploadProgress, type UploadProgress, uploadSessionToR2 } from "@/lib/upload"
 
 interface SessionCleanupDialogProps {
 	onClose: () => void
@@ -13,24 +19,21 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 	const [error, setError] = useState<string | null>(null)
 	const [sessionSizes, setSessionSizes] = useState<Record<string, number>>({})
 	const [deletingSession, setDeletingSession] = useState<string | null>(null)
+	const [uploadingSession, setUploadingSession] = useState<string | null>(null)
+	const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null)
 
-	// Load incomplete sessions on mount
 	useEffect(() => {
-		const loadSessions = async () => {
+		const load = async () => {
 			setIsLoading(true)
 			setError(null)
 
 			try {
 				const allSessions = await getAllSessions()
-				// Filter for incomplete or error sessions only
-				const incompleteSessions = allSessions.filter(
-					(s) => s.status === "recording" || s.status === "error",
-				)
-				setSessions(incompleteSessions)
+				setSessions(allSessions)
 
-				// Calculate sizes for these bad sessions
+				// Calculate sizes for all sessions
 				const sizes: Record<string, number> = {}
-				for (const session of incompleteSessions) {
+				for (const session of allSessions) {
 					try {
 						const size = await getEstimatedExportSize(session.sessionId)
 						sizes[session.sessionId] = size
@@ -47,12 +50,11 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 				setIsLoading(false)
 			}
 		}
-
-		loadSessions()
+		load()
 	}, [])
 
 	const handleDelete = async (sessionId: string) => {
-		if (!confirm("Are you sure you want to delete this incomplete data?")) {
+		if (!confirm("Are you sure you want to delete this session data?")) {
 			return
 		}
 
@@ -61,6 +63,12 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 			await deleteSession(sessionId)
 			// Remove from UI list immediately
 			setSessions((prev) => prev.filter((s) => s.sessionId !== sessionId))
+			// Also remove size
+			setSessionSizes((prev) => {
+				const newSizes = { ...prev }
+				delete newSizes[sessionId]
+				return newSizes
+			})
 		} catch (err) {
 			console.error("Failed to delete session:", err)
 			setError(err instanceof Error ? err.message : "Failed to delete session")
@@ -69,20 +77,147 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 		}
 	}
 
+	const handleUpload = async (session: RecordingSession) => {
+		setUploadingSession(session.sessionId)
+		setError(null)
+		setUploadProgress(null)
+
+		try {
+			// Package the data - use persisted data from IndexedDB or fallback to defaults
+			const exportData = {
+				sessionId: session.sessionId,
+				participant: session.participant,
+				recordingStartTime: session.recordingStartTime,
+				recordingDuration: session.recordingDuration || 0,
+				screenResolution: session.screenResolution,
+				screenStreamResolution: session.screenStreamResolution,
+				webcamResolution: session.webcamResolution,
+				initialCalibration: session.initialCalibration || {
+					points: [],
+					screenWidth: session.screenResolution.width,
+					screenHeight: session.screenResolution.height,
+					startTimestamp: session.recordingStartTime,
+					endTimestamp: session.recordingStartTime,
+				},
+				cardPositions: session.cardPositions || [],
+				gameStartTimestamp: session.gameStartTimestamp || session.recordingStartTime,
+				clicks: session.clicks || [],
+				gameEndTimestamp: session.gameEndTimestamp || session.recordingStartTime,
+				gameMetadata: session.gameMetadata || {
+					duration: 0,
+					totalMoves: 0,
+					totalMatches: 0,
+					totalExplicitClicks: 0,
+					totalImplicitClicks: 0,
+				},
+				webcamMimeType: session.webcamMimeType,
+				screenMimeType: session.screenMimeType,
+			}
+
+			// Warn if session is incomplete (no game data)
+			const isIncomplete = !session.clicks || session.clicks.length === 0 || !session.gameMetadata
+			if (isIncomplete) {
+				const confirmed = confirm(
+					"Warning: This session appears to be incomplete and may be missing game interaction data (clicks, moves, etc.). This can happen if the browser was closed before the game finished.\n\nDo you still want to upload it?",
+				)
+				if (!confirmed) {
+					setUploadingSession(null)
+					return
+				}
+			}
+
+			const zipBlob = await createDataPackage(exportData)
+			const filename = generateExportFilename(session.sessionId, session.participant.name)
+
+			await uploadSessionToR2(session.sessionId, zipBlob, filename, {
+				onProgress: (prog) => {
+					setUploadProgress(prog)
+				},
+				onSuccess: () => {
+					// Update session status in UI
+					setSessions((prev) =>
+						prev.map((s) =>
+							s.sessionId === session.sessionId ? { ...s, status: "uploaded" as const } : s,
+						),
+					)
+					setUploadProgress(null)
+					setUploadingSession(null)
+				},
+				onError: (err) => {
+					setError(`Upload failed: ${err.message}`)
+					setUploadProgress(null)
+					setUploadingSession(null)
+				},
+			})
+		} catch (err) {
+			console.error("Upload error:", err)
+			setError(err instanceof Error ? err.message : "Failed to upload session")
+			setUploadProgress(null)
+			setUploadingSession(null)
+		}
+	}
+
 	const formatDate = (timestamp: number) => {
 		return new Date(timestamp).toLocaleString()
 	}
 
+	const getStatusBadge = (status: RecordingSession["status"]) => {
+		switch (status) {
+			case "recording":
+				return (
+					<span className="px-2 py-0.5 rounded text-xs font-mono bg-yellow-950 text-yellow-300 border border-yellow-900">
+						RECORDING
+					</span>
+				)
+			case "completed":
+				return (
+					<span className="px-2 py-0.5 rounded text-xs font-mono bg-blue-950 text-blue-300 border border-blue-900">
+						COMPLETED
+					</span>
+				)
+			case "uploaded":
+				return (
+					<span className="px-2 py-0.5 rounded text-xs font-mono bg-green-950 text-green-300 border border-green-900">
+						UPLOADED
+					</span>
+				)
+			case "error":
+				return (
+					<span className="px-2 py-0.5 rounded text-xs font-mono bg-red-950 text-red-3 border border-red-900">
+						ERROR
+					</span>
+				)
+		}
+	}
+
+	const getSessionDescription = (status: RecordingSession["status"], session: RecordingSession) => {
+		const hasGameData = session.clicks && session.clicks.length > 0 && session.gameMetadata
+
+		switch (status) {
+			case "recording":
+				return "This session was interrupted (browser crash/refresh). Contains incomplete data."
+			case "completed":
+				if (!hasGameData) {
+					return "Recording completed but may be missing game data. Upload with caution."
+				}
+				return "Recording completed. Ready to upload."
+			case "uploaded":
+				return "Already uploaded to server. Safe to delete to free up space."
+			case "error":
+				return "An error occurred during recording. Contains incomplete data."
+		}
+	}
+
 	return (
 		<div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-			<div className="bg-stone-900 border-4 border-red-900 rounded-xl shadow-2xl p-8 max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col relative">
+			<div className="bg-stone-900 border-4 border-amber-900 rounded-xl shadow-2xl p-8 max-w-4xl w-full max-h-[80vh] overflow-hidden flex flex-col relative">
 				{/* Header */}
 				<div className="flex justify-between items-start mb-6">
 					<div>
-						<h2 className="text-3xl font-bold text-red-100 mb-2">Incomplete Sessions</h2>
+						<h2 className="text-3xl font-bold text-amber-100 mb-2">Session Manager</h2>
 						<p className="text-stone-300 text-sm">
-							The following sessions were interrupted (e.g., browser crash or refresh). <br />
-							They contain incomplete data and should be deleted to free up disk space.
+							Manage stored recording sessions. Upload completed recordings or delete old data to
+							free up disk space.
 						</p>
 					</div>
 					<button
@@ -112,8 +247,8 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 				{isLoading && (
 					<div className="flex-1 flex items-center justify-center py-12">
 						<div className="text-center">
-							<div className="animate-spin rounded-full h-12 w-12 border-4 border-stone-800 border-t-red-500 mx-auto mb-4" />
-							<p className="text-stone-400">Scanning storage...</p>
+							<div className="animate-spin rounded-full h-12 w-12 border-4 border-stone-800 border-t-amber-500 mx-auto mb-4" />
+							<p className="text-stone-400">Loading sessions...</p>
 						</div>
 					</div>
 				)}
@@ -125,7 +260,7 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 					</div>
 				)}
 
-				{/* Empty state (All Clean) */}
+				{/* Empty state */}
 				{!isLoading && sessions.length === 0 && (
 					<div className="flex-1 flex items-center justify-center py-12">
 						<div className="text-center">
@@ -143,10 +278,8 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 									d="M5 13l4 4L19 7"
 								/>
 							</svg>
-							<h3 className="text-xl font-semibold text-stone-200 mb-2">All Clean!</h3>
-							<p className="text-stone-400 text-sm">
-								No incomplete sessions found. Your storage is healthy.
-							</p>
+							<h3 className="text-xl font-semibold text-stone-200 mb-2">No Sessions Found</h3>
+							<p className="text-stone-400 text-sm">Your storage is clean.</p>
 						</div>
 					</div>
 				)}
@@ -157,82 +290,187 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 						{sessions.map((session) => (
 							<div
 								key={session.sessionId}
-								className="bg-stone-950/50 border border-stone-800 hover:border-red-900 rounded-lg p-4 transition-colors flex items-center justify-between group"
+								className="bg-stone-950/50 border border-stone-800 hover:border-amber-900 rounded-lg p-4 transition-colors"
 							>
-								<div>
-									<div className="flex items-center gap-3 mb-1">
-										<h3 className="text-lg font-semibold text-stone-200">
-											{session.participant.name}
-										</h3>
-										<span className="px-2 py-0.5 rounded text-xs font-mono bg-red-950 text-red-300 border border-red-900">
-											{session.status.toUpperCase()}
-										</span>
+								<div className="flex items-start justify-between gap-4">
+									<div className="flex-1">
+										<div className="flex items-center gap-3 mb-2">
+											<h3 className="text-lg font-semibold text-stone-200">
+												{session.participant.name}
+											</h3>
+											{getStatusBadge(session.status)}
+											{session.status === "completed" &&
+												(!session.clicks || session.clicks.length === 0) && (
+													<span className="px-2 py-0.5 rounded text-xs font-mono bg-yellow-950 text-yellow-300 border border-yellow-900">
+														⚠️ NO GAME DATA
+													</span>
+												)}
+										</div>
+										<div className="text-sm text-stone-400 mb-2">
+											<p>{getSessionDescription(session.status, session)}</p>
+										</div>
+										<div className="text-sm text-stone-500 space-x-4">
+											<span>{formatDate(session.recordingStartTime)}</span>
+											<span>•</span>
+											<span className="text-stone-300">
+												{sessionSizes[session.sessionId]
+													? formatBytes(sessionSizes[session.sessionId])
+													: "Calculating..."}
+											</span>
+											<span>•</span>
+											<span className="font-mono text-xs">{session.sessionId.slice(0, 8)}...</span>
+										</div>
 									</div>
-									<div className="text-sm text-stone-500 space-x-4">
-										<span>{formatDate(session.recordingStartTime)}</span>
-										<span>•</span>
-										<span className="text-stone-300">
-											{sessionSizes[session.sessionId]
-												? formatBytes(sessionSizes[session.sessionId])
-												: "Calculating..."}
-										</span>
+
+									<div className="flex flex-col gap-2">
+										{/* Upload button for completed sessions */}
+										{session.status === "completed" && (
+											<button
+												type="button"
+												onClick={() => handleUpload(session)}
+												disabled={
+													uploadingSession === session.sessionId ||
+													deletingSession === session.sessionId
+												}
+												className="px-4 py-2 bg-green-900/50 hover:bg-green-900 text-green-200 hover:text-white font-semibold rounded-lg transition-all border border-green-900 flex items-center gap-2 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+											>
+												{uploadingSession === session.sessionId ? (
+													<>
+														<svg
+															className="animate-spin h-4 w-4"
+															xmlns="http://www.w3.org/2000/svg"
+															fill="none"
+															viewBox="0 0 24 24"
+														>
+															<circle
+																className="opacity-25"
+																cx="12"
+																cy="12"
+																r="10"
+																stroke="currentColor"
+																strokeWidth="4"
+															/>
+															<path
+																className="opacity-75"
+																fill="currentColor"
+																d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+															/>
+														</svg>
+														Uploading...
+													</>
+												) : (
+													<>
+														<svg
+															xmlns="http://www.w3.org/2000/svg"
+															className="h-4 w-4"
+															fill="none"
+															viewBox="0 0 24 24"
+															stroke="currentColor"
+														>
+															<path
+																strokeLinecap="round"
+																strokeLinejoin="round"
+																strokeWidth={2}
+																d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+															/>
+														</svg>
+														Upload
+													</>
+												)}
+											</button>
+										)}
+
+										{/* Delete button for all sessions */}
+										<button
+											type="button"
+											onClick={() => handleDelete(session.sessionId)}
+											disabled={
+												deletingSession === session.sessionId ||
+												uploadingSession === session.sessionId
+											}
+											className="px-4 py-2 bg-red-900/50 hover:bg-red-900 text-red-200 hover:text-white font-semibold rounded-lg transition-all border border-red-900 flex items-center gap-2 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+										>
+											{deletingSession === session.sessionId ? (
+												<>
+													<svg
+														className="animate-spin h-4 w-4"
+														xmlns="http://www.w3.org/2000/svg"
+														fill="none"
+														viewBox="0 0 24 24"
+													>
+														<circle
+															className="opacity-25"
+															cx="12"
+															cy="12"
+															r="10"
+															stroke="currentColor"
+															strokeWidth="4"
+														/>
+														<path
+															className="opacity-75"
+															fill="currentColor"
+															d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+														/>
+													</svg>
+													Deleting...
+												</>
+											) : (
+												<>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														className="h-4 w-4"
+														fill="none"
+														viewBox="0 0 24 24"
+														stroke="currentColor"
+													>
+														<path
+															strokeLinecap="round"
+															strokeLinejoin="round"
+															strokeWidth={2}
+															d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+														/>
+													</svg>
+													Delete
+												</>
+											)}
+										</button>
 									</div>
 								</div>
 
-								<button
-									type="button"
-									onClick={() => handleDelete(session.sessionId)}
-									disabled={deletingSession === session.sessionId}
-									className="px-4 py-2 bg-red-900/50 hover:bg-red-900 text-red-200 hover:text-white font-semibold rounded-lg transition-all border border-red-900 flex items-center gap-2"
-								>
-									{deletingSession === session.sessionId ? (
-										<svg
-											className="animate-spin h-4 w-4"
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-										>
-											<circle
-												className="opacity-25"
-												cx="12"
-												cy="12"
-												r="10"
-												stroke="currentColor"
-												strokeWidth="4"
+								{/* Upload progress for this session */}
+								{uploadingSession === session.sessionId && uploadProgress && (
+									<div className="mt-3 pt-3 border-t border-stone-800">
+										<div className="flex justify-between text-xs text-stone-400 mb-1">
+											<span>Uploading to server...</span>
+											<span>{Math.round(uploadProgress.percentage)}%</span>
+										</div>
+										<div className="w-full h-1.5 bg-stone-950 rounded-full overflow-hidden">
+											<div
+												className="h-full bg-linear-to-r from-green-600 to-emerald-500 transition-all duration-300"
+												style={{ width: `${uploadProgress.percentage}%` }}
 											/>
-											<path
-												className="opacity-75"
-												fill="currentColor"
-												d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-											/>
-										</svg>
-									) : (
-										<>
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												className="h-4 w-4"
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke="currentColor"
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth={2}
-													d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-												/>
-											</svg>
-											Delete Data
-										</>
-									)}
-								</button>
+										</div>
+										<p className="text-xs text-stone-500 mt-1">
+											{formatUploadProgress(uploadProgress)}
+										</p>
+									</div>
+								)}
 							</div>
 						))}
 					</div>
 				)}
 
-				{/* Close button */}
-				<div className="flex justify-end pt-4 border-t border-stone-800">
+				{/* Footer */}
+				<div className="flex justify-between items-center pt-4 border-t border-stone-800">
+					<div className="text-sm text-stone-400">
+						{sessions.length > 0 && (
+							<span>
+								{sessions.length} session{sessions.length !== 1 ? "s" : ""} •{" "}
+								{formatBytes(Object.values(sessionSizes).reduce((sum, size) => sum + size, 0))}{" "}
+								total
+							</span>
+						)}
+					</div>
 					<button
 						type="button"
 						onClick={onClose}

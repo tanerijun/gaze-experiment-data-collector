@@ -180,8 +180,9 @@ export class RecordingManager {
 
 	/**
 	 * Stop recording and finalize session
+	 * @param isGameCompleted - true if the game was won, false if interrupted/quit early
 	 */
-	async stopRecording(): Promise<void> {
+	async stopRecording(isGameCompleted: boolean = false): Promise<void> {
 		if (!this.isRecording) return
 
 		try {
@@ -191,10 +192,15 @@ export class RecordingManager {
 				this.screenRecorder?.stopRecording(),
 			])
 
-			// Update session status
 			const session = await getSession(this.sessionId)
 			if (session) {
-				session.status = "completed"
+				session.status = isGameCompleted ? "completed" : "recording"
+				session.clicks = this.clicks
+				session.cardPositions = this.cardPositions
+				session.gameStartTimestamp = this.gameStartTimestamp
+				session.gameEndTimestamp = this.gameEndTimestamp
+				session.gameMetadata = this.gameMetadata
+				session.recordingDuration = this.getRecordingDuration()
 				await storeSession(session)
 			}
 
@@ -216,8 +222,8 @@ export class RecordingManager {
 		const webcamStream = this.webcamRecorder.getStream()
 		const screenStream = this.screenRecorder.getStream()
 
-		webcamStream?.getTracks().forEach((track) => track.stop())
-		screenStream?.getTracks().forEach((track) => track.stop())
+		webcamStream?.getTracks().forEach((track) => void track.stop())
+		screenStream?.getTracks().forEach((track) => void track.stop())
 
 		this.isRecording = false
 	}
