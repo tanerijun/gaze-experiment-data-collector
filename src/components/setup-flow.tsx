@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useTranslation } from "@/hooks/use-translation"
 import { useRecordingStore } from "@/lib/recording-store"
 import type { CalibrationData } from "@/lib/types"
 import { CalibrationOverlay, type CalibrationResult } from "./calibration-overlay"
@@ -45,6 +46,7 @@ export function SetupFlow({
 	onComplete: () => void
 	onCancel: () => void
 }) {
+	const { t } = useTranslation()
 	const [currentStep, setCurrentStep] = useState<SetupStep>("webcam")
 	const [webcamStream, setWebcamStream] = useState<MediaStream | null>(null)
 	const [error, setError] = useState<string | null>(null)
@@ -192,7 +194,7 @@ export function SetupFlow({
 							<div className="flex items-start space-x-3">
 								<AlertIcon className="text-red-400 size-6" />
 								<div>
-									<h4 className="text-red-300 font-semibold mb-1">Error</h4>
+									<h4 className="text-red-300 font-semibold mb-1">{t.webcamSetup.errorTitle}</h4>
 									<p className="text-red-200 text-sm">{error}</p>
 								</div>
 							</div>
@@ -206,7 +208,7 @@ export function SetupFlow({
 							onClick={onCancel}
 							className="flex-1 px-6 py-3 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:ring-offset-black active:scale-95"
 						>
-							Cancel
+							{t.webcamSetup.cancelButton}
 						</button>
 
 						<button
@@ -217,7 +219,7 @@ export function SetupFlow({
 						>
 							<div className="absolute inset-0 bg-linear-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
 							<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-200 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-							<span className="relative z-10">Continue to Calibration</span>
+							<span className="relative z-10">{t.webcamSetup.continueButton}</span>
 						</button>
 					</div>
 				</div>
@@ -230,20 +232,18 @@ export function SetupFlow({
 		return (
 			<StepCard>
 				<p className="text-stone-300 text-center mb-6 text-sm">
-					We need permission to record your screen during the experiment
+					{t.screenRecordingSetup.description}
 				</p>
 
 				{/* Instructions */}
 				<div className="bg-amber-950/30 border border-amber-800 rounded-lg p-4 mb-6">
 					<h4 className="text-amber-100 font-semibold mb-2 flex items-center text-sm">
 						<AlertIcon className="size-5 mr-2" />
-						What happens next:
+						{t.screenRecordingSetup.whatHappensLabel}
 					</h4>
 					<ol className="list-decimal list-inside space-y-1 text-stone-300 text-sm">
-						<li>Browser will ask which screen to share</li>
-						<li>
-							Please select <strong className="text-amber-200">"entire screen"</strong>
-						</li>
+						<li>{t.screenRecordingSetup.instruction1}</li>
+						<li>{t.screenRecordingSetup.instruction2}</li>
 					</ol>
 				</div>
 
@@ -253,7 +253,9 @@ export function SetupFlow({
 						<div className="flex items-start space-x-3">
 							<AlertIcon className="size-6 text-red-400 shrink-0" />
 							<div>
-								<h4 className="text-red-300 font-semibold mb-1">Error</h4>
+								<h4 className="text-red-300 font-semibold mb-1">
+									{t.screenRecordingSetup.errorTitle}
+								</h4>
 								<p className="text-red-200 text-sm">{error}</p>
 							</div>
 						</div>
@@ -268,7 +270,7 @@ export function SetupFlow({
 							onClick={() => setCurrentStep("webcam")}
 							className="flex-1 px-6 py-3 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:ring-offset-black active:scale-95"
 						>
-							Back
+							{t.screenRecordingSetup.backButton}
 						</button>
 					)}
 					<button
@@ -283,10 +285,10 @@ export function SetupFlow({
 							{isPreparingStreams ? (
 								<>
 									<LoadingIcon className="-ml-1 mr-3 h-5 w-5" />
-									Getting Permissions...
+									{t.screenRecordingSetup.gettingPermissions}
 								</>
 							) : (
-								"Get Screen Permission"
+								t.screenRecordingSetup.continueButton
 							)}
 						</span>
 					</button>
@@ -310,21 +312,19 @@ export function SetupFlow({
 	// Fullscreen Step
 	if (currentStep === "fullscreen") {
 		return (
-			<StepCard title="Enter Fullscreen">
-				<p className="text-stone-300 text-center mb-6 text-sm">
-					For accurate data collection, the experiment must run in fullscreen mode
-				</p>
+			<StepCard title={t.fullscreenSetup.title}>
+				<p className="text-stone-300 text-center mb-6 text-sm">{t.fullscreenSetup.description}</p>
 
 				{/* Instructions */}
 				<div className="bg-amber-950/30 border border-amber-800 rounded-lg p-4 mb-6">
 					<h4 className="text-amber-100 font-semibold mb-2 flex items-center text-sm">
 						<AlertIcon className="size-5 mr-2" />
-						What happens next:
+						{t.fullscreenSetup.whatHappensLabel}
 					</h4>
 					<ol className="list-decimal list-inside space-y-1 text-stone-300 text-sm">
-						<li>Browser will enter fullscreen mode</li>
-						<li>You'll complete the calibration process</li>
-						<li>Then play the memory matching game</li>
+						<li>{t.fullscreenSetup.instruction1}</li>
+						<li>{t.fullscreenSetup.instruction2}</li>
+						<li>{t.fullscreenSetup.instruction3}</li>
 					</ol>
 				</div>
 
@@ -332,8 +332,8 @@ export function SetupFlow({
 					<p className="text-blue-200 text-sm flex items-start">
 						<CheckmarkIcon className="size-5 mr-2 mt-0.5 shrink-0" />
 						<span>
-							<strong>Permissions granted:</strong> Streams are ready. Recording will start when you
-							enter fullscreen.
+							<strong>{t.fullscreenSetup.permissionsGrantedLabel}</strong>{" "}
+							{t.fullscreenSetup.permissionsGrantedMessage}
 						</span>
 					</p>
 				</div>
@@ -344,7 +344,7 @@ export function SetupFlow({
 						<div className="flex items-start space-x-3">
 							<AlertIcon className="size-6 text-red-400 shrink-0" />
 							<div>
-								<h4 className="text-red-300 font-semibold mb-1">Error</h4>
+								<h4 className="text-red-300 font-semibold mb-1">{t.fullscreenSetup.errorTitle}</h4>
 								<p className="text-red-200 text-sm">{error}</p>
 							</div>
 						</div>
@@ -359,7 +359,7 @@ export function SetupFlow({
 							onClick={() => setCurrentStep("screen-recording")}
 							className="flex-1 px-6 py-3 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:ring-offset-black active:scale-95"
 						>
-							Back
+							{t.fullscreenSetup.backButton}
 						</button>
 					)}
 					<button
@@ -374,10 +374,10 @@ export function SetupFlow({
 							{isRequestingFullscreen ? (
 								<>
 									<LoadingIcon className="-ml-1 mr-3 h-5 w-5" />
-									Starting Recording...
+									{t.fullscreenSetup.startingRecording}
 								</>
 							) : (
-								"Enter Fullscreen & Start Recording"
+								t.fullscreenSetup.continueButton
 							)}
 						</span>
 					</button>
@@ -393,8 +393,8 @@ export function SetupFlow({
 				<div className="flex justify-center mb-4">
 					<CheckmarkIcon className="size-16 text-green-500" />
 				</div>
-				<h3 className="text-2xl font-bold text-amber-100 mb-2">Setup Complete!</h3>
-				<p className="text-stone-300 text-sm">Starting the game...</p>
+				<h3 className="text-2xl font-bold text-amber-100 mb-2">{t.setupComplete.title}</h3>
+				<p className="text-stone-300 text-sm">{t.setupComplete.message}</p>
 
 				{error && (
 					<div className="mt-4 p-3 bg-red-950/50 border border-red-600 rounded-lg">

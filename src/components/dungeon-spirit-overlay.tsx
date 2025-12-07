@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useTranslation } from "@/hooks/use-translation"
 
 // Add wiggle animation styles
 const wiggleStyles = `
@@ -31,6 +32,7 @@ interface DungeonSpiritOverlayProps {
 }
 
 export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritOverlayProps) {
+	const { t } = useTranslation()
 	const [isClicked, setIsClicked] = useState(false)
 	const [showOverlay, setShowOverlay] = useState(false)
 	const [showBanishMessage, setShowBanishMessage] = useState(false)
@@ -75,7 +77,7 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 						<div className="bg-purple-950/90 border-2 border-purple-500 rounded-lg px-6 py-3 shadow-2xl backdrop-blur-sm">
 							<p className="text-purple-200 font-bold text-lg flex items-center gap-2">
 								<span className="text-2xl">👻</span>
-								The Dungeon Spirit appears!
+								{t.dungeonSpirit.appearMessage}
 							</p>
 						</div>
 					</div>
@@ -102,7 +104,7 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 							width: "50px",
 							height: "50px",
 						}}
-						aria-label="Click to banish the Dungeon Spirit"
+						aria-label={t.dungeonSpirit.clickLabel}
 						disabled={isClicked}
 						data-spirit="true"
 					>
@@ -173,7 +175,7 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 						<div className="bg-green-950/90 border-2 border-green-500 rounded-lg px-6 py-3 shadow-2xl backdrop-blur-sm">
 							<p className="text-green-200 font-bold text-lg flex items-center gap-2">
 								<span className="text-2xl">✨</span>
-								Spirit banished!
+								{t.dungeonSpirit.banishMessage}
 							</p>
 						</div>
 					</div>

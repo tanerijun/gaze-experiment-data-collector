@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useTranslation } from "@/hooks/use-translation"
 import {
 	createDataPackage,
 	formatBytes,
@@ -14,6 +15,7 @@ interface SessionCleanupDialogProps {
 }
 
 export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
+	const { t } = useTranslation()
 	const [sessions, setSessions] = useState<RecordingSession[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
@@ -45,16 +47,16 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 				setSessionSizes(sizes)
 			} catch (err) {
 				console.error("Failed to load sessions:", err)
-				setError(err instanceof Error ? err.message : "Failed to load sessions")
+				setError(err instanceof Error ? err.message : t.errors.sessionLoadFailed)
 			} finally {
 				setIsLoading(false)
 			}
 		}
 		load()
-	}, [])
+	}, [t])
 
 	const handleDelete = async (sessionId: string) => {
-		if (!confirm("Are you sure you want to delete this session data?")) {
+		if (!confirm(t.sessionManager.deleteConfirm)) {
 			return
 		}
 
@@ -115,11 +117,9 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 			}
 
 			// Warn if session is incomplete (no game data)
-			const isIncomplete = !session.clicks || session.clicks.length === 0 || !session.gameMetadata
+			const isIncomplete = !session.gameMetadata || !session.clicks || session.clicks.length === 0
 			if (isIncomplete) {
-				const confirmed = confirm(
-					"Warning: This session appears to be incomplete and may be missing game interaction data (clicks, moves, etc.). This can happen if the browser was closed before the game finished.\n\nDo you still want to upload it?",
-				)
+				const confirmed = confirm(t.sessionManager.uploadIncompleteWarning)
 				if (!confirmed) {
 					setUploadingSession(null)
 					return
@@ -165,28 +165,30 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 		switch (status) {
 			case "recording":
 				return (
-					<span className="px-2 py-0.5 rounded text-xs font-mono bg-yellow-950 text-yellow-300 border border-yellow-900">
-						RECORDING
+					<span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-yellow-900/50 text-yellow-300 border border-yellow-700">
+						{t.sessionManager.statusBadge.recording}
 					</span>
 				)
 			case "completed":
 				return (
-					<span className="px-2 py-0.5 rounded text-xs font-mono bg-blue-950 text-blue-300 border border-blue-900">
-						COMPLETED
+					<span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-900/50 text-blue-300 border border-blue-700">
+						{t.sessionManager.statusBadge.completed}
 					</span>
 				)
 			case "uploaded":
 				return (
-					<span className="px-2 py-0.5 rounded text-xs font-mono bg-green-950 text-green-300 border border-green-900">
-						UPLOADED
+					<span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-green-900/50 text-green-300 border border-green-700">
+						{t.sessionManager.statusBadge.uploaded}
 					</span>
 				)
 			case "error":
 				return (
-					<span className="px-2 py-0.5 rounded text-xs font-mono bg-red-950 text-red-3 border border-red-900">
-						ERROR
+					<span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-red-900/50 text-red-300 border border-red-700">
+						{t.sessionManager.statusBadge.error}
 					</span>
 				)
+			default:
+				return null
 		}
 	}
 
@@ -195,16 +197,16 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 
 		switch (status) {
 			case "recording":
-				return "This session was interrupted (browser crash/refresh). Contains incomplete data."
+				return t.sessionManager.statusDescription.recording
 			case "completed":
 				if (!hasGameData) {
-					return "Recording completed but may be missing game data. Upload with caution."
+					return t.sessionManager.statusDescription.completedIncomplete
 				}
-				return "Recording completed. Ready to upload."
+				return t.sessionManager.statusDescription.completed
 			case "uploaded":
-				return "Already uploaded to server. Safe to delete to free up space."
+				return t.sessionManager.statusDescription.uploaded
 			case "error":
-				return "An error occurred during recording. Contains incomplete data."
+				return t.sessionManager.statusDescription.error
 		}
 	}
 
@@ -214,11 +216,8 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 				{/* Header */}
 				<div className="flex justify-between items-start mb-6">
 					<div>
-						<h2 className="text-3xl font-bold text-amber-100 mb-2">Session Manager</h2>
-						<p className="text-stone-300 text-sm">
-							Manage stored recording sessions. Upload completed recordings or delete old data to
-							free up disk space.
-						</p>
+						<h2 className="text-3xl font-bold text-amber-100 mb-2">{t.sessionManager.title}</h2>
+						<p className="text-stone-300 text-sm">{t.sessionManager.description}</p>
 					</div>
 					<button
 						type="button"
@@ -248,7 +247,7 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 					<div className="flex-1 flex items-center justify-center py-12">
 						<div className="text-center">
 							<div className="animate-spin rounded-full h-12 w-12 border-4 border-stone-800 border-t-amber-500 mx-auto mb-4" />
-							<p className="text-stone-400">Loading sessions...</p>
+							<p className="text-stone-400">{t.sessionManager.loadingMessage}</p>
 						</div>
 					</div>
 				)}
@@ -278,8 +277,10 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 									d="M5 13l4 4L19 7"
 								/>
 							</svg>
-							<h3 className="text-xl font-semibold text-stone-200 mb-2">No Sessions Found</h3>
-							<p className="text-stone-400 text-sm">Your storage is clean.</p>
+							<h3 className="text-xl font-semibold text-stone-200 mb-2">
+								{t.sessionManager.noSessionsTitle}
+							</h3>
+							<p className="text-stone-400 text-sm">{t.sessionManager.noSessionsMessage}</p>
 						</div>
 					</div>
 				)}
@@ -313,9 +314,10 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 											<span>{formatDate(session.recordingStartTime)}</span>
 											<span>•</span>
 											<span className="text-stone-300">
+												{t.sessionManager.sizeLabel}{" "}
 												{sessionSizes[session.sessionId]
 													? formatBytes(sessionSizes[session.sessionId])
-													: "Calculating..."}
+													: "..."}
 											</span>
 											<span>•</span>
 											<span className="font-mono text-xs">{session.sessionId.slice(0, 8)}...</span>
@@ -356,7 +358,7 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 																d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
 															/>
 														</svg>
-														Uploading...
+														{t.sessionManager.uploadingButton}
 													</>
 												) : (
 													<>
@@ -374,7 +376,7 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 																d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
 															/>
 														</svg>
-														Upload
+														{t.sessionManager.uploadButton}
 													</>
 												)}
 											</button>
@@ -412,7 +414,7 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 															d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
 														/>
 													</svg>
-													Deleting...
+													{t.sessionManager.deletingButton}
 												</>
 											) : (
 												<>
@@ -430,7 +432,7 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 															d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
 														/>
 													</svg>
-													Delete
+													{t.sessionManager.deleteButton}
 												</>
 											)}
 										</button>
@@ -441,7 +443,7 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 								{uploadingSession === session.sessionId && uploadProgress && (
 									<div className="mt-3 pt-3 border-t border-stone-800">
 										<div className="flex justify-between text-xs text-stone-400 mb-1">
-											<span>Uploading to server...</span>
+											<span>{t.sessionManager.uploadProgress}</span>
 											<span>{Math.round(uploadProgress.percentage)}%</span>
 										</div>
 										<div className="w-full h-1.5 bg-stone-950 rounded-full overflow-hidden">
@@ -474,9 +476,9 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 					<button
 						type="button"
 						onClick={onClose}
-						className="px-6 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold rounded-lg transition-colors"
+						className="w-full px-6 py-3 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:ring-offset-stone-900 active:scale-95"
 					>
-						Close
+						{t.common.close}
 					</button>
 				</div>
 			</div>

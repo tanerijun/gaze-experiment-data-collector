@@ -1,4 +1,5 @@
 import { useRef, useState } from "react"
+import { useTranslation } from "@/hooks/use-translation"
 import { createDataPackage, generateExportFilename } from "@/lib/data-export"
 import { useRecordingStore } from "@/lib/recording-store"
 import { formatUploadProgress, type UploadProgress, uploadSessionToR2 } from "@/lib/upload"
@@ -10,6 +11,7 @@ interface ExportDialogProps {
 const isDevelopment = import.meta.env.DEV
 
 export function ExportDialog({ onClose }: ExportDialogProps) {
+	const { t } = useTranslation()
 	const [isProcessing, setIsProcessing] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null)
@@ -46,7 +48,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 		}
 
 		if (!sessionId || !participant || !calibrationData) {
-			throw new Error("Missing required session data")
+			throw new Error(t.errors.missingSessionData)
 		}
 
 		const exportData = {
@@ -84,7 +86,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 	 */
 	const handleUpload = async () => {
 		if (!sessionId || !participant) {
-			setError("Missing required session data")
+			setError(t.errors.missingSessionData)
 			return
 		}
 
@@ -103,7 +105,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 					setUploadProgress(prog)
 				},
 				onSuccess: () => {
-					setSuccessMessage("Upload successful!")
+					setSuccessMessage(t.exportDialog.successMessage)
 					setUploadProgress(null)
 					setIsProcessing(false)
 					markAsUploaded()
@@ -116,7 +118,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 			})
 		} catch (err) {
 			console.error("Upload error:", err)
-			setError(err instanceof Error ? err.message : "Failed to upload data")
+			setError(err instanceof Error ? err.message : t.errors.uploadFailed)
 			setUploadProgress(null)
 			setIsProcessing(false)
 		}
@@ -127,7 +129,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 	 */
 	const handleDownload = async () => {
 		if (!sessionId || !participant?.name) {
-			setError("Missing required session data")
+			setError(t.errors.missingSessionData)
 			return
 		}
 
@@ -150,7 +152,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 			setIsProcessing(false)
 		} catch (err) {
 			console.error("Download error:", err)
-			setError(err instanceof Error ? err.message : "Failed to download data")
+			setError(err instanceof Error ? err.message : t.errors.downloadFailed)
 			setIsProcessing(false)
 		}
 	}
@@ -167,31 +169,27 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 				<div className="absolute bottom-2 left-2 w-3 h-3 border-l-2 border-b-2 border-amber-400" />
 				<div className="absolute bottom-2 right-2 w-3 h-3 border-r-2 border-b-2 border-amber-400" />
 
-				<h2 className="text-3xl font-bold text-amber-100 mb-2 text-center">Export Data</h2>
-				<p className="text-stone-300 text-center mb-6 text-sm">Upload your recorded data</p>
+				<h2 className="text-3xl font-bold text-amber-100 mb-2 text-center">
+					{t.exportDialog.title}
+				</h2>
+				<p className="text-stone-300 text-center mb-6 text-sm">{t.exportDialog.description}</p>
 
 				{/* Session info */}
 				<div className="space-y-3 mb-6 bg-stone-950/30 border border-stone-700 rounded-lg p-4">
 					<div className="flex justify-between text-sm">
-						<span className="text-stone-400">Participant:</span>
+						<span className="text-stone-400">{t.exportDialog.participantLabel}</span>
 						<span className="text-amber-100 font-semibold">{participant?.name}</span>
 					</div>
 					<div className="flex justify-between text-sm">
-						<span className="text-stone-400">Session ID:</span>
+						<span className="text-stone-400">{t.exportDialog.sessionIdLabel}</span>
 						<span className="text-stone-300 font-mono text-xs">{sessionId?.slice(0, 16)}...</span>
 					</div>
 					<div className="flex justify-between text-sm">
-						<span className="text-stone-400">Clicks Recorded:</span>
+						<span className="text-stone-400">{t.exportDialog.clicksRecordedLabel}</span>
 						<span className="text-amber-100 font-semibold">{clicks.length}</span>
 					</div>
 					<div className="flex justify-between text-sm">
-						<span className="text-stone-400">Calibration Points:</span>
-						<span className="text-amber-100 font-semibold">
-							{calibrationData?.points.length || 0}
-						</span>
-					</div>
-					<div className="flex justify-between text-sm">
-						<span className="text-stone-400">Game Duration:</span>
+						<span className="text-stone-400">{t.exportDialog.gameDurationLabel}</span>
 						<span className="text-amber-100 font-semibold">{gameMetadata.duration}s</span>
 					</div>
 				</div>
@@ -200,7 +198,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 				{uploadProgress && (
 					<div className="mb-6">
 						<div className="flex justify-between text-sm text-stone-300 mb-2">
-							<span>Uploading...</span>
+							<span>{t.exportDialog.uploadingLabel}</span>
 							<span>{Math.round(uploadProgress.percentage)}%</span>
 						</div>
 						<div className="w-full h-2 bg-stone-950 rounded-full overflow-hidden">
@@ -234,7 +232,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 								/>
 							</svg>
 							<div>
-								<h4 className="text-green-300 font-semibold mb-1">Success!</h4>
+								<h4 className="text-green-300 font-semibold mb-1">{t.exportDialog.successTitle}</h4>
 								<p className="text-green-200 text-sm">{successMessage}</p>
 							</div>
 						</div>
@@ -260,7 +258,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 								/>
 							</svg>
 							<div>
-								<h4 className="text-red-300 font-semibold mb-1">Error</h4>
+								<h4 className="text-red-300 font-semibold mb-1">{t.exportDialog.errorTitle}</h4>
 								<p className="text-red-200 text-sm">{error}</p>
 							</div>
 						</div>
@@ -301,7 +299,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 											d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
 										/>
 									</svg>
-									Uploading...
+									{t.exportDialog.uploadingButton}
 								</>
 							) : (
 								<>
@@ -319,7 +317,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 											d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
 										/>
 									</svg>
-									Upload to Server
+									{t.exportDialog.uploadButton}
 								</>
 							)}
 						</span>
@@ -349,7 +347,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 										d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
 									/>
 								</svg>
-								Download Locally (Dev Only)
+								{t.exportDialog.downloadButton}
 							</span>
 						</button>
 					)}
@@ -361,7 +359,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 						disabled={isProcessing}
 						className="w-full px-6 py-3 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:ring-offset-stone-900 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
 					>
-						Close
+						{t.exportDialog.closeButton}
 					</button>
 				</div>
 			</div>

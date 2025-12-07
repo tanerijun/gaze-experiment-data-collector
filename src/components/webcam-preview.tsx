@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react"
+import { useTranslation } from "@/hooks/use-translation"
 import { AlertIcon, CheckmarkIcon, LoadingIcon, RecorderIcon } from "./icons"
 
 interface WebcamPreviewProps {
@@ -12,6 +13,7 @@ export function WebcamPreview({
 	onPermissionGranted,
 	onPermissionDenied,
 }: WebcamPreviewProps) {
+	const { t } = useTranslation()
 	const videoRef = useRef<HTMLVideoElement>(null)
 	const [isLoading, setIsLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
@@ -48,13 +50,13 @@ export function WebcamPreview({
 			const error = err as Error
 			console.error("Webcam permission error:", error)
 
-			let errorMessage = "Failed to access webcam"
+			let errorMessage: string = t.errors.webcamGeneric
 			if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
-				errorMessage = "Webcam permission was denied. Please allow webcam access to continue."
+				errorMessage = t.errors.webcamPermissionDenied as string
 			} else if (error.name === "NotFoundError" || error.name === "DevicesNotFoundError") {
-				errorMessage = "No webcam found. Please connect a webcam to continue."
+				errorMessage = t.errors.webcamNotFound as string
 			} else if (error.name === "NotReadableError" || error.name === "TrackStartError") {
-				errorMessage = "Webcam is already in use by another application."
+				errorMessage = t.errors.webcamInUse as string
 			}
 
 			setError(errorMessage)
@@ -62,7 +64,7 @@ export function WebcamPreview({
 		} finally {
 			setIsLoading(false)
 		}
-	}, [])
+	}, [t])
 
 	// Auto-request webcam permission on mount
 	useEffect(() => {
@@ -97,7 +99,9 @@ export function WebcamPreview({
 				<div className="absolute bottom-2 left-2 w-3 h-3 border-l-2 border-b-2 border-amber-400" />
 				<div className="absolute bottom-2 right-2 w-3 h-3 border-r-2 border-b-2 border-amber-400" />
 
-				<h3 className="text-2xl font-bold text-amber-100 mb-4 text-center">Webcam Preview</h3>
+				<h3 className="text-2xl font-bold text-amber-100 mb-4 text-center">
+					{t.webcamSetup.title}
+				</h3>
 
 				{/* Video preview */}
 				<div className="relative bg-stone-950 rounded-lg overflow-hidden aspect-video mb-4">
@@ -113,7 +117,7 @@ export function WebcamPreview({
 						<div className="w-full h-full flex items-center justify-center">
 							<div className="text-center p-8">
 								<RecorderIcon className="size-20 text-stone-600 mx-auto mb-4" />
-								<p className="text-stone-400 text-lg">No webcam connected</p>
+								<p className="text-stone-400 text-lg">{t.webcamSetup.noWebcamMessage}</p>
 							</div>
 						</div>
 					)}
@@ -125,7 +129,7 @@ export function WebcamPreview({
 						<div className="flex items-start space-x-3">
 							<AlertIcon className="size-6 text-red-400" />
 							<div className="flex-1">
-								<h4 className="text-red-300 font-semibold mb-1">Webcam Error</h4>
+								<h4 className="text-red-300 font-semibold mb-1">{t.webcamSetup.errorTitle}</h4>
 								<p className="text-red-200 text-sm">{error}</p>
 							</div>
 						</div>
@@ -136,13 +140,12 @@ export function WebcamPreview({
 				<div className="bg-amber-950/30 border border-amber-800 rounded-lg p-4 mb-4">
 					<h4 className="text-amber-100 font-semibold mb-2 flex items-center">
 						<AlertIcon className="size-6 mr-3" />
-						Important:
+						{t.webcamSetup.importantLabel}
 					</h4>
 					<ul className="list-disc list-inside space-y-1 text-stone-300 text-sm">
-						<li>Please ensure your webcam is connected</li>
-						<li>Position yourself at the center of the screen</li>
-						<li>Make sure your face is clearly visible</li>
-						<li>Make sure you have adequate lighting</li>
+						<li>{t.webcamSetup.instruction1}</li>
+						<li>{t.webcamSetup.instruction2}</li>
+						<li>{t.webcamSetup.instruction3}</li>
 					</ul>
 				</div>
 
@@ -160,7 +163,7 @@ export function WebcamPreview({
 							{isLoading ? (
 								<>
 									<LoadingIcon className="-ml-1 mr-3 size-5" />
-									Requesting Access...
+									{t.webcamSetup.requestingAccess}
 								</>
 							) : (
 								<>
@@ -178,7 +181,7 @@ export function WebcamPreview({
 											d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
 										/>
 									</svg>
-									Enable Webcam
+									{t.webcamSetup.enableButton}
 								</>
 							)}
 						</span>
@@ -189,7 +192,7 @@ export function WebcamPreview({
 				{(localStream || hasPermission) && !error && (
 					<div className="flex items-center justify-center space-x-2 text-green-400">
 						<CheckmarkIcon className="size-5" />
-						<span className="font-semibold">Webcam is ready!</span>
+						<span className="font-semibold">{t.webcamSetup.readyMessage}</span>
 					</div>
 				)}
 			</div>

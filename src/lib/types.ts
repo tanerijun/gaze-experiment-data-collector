@@ -35,7 +35,7 @@ export interface ImageItem {
 // Participant information
 export interface ParticipantInfo {
 	name: string
-	ageRange: string
+	age: number
 	gender: string
 	wearingGlasses: boolean
 	wearingContacts: boolean

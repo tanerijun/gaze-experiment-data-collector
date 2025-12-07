@@ -1,4 +1,6 @@
 import { useState } from "react"
+import { useTranslation } from "@/hooks/use-translation"
+import type { TranslationObject } from "@/lib/localization"
 import { FullscreenMonitor } from "./fullscreen-monitor"
 import { AlertIcon, CheckmarkIcon } from "./icons"
 
@@ -18,16 +20,16 @@ export interface CalibrationResult {
 	screenY: number
 }
 
-const CALIBRATION_POINTS: CalibrationPoint[] = [
-	{ id: "top-left", x: 5, y: 5, label: "Top Left" },
-	{ id: "top-center", x: 50, y: 5, label: "Top Center" },
-	{ id: "top-right", x: 95, y: 5, label: "Top Right" },
-	{ id: "center-left", x: 5, y: 50, label: "Center Left" },
-	{ id: "center-center", x: 50, y: 50, label: "Center" },
-	{ id: "center-right", x: 95, y: 50, label: "Center Right" },
-	{ id: "bottom-left", x: 5, y: 95, label: "Bottom Left" },
-	{ id: "bottom-center", x: 50, y: 95, label: "Bottom Center" },
-	{ id: "bottom-right", x: 95, y: 95, label: "Bottom Right" },
+const getCalibrationPoints = (t: TranslationObject): CalibrationPoint[] => [
+	{ id: "top-left", x: 5, y: 5, label: t.calibration.pointLabel.topLeft },
+	{ id: "top-center", x: 50, y: 5, label: t.calibration.pointLabel.topCenter },
+	{ id: "top-right", x: 95, y: 5, label: t.calibration.pointLabel.topRight },
+	{ id: "center-left", x: 5, y: 50, label: t.calibration.pointLabel.centerLeft },
+	{ id: "center-center", x: 50, y: 50, label: t.calibration.pointLabel.centerCenter },
+	{ id: "center-right", x: 95, y: 50, label: t.calibration.pointLabel.centerRight },
+	{ id: "bottom-left", x: 5, y: 95, label: t.calibration.pointLabel.bottomLeft },
+	{ id: "bottom-center", x: 50, y: 95, label: t.calibration.pointLabel.bottomCenter },
+	{ id: "bottom-right", x: 95, y: 95, label: t.calibration.pointLabel.bottomRight },
 ]
 
 export function CalibrationOverlay({
@@ -41,6 +43,8 @@ export function CalibrationOverlay({
 	onCancel?: () => void
 	showIntro?: boolean
 }) {
+	const { t } = useTranslation()
+	const CALIBRATION_POINTS = getCalibrationPoints(t)
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [isPulsing, setIsPulsing] = useState(false)
 	const [results, setResults] = useState<CalibrationResult[]>([])
@@ -117,17 +121,11 @@ export function CalibrationOverlay({
 							</div>
 						</div>
 
-						<h2 className="text-3xl font-bold text-red-100 mb-2">Calibration Failed</h2>
+						<h2 className="text-3xl font-bold text-red-100 mb-2">{t.calibration.failedTitle}</h2>
 
 						<div className="text-stone-300 mb-8 text-lg space-y-3">
-							<p>
-								You exited fullscreen mode during calibration. The video recordings are now invalid
-								and will be discarded.
-							</p>
-							<p className="text-amber-200 font-semibold">
-								⚠️ Fullscreen must NOT be exited during the experiment, or you will need to start
-								over.
-							</p>
+							<p>{t.calibration.failedMessage}</p>
+							<p className="text-amber-200 font-semibold">{t.calibration.failedWarning}</p>
 						</div>
 
 						<button
@@ -135,7 +133,7 @@ export function CalibrationOverlay({
 							onClick={onCancel}
 							className="w-full px-6 py-4 bg-red-700 hover:bg-red-600 text-white font-bold rounded-lg transition-colors shadow-lg active:scale-95"
 						>
-							{"Abort & Exit"}
+							{t.calibration.abortButton}
 						</button>
 					</div>
 				</div>
@@ -150,27 +148,22 @@ export function CalibrationOverlay({
 				<FullscreenMonitor enabled={true} />
 				<div className="max-w-lg bg-stone-800 border-4 border-amber-600 rounded-xl p-8 shadow-2xl">
 					<div className="space-y-6 text-center">
-						<h2 className="text-3xl font-bold text-amber-100">Gaze Calibration</h2>
+						<h2 className="text-3xl font-bold text-amber-100">{t.calibration.introTitle}</h2>
 
 						<div className="space-y-4 text-stone-200 text-left">
-							<p className="leading-relaxed">
-								Before we begin, we need to calibrate the gaze tracking system.
-							</p>
+							<p className="leading-relaxed">{t.calibration.introDescription}</p>
 
 							<div className="bg-amber-950/50 border border-amber-800 rounded-lg p-4">
-								<h3 className="text-amber-100 font-semibold mb-3">Instructions:</h3>
+								<h3 className="text-amber-100 font-semibold mb-3">
+									{t.calibration.instructionsLabel}
+								</h3>
 								<ol className="list-decimal list-inside space-y-2 text-sm">
-									<li>Look directly at each point when it appears</li>
-									<li>Keep your head still and only move your eyes</li>
-									<li>Click on the point when you're focused on it</li>
-									<li>The point will pulse briefly, then move to the next one</li>
-									<li>Complete all 9 points for accurate calibration</li>
+									<li>{t.calibration.instruction1}</li>
+									<li>{t.calibration.instruction2}</li>
+									<li>{t.calibration.instruction3}</li>
+									<li>{t.calibration.instruction4}</li>
 								</ol>
 							</div>
-
-							<p className="text-sm text-stone-400">
-								This process takes about 30 seconds and helps ensure accurate gaze tracking data.
-							</p>
 						</div>
 
 						<button
@@ -178,7 +171,7 @@ export function CalibrationOverlay({
 							onClick={handleStartCalibration}
 							className="w-full px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white text-lg font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-800 hover:scale-105 active:scale-95"
 						>
-							Start Calibration
+							{t.calibration.startButton}
 						</button>
 					</div>
 				</div>
@@ -261,22 +254,22 @@ export function CalibrationOverlay({
 					<div className="flex justify-center">
 						<CheckmarkIcon className="size-20 text-green-500" />
 					</div>
-					<h2 className="text-2xl font-bold text-amber-100">Calibration Complete!</h2>
-					<p className="text-stone-300">All calibration points captured successfully!</p>
+					<h2 className="text-2xl font-bold text-amber-100">{t.calibration.completeTitle}</h2>
+					<p className="text-stone-300">{t.calibration.completeMessage}</p>
 					<div className="flex gap-4">
 						<button
 							type="button"
 							onClick={handleRestartCalibrationOnly}
 							className="px-6 py-3 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:ring-offset-stone-950"
 						>
-							Restart Calibration
+							{t.calibration.restartButton}
 						</button>
 						<button
 							type="button"
 							onClick={onClose}
 							className="px-8 py-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-950"
 						>
-							Continue
+							{t.calibration.continueButton}
 						</button>
 					</div>
 				</div>

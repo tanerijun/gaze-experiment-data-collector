@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router"
+import { useTranslation } from "@/hooks/use-translation"
 import { useConfirmDialog } from "@/lib/dialog/hooks"
 import { formatTime } from "@/lib/game-utils"
 import { useRecordingStore } from "@/lib/recording-store"
@@ -18,12 +19,12 @@ export function GameNavbar({
 	const navigate = useNavigate()
 	const { stopRecording, resetSession } = useRecordingStore()
 	const { confirm } = useConfirmDialog()
+	const { t } = useTranslation()
 
 	const handleRestartExperiment = async () => {
 		const confirmed = await confirm({
-			title: "Confirm",
-			message:
-				"Are you sure you want to restart the experiment? This will stop the current recording and return to the main menu.",
+			title: t.game.navbar.restartConfirmTitle,
+			message: t.game.navbar.restartConfirmMessage,
 		})
 
 		if (!confirmed) return
@@ -40,7 +41,7 @@ export function GameNavbar({
 			navigate({ to: "/" })
 		} catch (error) {
 			console.error("Failed to restart experiment:", error)
-			alert("Failed to restart experiment. Please try again.")
+			alert(t.errors.restartExperimentFailed)
 		}
 	}
 
@@ -56,14 +57,14 @@ export function GameNavbar({
 			>
 				<div className="flex gap-2 items-center text-red-200">
 					<span>⟲</span>
-					<span className="hidden lg:block">Restart</span>
+					<span className="hidden lg:block">{t.game.navbar.restartButton}</span>
 				</div>
 			</button>
 
 			<div className="flex items-center gap-2 sm:gap-4 md:gap-6">
 				<div className="flex flex-col items-center">
 					<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
-						Time
+						{t.game.navbar.timeLabel}
 					</span>
 					<span className="text-stone-100 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center">
 						{formatTime(stats.timeElapsed)}
@@ -74,7 +75,7 @@ export function GameNavbar({
 
 				<div className="flex flex-col items-center">
 					<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
-						Moves
+						{t.game.navbar.movesLabel}
 					</span>
 					<span className="text-stone-100 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center">
 						{stats.moves}
@@ -85,7 +86,7 @@ export function GameNavbar({
 
 				<div className="flex flex-col items-center">
 					<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
-						Matches
+						{t.game.navbar.matchesLabel}
 					</span>
 					<span className="text-stone-100 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center">
 						{stats.matches}
@@ -98,7 +99,7 @@ export function GameNavbar({
 
 						<div className="flex flex-col items-center">
 							<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
-								Next Spirit
+								{t.game.navbar.nextSpiritLabel}
 							</span>
 							<span className="text-purple-300 text-[10px] sm:text-xs md:text-sm font-bold w-12 text-center flex items-center justify-center gap-2">
 								<span>👻</span>

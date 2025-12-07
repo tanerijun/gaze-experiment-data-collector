@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent, useState } from "react"
 import { useFullscreen } from "@/hooks/use-fullscreen"
+import { useTranslation } from "@/hooks/use-translation"
 
 interface FullscreenMonitorProps {
 	enabled?: boolean
@@ -16,6 +17,7 @@ export function FullscreenMonitor({
 	onExitFullscreen,
 	onEnterFullscreen,
 }: FullscreenMonitorProps) {
+	const { t } = useTranslation()
 	const { isFullscreen, enter, isSupported } = useFullscreen()
 	const [showWarning, setShowWarning] = useState(false)
 	const handleExitFullscreen = useEffectEvent(onExitFullscreen || doNothing)
@@ -61,16 +63,13 @@ export function FullscreenMonitor({
 					</div>
 
 					{/* Title */}
-					<h2 className="text-3xl font-bold text-amber-100">Fullscreen Mode Exited</h2>
+					<h2 className="text-3xl font-bold text-amber-100">{t.fullscreenMonitor.title}</h2>
 
 					{/* Message */}
 					<div className="space-y-3">
-						<p className="text-stone-200 text-lg leading-relaxed">
-							Data collection has been paused because fullscreen mode was exited.
-						</p>
+						<p className="text-stone-200 text-lg leading-relaxed">{t.fullscreenMonitor.message}</p>
 						<p className="text-stone-400 text-sm leading-relaxed">
-							For accurate data collection, this application must remain in fullscreen mode. Please
-							click the button below to return to fullscreen and resume.
+							{t.fullscreenMonitor.description}
 						</p>
 					</div>
 
@@ -86,16 +85,16 @@ export function FullscreenMonitor({
 						}}
 						className="px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white text-lg font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-800 hover:scale-105 active:scale-95 shadow-lg"
 					>
-						Return to Fullscreen
+						{t.fullscreenMonitor.returnButton}
 					</button>
 
 					{/* Helper text */}
 					<p className="text-stone-500 text-xs">
-						Or press{" "}
+						{t.fullscreenMonitor.keyboardHint}{" "}
 						<kbd className="px-2 py-1 bg-stone-700 rounded border border-stone-600 text-stone-300">
-							F11
+							{t.fullscreenMonitor.keyboardKey}
 						</kbd>{" "}
-						on your keyboard
+						{t.fullscreenMonitor.keyboardHintSuffix}
 					</p>
 				</div>
 			</div>

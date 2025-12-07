@@ -1,12 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 import { CrossedSwordIcon } from "@/components/icons"
+import { LanguageSelectorDialog } from "@/components/language-selector-dialog"
 import ParticipantForm from "@/components/participant-form"
 import { SessionCleanupDialog } from "@/components/session-recovery-dialog"
 import { SetupFlow } from "@/components/setup-flow"
-import { CONSENT_TEXT, useConsentStore } from "@/lib/consent"
+import { useTranslation } from "@/hooks/use-translation"
+import { useConsentStore } from "@/lib/consent"
 import { useCustomDialog } from "@/lib/dialog/hooks"
 import { getAllSessions } from "@/lib/indexed-db"
+import { useLanguageStore } from "@/lib/language-store"
 import { useRecordingStore } from "@/lib/recording-store"
 
 export const Route = createFileRoute("/")({ component: App })
@@ -17,9 +20,19 @@ function App() {
 	const setConsent = useConsentStore((s) => s.setConsent)
 	const participant = useRecordingStore((s) => s.participant)
 	const navigate = useNavigate()
+	const { hasSelectedLanguage, isHydrated } = useLanguageStore()
+	const { t, language } = useTranslation()
 	const [showSetupFlow, setShowSetupFlow] = useState(false)
 	const [showCleanup, setShowCleanup] = useState(false)
 	const [hasStaleSessions, setHasStaleSessions] = useState(false)
+	const [showLanguageSelector, setShowLanguageSelector] = useState(false)
+
+	// Show language selector on first visit
+	useEffect(() => {
+		if (isHydrated && !hasSelectedLanguage) {
+			setShowLanguageSelector(true)
+		}
+	}, [hasSelectedLanguage, isHydrated])
 
 	useEffect(() => {
 		const checkStorage = async () => {
@@ -40,7 +53,7 @@ function App() {
 			size: "large",
 			header: ({ closeDialog }) => (
 				<div className="flex items-center justify-between">
-					<h2 className="text-2xl font-bold text-amber-100">{CONSENT_TEXT.title}</h2>
+					<h2 className="text-2xl font-bold text-amber-100">{t.consent.title}</h2>
 					<button
 						type="button"
 						onClick={closeDialog}
@@ -66,70 +79,42 @@ function App() {
 			),
 			body: () => (
 				<div className="space-y-6 text-stone-200 max-h-[60vh] overflow-y-auto pr-2">
-					<p className="text-amber-200 leading-relaxed">{CONSENT_TEXT.introduction}</p>
+					<p className="text-amber-200 leading-relaxed">{t.consent.introduction}</p>
 
 					<section>
 						<h3 className="text-xl font-semibold text-amber-100 mb-3">
-							{CONSENT_TEXT.whatWeCollect.heading}
+							{t.consent.whatWeCollect.heading}
 						</h3>
 						<ul className="list-disc list-inside space-y-2 ml-2">
-							{CONSENT_TEXT.whatWeCollect.items.map((item) => (
-								<li key={item} className="leading-relaxed">
-									{item}
-								</li>
-							))}
+							<li className="leading-relaxed">{t.consent.whatWeCollect.item1}</li>
+							<li className="leading-relaxed">{t.consent.whatWeCollect.item2}</li>
+							<li className="leading-relaxed">{t.consent.whatWeCollect.item3}</li>
 						</ul>
 					</section>
 
 					<section>
 						<h3 className="text-xl font-semibold text-amber-100 mb-3">
-							{CONSENT_TEXT.howWeUseIt.heading}
+							{t.consent.howWeUseIt.heading}
 						</h3>
-						<p className="leading-relaxed">{CONSENT_TEXT.howWeUseIt.description}</p>
+						<p className="leading-relaxed">{t.consent.howWeUseIt.description}</p>
 					</section>
 
 					<section>
 						<h3 className="text-xl font-semibold text-amber-100 mb-3">
-							{CONSENT_TEXT.privacy.heading}
+							{t.consent.requirements.heading}
 						</h3>
 						<ul className="list-disc list-inside space-y-2 ml-2">
-							{CONSENT_TEXT.privacy.items.map((item) => (
-								<li key={item} className="leading-relaxed">
-									{item}
-								</li>
-							))}
-						</ul>
-					</section>
-
-					<section>
-						<h3 className="text-xl font-semibold text-amber-100 mb-3">
-							{CONSENT_TEXT.rights.heading}
-						</h3>
-						<ul className="list-disc list-inside space-y-2 ml-2">
-							{CONSENT_TEXT.rights.items.map((item) => (
-								<li key={item} className="leading-relaxed">
-									{item}
-								</li>
-							))}
-						</ul>
-					</section>
-
-					<section>
-						<h3 className="text-xl font-semibold text-amber-100 mb-3">
-							{CONSENT_TEXT.requirements.heading}
-						</h3>
-						<ul className="list-disc list-inside space-y-2 ml-2">
-							{CONSENT_TEXT.requirements.items.map((item) => (
-								<li key={item} className="leading-relaxed">
-									{item}
-								</li>
-							))}
+							<li className="leading-relaxed">{t.consent.requirements.item1}</li>
+							<li className="leading-relaxed">{t.consent.requirements.item2}</li>
+							<li className="leading-relaxed">{t.consent.requirements.item3}</li>
+							<li className="leading-relaxed">{t.consent.requirements.item4}</li>
+							<li className="leading-relaxed">{t.consent.requirements.item5}</li>
 						</ul>
 					</section>
 
 					<div className="bg-amber-950/50 border border-amber-800 rounded-lg p-4">
 						<p className="text-amber-100 leading-relaxed font-medium">
-							{CONSENT_TEXT.consentStatement}
+							{t.consent.consentStatement}
 						</p>
 					</div>
 				</div>
@@ -145,7 +130,7 @@ function App() {
 							}}
 							className="px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-stone-900"
 						>
-							I Agree and Consent
+							{t.consent.agreeButton}
 						</button>
 					)}
 					<button
@@ -153,7 +138,7 @@ function App() {
 						onClick={closeDialog}
 						className="px-6 py-2.5 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:ring-offset-stone-900"
 					>
-						Close
+						{t.common.close}
 					</button>
 				</div>
 			),
@@ -166,11 +151,9 @@ function App() {
 			header: () => (
 				<div>
 					<h2 className="text-2xl font-bold bg-linear-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent drop-shadow-lg">
-						Participant Info
+						{t.participantForm.title}
 					</h2>
-					<p className="text-stone-300 text-left text-sm mt-2">
-						Please provide the following information to begin the experiment
-					</p>
+					<p className="text-stone-300 text-left text-sm mt-2">{t.participantForm.description}</p>
 				</div>
 			),
 			body: ({ closeDialog }) => (
@@ -195,6 +178,10 @@ function App() {
 
 	return (
 		<>
+			{showLanguageSelector && (
+				<LanguageSelectorDialog onClose={() => setShowLanguageSelector(false)} />
+			)}
+
 			{showCleanup && (
 				<SessionCleanupDialog
 					onClose={() => {
@@ -211,12 +198,36 @@ function App() {
 				className="min-h-screen bg-cover bg-center bg-no-repeat text-stone-50 flex items-center justify-center px-4"
 				style={{ backgroundImage: "url(/main-menu-bg.png)" }}
 			>
+				{/* Language Switcher Button */}
+				<button
+					type="button"
+					onClick={() => setShowLanguageSelector(true)}
+					className="absolute top-4 left-4 z-40 flex items-center gap-2 bg-stone-900/80 hover:bg-stone-800 text-stone-200 px-4 py-2 rounded-lg backdrop-blur-sm border border-stone-700 transition-all shadow-lg hover:scale-105"
+					aria-label="Change language"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						className="h-5 w-5"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={2}
+							d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
+						/>
+					</svg>
+					<span className="font-semibold">{language === "EN" ? "EN" : "繁中"}</span>
+				</button>
+
 				<div className="max-w-2xl w-full z-10">
 					{hasStaleSessions && (
 						<button
 							type="button"
 							onClick={() => setShowCleanup(true)}
-							className="absolute bottom-4 left-4 z-40 flex items-center gap-2 bg-amber-950/80 hover:bg-amber-900 text-amber-200 px-4 py-2 rounded-lg backdrop-blur-sm border border-amber-800 transition-all shadow-lg animate-in fade-in slide-in-from-bottom-4 hover:scale-105"
+							className="absolute bottom-4 left-4 z-40 flex items-center gap-2 bg-amber-950/80 hover:bg-amber-900 text-amber-200 px-4 py-2 rounded-lg backdrop-blur-sm border border-amber-800 transition-all shadow-lg hover:scale-105"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -232,18 +243,16 @@ function App() {
 									d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
 								/>
 							</svg>
-							<span className="font-semibold">Manage Sessions</span>
+							<span className="font-semibold">{t.mainMenu.manageSessionsButton}</span>
 						</button>
 					)}
 
 					{/* Header */}
 					<div className="text-center mb-12">
 						<h1 className="text-5xl sm:text-7xl font-bold bg-linear-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent mb-4 drop-shadow-lg">
-							The Deep Vault
+							{t.mainMenu.title}
 						</h1>
-						<p className="text-stone-400 text-lg sm:text-xl">
-							Gaze Estimation Data Collection Platform
-						</p>
+						<p className="text-stone-400 text-lg sm:text-xl">{t.mainMenu.subtitle}</p>
 					</div>
 
 					{/* Menu Buttons */}
@@ -270,17 +279,19 @@ function App() {
 							<div className="relative flex items-center justify-center gap-4">
 								<div className="flex-1 text-left pl-4">
 									<h2 className="text-2xl font-bold text-stone-200 group-hover:text-stone-100 transition-colors drop-shadow-md">
-										1. ABOUT
+										{t.mainMenu.aboutButton.title}
 									</h2>
 									<p className="text-stone-400 text-sm group-hover:text-stone-300 transition-colors mt-1">
 										{hasConsented
-											? "Review data collection information"
-											: "Read about data collection & consent"}
+											? t.mainMenu.aboutButton.descriptionWithConsent
+											: t.mainMenu.aboutButton.descriptionNoConsent}
 									</p>
 								</div>
 								<div className="flex items-center gap-2">
 									{hasConsented && (
-										<span className="text-green-400 text-xs font-semibold">✓ Consented</span>
+										<span className="text-green-400 text-xs font-semibold">
+											{t.mainMenu.aboutButton.consentedBadge}
+										</span>
 									)}
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -342,7 +353,7 @@ function App() {
 											hasConsented ? "text-stone-200 group-hover:text-stone-100" : "text-stone-600"
 										}`}
 									>
-										2. PARTICIPANT INFO
+										{t.mainMenu.participantButton.title}
 									</h2>
 									<p
 										className={`text-sm transition-colors mt-1 ${
@@ -350,15 +361,17 @@ function App() {
 										}`}
 									>
 										{participant
-											? "Click to edit information"
+											? t.mainMenu.participantButton.descriptionComplete
 											: hasConsented
-												? "Enter your information"
-												: "Complete consent first"}
+												? t.mainMenu.participantButton.descriptionIncomplete
+												: t.mainMenu.participantButton.descriptionLocked}
 									</p>
 								</div>
 								<div className="flex items-center gap-2">
 									{participant && (
-										<span className="text-green-400 text-xs font-semibold">✓ Complete</span>
+										<span className="text-green-400 text-xs font-semibold">
+											{t.mainMenu.participantButton.completeBadge}
+										</span>
 									)}
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -441,7 +454,7 @@ function App() {
 												: "text-amber-800"
 										}`}
 									>
-										3. START EXPERIMENT
+										{t.mainMenu.startButton.title}
 									</h2>
 									<p
 										className={`text-sm transition-colors ${
@@ -451,10 +464,10 @@ function App() {
 										}`}
 									>
 										{hasConsented && participant
-											? "Begin setup & data collection"
+											? t.mainMenu.startButton.descriptionReady
 											: !hasConsented
-												? "Complete consent first"
-												: "Enter participant info first"}
+												? t.mainMenu.startButton.descriptionConsentNeeded
+												: t.mainMenu.startButton.descriptionInfoNeeded}
 									</p>
 								</div>
 							</div>
@@ -470,10 +483,10 @@ function App() {
 					<div className="mt-12 text-center space-y-4">
 						<p className="text-stone-400 text-sm">
 							{!hasConsented
-								? "Step 1: Read the About section to learn more and provide consent"
+								? t.mainMenu.footer.step1
 								: !participant
-									? "Step 2: Enter your participant information"
-									: "Step 3: Click 'Start Experiment' to begin data collection"}
+									? t.mainMenu.footer.step2
+									: t.mainMenu.footer.step3}
 						</p>
 					</div>
 				</div>

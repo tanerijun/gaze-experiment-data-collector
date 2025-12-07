@@ -8,6 +8,7 @@ import { GameNavbar } from "@/components/game-navbar"
 import { RecordingIndicator } from "@/components/recording-indicator"
 import { useInterval } from "@/hooks/use-interval"
 import { useSpiritTimer } from "@/hooks/use-spirit-timer"
+import { useTranslation } from "@/hooks/use-translation"
 import { extractCardPositions } from "@/lib/click-tracker"
 import { useConfirmDialog } from "@/lib/dialog/hooks"
 import { checkMatch, GRID_CONFIG, initializeGame } from "@/lib/game-utils"
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/game")({
 })
 
 function RouteComponent() {
+	const { t } = useTranslation()
 	const [cards, setCards] = useState<Card[]>(() => initializeGame())
 	const [flippedCards, setFlippedCards] = useState<Card[]>([])
 	const [gameState, setGameState] = useState<GameState>("playing")
@@ -178,11 +180,10 @@ function RouteComponent() {
 			// Warn user if they haven't uploaded yet
 			if (!hasUploaded) {
 				const shouldContinue = await confirm({
-					title: "Data Not Uploaded",
-					message:
-						"You haven't uploaded your data yet. If you return to the menu now, your recording data will be lost. Are you sure you want to continue?",
-					confirmText: "Yes, Return to Menu",
-					cancelText: "Cancel",
+					title: t.game.returnConfirmTitle,
+					message: t.game.returnConfirmMessage,
+					confirmText: t.game.returnConfirmYes,
+					cancelText: t.game.returnConfirmCancel,
 				})
 
 				if (!shouldContinue) {
@@ -210,7 +211,7 @@ function RouteComponent() {
 			navigate({ to: "/" })
 		} catch (error) {
 			console.error("Failed to return to menu:", error)
-			alert("Failed to return to menu. Please try again.")
+			alert(t.errors.returnToMenuFailed)
 		}
 	}
 
@@ -274,19 +275,22 @@ function RouteComponent() {
 						<div className="absolute bottom-2 right-2 w-3 h-3 border-r-2 border-b-2 border-yellow-400" />
 
 						<h2 className="text-4xl font-bold text-yellow-100 mb-4 drop-shadow-lg">
-							Game Complete!
+							{t.game.winDialog.title}
 						</h2>
-						<p className="text-yellow-200 mb-6">Congratulations! You found all the pairs!</p>
+						<p className="text-yellow-200 mb-6">{t.game.winDialog.message}</p>
 
 						<div className="space-y-2 mb-8 text-left bg-amber-950/40 rounded-lg p-4 border border-yellow-700/50">
 							<p className="text-yellow-100">
-								<span className="text-yellow-300 font-bold">💎 Matches:</span> {stats.matches}
+								<span className="text-yellow-300 font-bold">{t.game.winDialog.matchesLabel}</span>{" "}
+								{stats.matches}
 							</p>
 							<p className="text-yellow-100">
-								<span className="text-yellow-300 font-bold">🎯 Moves:</span> {stats.moves}
+								<span className="text-yellow-300 font-bold">{t.game.winDialog.movesLabel}</span>{" "}
+								{stats.moves}
 							</p>
 							<p className="text-yellow-100">
-								<span className="text-yellow-300 font-bold">⏱️ Time:</span> {stats.timeElapsed}s
+								<span className="text-yellow-300 font-bold">{t.game.winDialog.timeLabel}</span>{" "}
+								{stats.timeElapsed}s
 							</p>
 						</div>
 
@@ -317,7 +321,7 @@ function RouteComponent() {
 											d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
 										/>
 									</svg>
-									Upload Data
+									{t.game.winDialog.uploadButton}
 								</span>
 							</button>
 						)}
@@ -333,7 +337,7 @@ function RouteComponent() {
 
 							{/* Top border accent */}
 							<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-200 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-							<span className="relative z-10">Return to Menu</span>
+							<span className="relative z-10">{t.game.winDialog.returnButton}</span>
 						</button>
 					</div>
 				</div>

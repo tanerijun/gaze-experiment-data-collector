@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react"
+import { useTranslation } from "@/hooks/use-translation"
 import { formatDuration } from "@/lib/data-export"
 import { useRecordingStore } from "@/lib/recording-store"
 
 export function RecordingIndicator() {
+	const { t } = useTranslation()
 	const { isRecording, isPaused, recordingStartTime } = useRecordingStore()
 	const [duration, setDuration] = useState(0)
 
@@ -41,7 +43,7 @@ export function RecordingIndicator() {
 				{/* Status text */}
 				<div className="flex flex-col">
 					<span className="text-xs text-stone-400 leading-tight">
-						{isPaused ? "PAUSED" : "RECORDING"}
+						{isPaused ? t.recordingIndicator.paused : t.recordingIndicator.recording}
 					</span>
 					<span className="text-sm font-mono text-amber-100 leading-tight">
 						{formatDuration(duration)}
