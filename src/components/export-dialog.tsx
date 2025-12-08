@@ -16,6 +16,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 	const [error, setError] = useState<string | null>(null)
 	const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null)
 	const [successMessage, setSuccessMessage] = useState<string | null>(null)
+	const [uploadCompleted, setUploadCompleted] = useState(false)
 	const zipBlobRef = useRef<Blob | null>(null)
 
 	const {
@@ -108,6 +109,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 					setSuccessMessage(t.exportDialog.successMessage)
 					setUploadProgress(null)
 					setIsProcessing(false)
+					setUploadCompleted(true)
 					markAsUploaded()
 				},
 				onError: (err) => {
@@ -271,7 +273,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 					<button
 						type="button"
 						onClick={handleUpload}
-						disabled={isProcessing}
+						disabled={isProcessing || uploadCompleted}
 						className="w-full group relative overflow-hidden px-6 py-3 bg-linear-to-br from-green-700 to-emerald-600 hover:from-green-600 hover:to-emerald-500 text-white font-bold rounded-lg shadow-lg border-2 border-green-400 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-stone-900"
 					>
 						<div className="absolute inset-0 bg-linear-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
