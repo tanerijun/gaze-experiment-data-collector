@@ -308,6 +308,39 @@ export async function getFirstChunkTimestamp(
 }
 
 /**
+ * Get the offset of the very first chunk for a specific stream
+ */
+export async function getFirstChunkOffset(
+	sessionId: string,
+	type: "webcam" | "screen",
+): Promise<number | null> {
+	const db = await initDB()
+
+	return new Promise((resolve, reject) => {
+		const transaction = db.transaction([VIDEO_CHUNKS_STORE], "readonly")
+		const store = transaction.objectStore(VIDEO_CHUNKS_STORE)
+		const index = store.index("sessionType")
+
+		// Get only the first record
+		const request = index.openCursor(IDBKeyRange.only([sessionId, type]), "next")
+
+		request.onsuccess = (event) => {
+			const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result
+			if (cursor) {
+			  if (!cursor.value.chunkOffset && cursor.value.chunkOffset !== 0) {
+					throw new Error("Expected chunkOffset")
+				}
+				resolve(cursor.value.chunkOffset)
+			} else {
+				resolve(null)
+			}
+		}
+
+		request.onerror = () => reject(new Error("Failed to get first chunk timestamp"))
+	})
+}
+
+/**
  * Count total chunks for a session
  */
 export async function countVideoChunks(

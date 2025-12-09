@@ -6,7 +6,12 @@
  * first chunks at different times for each stream.
  */
 
-import { countVideoChunks, getFirstChunkTimestamp, getSession } from "./indexed-db"
+import {
+	countVideoChunks,
+	getFirstChunkOffset,
+	getFirstChunkTimestamp,
+	getSession,
+} from "./indexed-db"
 
 export interface VideoAlignmentInfo {
 	sessionId: string
@@ -41,14 +46,22 @@ export async function calculateVideoAlignment(
 		return null
 	}
 
-	// Get ONLY the start timestamps (Efficient)
-	const [webcamStart, screenStart] = await Promise.all([
+	const [webcamOffset, screenOffset, webcamStart, screenStart] = await Promise.all([
+		getFirstChunkOffset(sessionId, "webcam"),
+		getFirstChunkOffset(sessionId, "screen"),
 		getFirstChunkTimestamp(sessionId, "webcam"),
 		getFirstChunkTimestamp(sessionId, "screen"),
 	])
 
+	console.log("Alignment debug:", {
+		webcamOffset,
+		screenOffset,
+		webcamStart,
+		screenStart,
+	})
+
 	// If either stream failed to record even a single chunk, we can't align
-	if (!webcamStart || !screenStart) {
+	if (webcamOffset === null || screenOffset === null || !webcamStart || !screenStart) {
 		return null
 	}
 
@@ -57,10 +70,6 @@ export async function calculateVideoAlignment(
 		countVideoChunks(sessionId, "webcam"),
 		countVideoChunks(sessionId, "screen"),
 	])
-
-	// Calculate Offsets
-	const webcamOffset = webcamStart - session.recordingStartTime
-	const screenOffset = screenStart - session.recordingStartTime
 
 	// Calculate Alignment
 	const webcamLeadsBy = Math.max(0, screenOffset - webcamOffset)

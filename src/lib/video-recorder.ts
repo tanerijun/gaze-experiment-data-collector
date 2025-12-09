@@ -170,6 +170,7 @@ export class VideoRecorder {
 			sessionId: this.sessionId,
 			type: this.type,
 			timestamp: Date.now(),
+			chunkOffset: Date.now() - this.startTime,
 			data: blob,
 		}
 

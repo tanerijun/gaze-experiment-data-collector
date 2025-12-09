@@ -124,6 +124,7 @@ export interface VideoChunk {
 	sessionId: string
 	type: "webcam" | "screen"
 	timestamp: number
+	chunkOffset: number // milliseconds from recording start (for alignment)
 	data: Blob
 }
 
