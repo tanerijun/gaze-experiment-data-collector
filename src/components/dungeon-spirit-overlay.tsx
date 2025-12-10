@@ -85,11 +85,7 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 			)}
 
 			{showOverlay && (
-				<div
-					className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex items-center justify-center"
-					data-spirit="true"
-					id="dungeon-spirit"
-				>
+				<div className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex items-center justify-center">
 					{/* Spirit orb - clickable */}
 					<button
 						type="button"
@@ -107,6 +103,7 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 						aria-label={t.dungeonSpirit.clickLabel}
 						disabled={isClicked}
 						data-spirit="true"
+						id="dungeon-spirit"
 					>
 						{/* Outer glow ring - pulsing purple */}
 						<div
