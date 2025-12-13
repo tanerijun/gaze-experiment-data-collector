@@ -1,0 +1,198 @@
+{
+  "description": "Predefined calibration grid configurations for 5x5 grid experiments",
+  "gridSize": {
+    "rows": 5,
+    "cols": 5,
+    "totalPoints": 25
+  },
+  "positions": {
+    "x": [5, 27.5, 50, 72.5, 95],
+    "y": [5, 27.5, 50, 72.5, 95]
+  },
+  "configurations": {
+    "4-point": {
+      "name": "4-Point (Corners Only)",
+      "description": "Minimal calibration with 4 corner points only",
+      "pointCount": 4,
+      "pointIds": ["r0c0", "r0c4", "r4c0", "r4c4"],
+      "filter": {
+        "logic": "(row === 0 || row === 4) && (col === 0 || col === 4)"
+      }
+    },
+    "5-point": {
+      "name": "5-Point (Corners + Center)",
+      "description": "Standard minimal calibration used in many eye trackers",
+      "pointCount": 5,
+      "pointIds": ["r0c0", "r0c4", "r2c2", "r4c0", "r4c4"],
+      "filter": {
+        "logic": "(row === 0 && col === 0) || (row === 0 && col === 4) || (row === 2 && col === 2) || (row === 4 && col === 0) || (row === 4 && col === 4)"
+      }
+    },
+    "9-point": {
+      "name": "9-Point (3x3 Grid)",
+      "description": "Industry standard calibration grid",
+      "pointCount": 9,
+      "pointIds": ["r0c0", "r0c2", "r0c4", "r2c0", "r2c2", "r2c4", "r4c0", "r4c2", "r4c4"],
+      "filter": {
+        "logic": "row % 2 === 0 && col % 2 === 0"
+      }
+    },
+    "13-point": {
+      "name": "13-Point (Perimeter + Center)",
+      "description": "Full perimeter coverage with center point",
+      "pointCount": 13,
+      "pointIds": [
+        "r0c0", "r0c1", "r0c2", "r0c3", "r0c4",
+        "r1c0", "r1c4",
+        "r2c0", "r2c2", "r2c4",
+        "r3c0", "r3c4",
+        "r4c0", "r4c1", "r4c2", "r4c3", "r4c4"
+      ],
+      "filter": {
+        "logic": "row === 0 || row === 4 || col === 0 || col === 4 || (row === 2 && col === 2)"
+      }
+    },
+    "17-point": {
+      "name": "17-Point (Perimeter + Cross)",
+      "description": "Perimeter with full horizontal and vertical center lines",
+      "pointCount": 17,
+      "pointIds": [
+        "r0c0", "r0c1", "r0c2", "r0c3", "r0c4",
+        "r1c0", "r1c4",
+        "r2c0", "r2c1", "r2c2", "r2c3", "r2c4",
+        "r3c0", "r3c4",
+        "r4c0", "r4c1", "r4c2", "r4c3", "r4c4"
+      ],
+      "filter": {
+        "logic": "row === 0 || row === 4 || col === 0 || col === 4 || row === 2 || col === 2"
+      }
+    },
+    "21-point": {
+      "name": "21-Point (Exclude Inner Diagonals)",
+      "description": "Dense calibration excluding 4 inner diagonal points",
+      "pointCount": 21,
+      "pointIds": [
+        "r0c0", "r0c1", "r0c2", "r0c3", "r0c4",
+        "r1c0", "r1c2", "r1c4",
+        "r2c0", "r2c1", "r2c2", "r2c3", "r2c4",
+        "r3c0", "r3c2", "r3c4",
+        "r4c0", "r4c1", "r4c2", "r4c3", "r4c4"
+      ],
+      "filter": {
+        "logic": "!((row === 1 && col === 1) || (row === 1 && col === 3) || (row === 3 && col === 1) || (row === 3 && col === 3))"
+      }
+    },
+    "25-point": {
+      "name": "25-Point (Full Dense Grid)",
+      "description": "Complete 5x5 grid with maximum coverage",
+      "pointCount": 25,
+      "pointIds": [
+        "r0c0", "r0c1", "r0c2", "r0c3", "r0c4",
+        "r1c0", "r1c1", "r1c2", "r1c3", "r1c4",
+        "r2c0", "r2c1", "r2c2", "r2c3", "r2c4",
+        "r3c0", "r3c1", "r3c2", "r3c3", "r3c4",
+        "r4c0", "r4c1", "r4c2", "r4c3", "r4c4"
+      ],
+      "filter": {
+        "logic": "true"
+      }
+    }
+  },
+  "customPatterns": {
+    "corners": {
+      "name": "4 Corners",
+      "pointIds": ["r0c0", "r0c4", "r4c0", "r4c4"]
+    },
+    "center-3x3": {
+      "name": "Center 3x3 Square",
+      "pointIds": ["r1c1", "r1c2", "r1c3", "r2c1", "r2c2", "r2c3", "r3c1", "r3c2", "r3c3"]
+    },
+    "horizontal-strip": {
+      "name": "Horizontal Middle Strip (3 rows)",
+      "pointIds": [
+        "r1c0", "r1c1", "r1c2", "r1c3", "r1c4",
+        "r2c0", "r2c1", "r2c2", "r2c3", "r2c4",
+        "r3c0", "r3c1", "r3c2", "r3c3", "r3c4"
+      ]
+    },
+    "vertical-strip": {
+      "name": "Vertical Middle Strip (3 cols)",
+      "pointIds": [
+        "r0c1", "r0c2", "r0c3",
+        "r1c1", "r1c2", "r1c3",
+        "r2c1", "r2c2", "r2c3",
+        "r3c1", "r3c2", "r3c3",
+        "r4c1", "r4c2", "r4c3"
+      ]
+    },
+    "left-half": {
+      "name": "Left Half (cols 0-2)",
+      "pointIds": [
+        "r0c0", "r0c1", "r0c2",
+        "r1c0", "r1c1", "r1c2",
+        "r2c0", "r2c1", "r2c2",
+        "r3c0", "r3c1", "r3c2",
+        "r4c0", "r4c1", "r4c2"
+      ]
+    },
+    "right-half": {
+      "name": "Right Half (cols 2-4)",
+      "pointIds": [
+        "r0c2", "r0c3", "r0c4",
+        "r1c2", "r1c3", "r1c4",
+        "r2c2", "r2c3", "r2c4",
+        "r3c2", "r3c3", "r3c4",
+        "r4c2", "r4c3", "r4c4"
+      ]
+    },
+    "top-half": {
+      "name": "Top Half (rows 0-2)",
+      "pointIds": [
+        "r0c0", "r0c1", "r0c2", "r0c3", "r0c4",
+        "r1c0", "r1c1", "r1c2", "r1c3", "r1c4",
+        "r2c0", "r2c1", "r2c2", "r2c3", "r2c4"
+      ]
+    },
+    "bottom-half": {
+      "name": "Bottom Half (rows 2-4)",
+      "pointIds": [
+        "r2c0", "r2c1", "r2c2", "r2c3", "r2c4",
+        "r3c0", "r3c1", "r3c2", "r3c3", "r3c4",
+        "r4c0", "r4c1", "r4c2", "r4c3", "r4c4"
+      ]
+    },
+    "diagonal-main": {
+      "name": "Main Diagonal (top-left to bottom-right)",
+      "pointIds": ["r0c0", "r1c1", "r2c2", "r3c3", "r4c4"]
+    },
+    "diagonal-anti": {
+      "name": "Anti-diagonal (top-right to bottom-left)",
+      "pointIds": ["r0c4", "r1c3", "r2c2", "r3c1", "r4c0"]
+    },
+    "checkerboard-white": {
+      "name": "Checkerboard (white squares)",
+      "pointIds": [
+        "r0c0", "r0c2", "r0c4",
+        "r1c1", "r1c3",
+        "r2c0", "r2c2", "r2c4",
+        "r3c1", "r3c3",
+        "r4c0", "r4c2", "r4c4"
+      ]
+    },
+    "checkerboard-black": {
+      "name": "Checkerboard (black squares)",
+      "pointIds": [
+        "r0c1", "r0c3",
+        "r1c0", "r1c2", "r1c4",
+        "r2c1", "r2c3",
+        "r3c0", "r3c2", "r3c4",
+        "r4c1", "r4c3"
+      ]
+    }
+  },
+  "usage": {
+    "javascript": "const filtered = calibrationData.filter(point => point.pointId in ['r0c0', 'r0c4', 'r4c0', 'r4c4']);",
+    "python": "filtered = [p for p in calibration_data if p['pointId'] in ['r0c0', 'r0c4', 'r4c0', 'r4c4']]",
+    "r": "filtered <- calibration_data %>% filter(pointId %in% c('r0c0', 'r0c4', 'r4c0', 'r4c4'))"
+  }
+}

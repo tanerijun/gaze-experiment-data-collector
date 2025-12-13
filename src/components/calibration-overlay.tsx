@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { useTranslation } from "@/hooks/use-translation"
-import type { TranslationObject } from "@/lib/localization"
 import { FullscreenMonitor } from "./fullscreen-monitor"
 import { AlertIcon, CheckmarkIcon } from "./icons"
 
@@ -8,6 +7,8 @@ interface CalibrationPoint {
 	id: string
 	x: number // percentage
 	y: number // percentage
+	row: number // 0-4 for 5x5 grid
+	col: number // 0-4 for 5x5 grid
 	label: string
 }
 
@@ -15,22 +16,51 @@ export interface CalibrationResult {
 	pointId: string
 	x: number
 	y: number
+	row: number
+	col: number
 	timestamp: number
 	screenX: number
 	screenY: number
 }
 
-const getCalibrationPoints = (t: TranslationObject): CalibrationPoint[] => [
-	{ id: "top-left", x: 5, y: 5, label: t.calibration.pointLabel.topLeft },
-	{ id: "top-center", x: 50, y: 5, label: t.calibration.pointLabel.topCenter },
-	{ id: "top-right", x: 95, y: 5, label: t.calibration.pointLabel.topRight },
-	{ id: "center-left", x: 5, y: 50, label: t.calibration.pointLabel.centerLeft },
-	{ id: "center-center", x: 50, y: 50, label: t.calibration.pointLabel.centerCenter },
-	{ id: "center-right", x: 95, y: 50, label: t.calibration.pointLabel.centerRight },
-	{ id: "bottom-left", x: 5, y: 95, label: t.calibration.pointLabel.bottomLeft },
-	{ id: "bottom-center", x: 50, y: 95, label: t.calibration.pointLabel.bottomCenter },
-	{ id: "bottom-right", x: 95, y: 95, label: t.calibration.pointLabel.bottomRight },
-]
+const getCalibrationPoints = (): CalibrationPoint[] => {
+	const positions = [5, 27.5, 50, 72.5, 95]
+	const points: CalibrationPoint[] = []
+
+	for (let row = 0; row < 5; row++) {
+		for (let col = 0; col < 5; col++) {
+			const y = positions[row]
+			const x = positions[col]
+
+			// Generate descriptive label
+			let label = ""
+			if (row === 0) label = "Top"
+			else if (row === 1) label = "Upper"
+			else if (row === 2) label = "Middle"
+			else if (row === 3) label = "Lower"
+			else label = "Bottom"
+
+			label += " "
+
+			if (col === 0) label += "Left"
+			else if (col === 1) label += "Left-Center"
+			else if (col === 2) label += "Center"
+			else if (col === 3) label += "Right-Center"
+			else label += "Right"
+
+			points.push({
+				id: `r${row}c${col}`,
+				x,
+				y,
+				row,
+				col,
+				label,
+			})
+		}
+	}
+
+	return points
+}
 
 export function CalibrationOverlay({
 	onComplete,
@@ -44,7 +74,7 @@ export function CalibrationOverlay({
 	showIntro?: boolean
 }) {
 	const { t } = useTranslation()
-	const CALIBRATION_POINTS = getCalibrationPoints(t)
+	const CALIBRATION_POINTS = getCalibrationPoints()
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [isPulsing, setIsPulsing] = useState(false)
 	const [results, setResults] = useState<CalibrationResult[]>([])
@@ -77,6 +107,8 @@ export function CalibrationOverlay({
 			pointId: currentPoint.id,
 			x: currentPoint.x,
 			y: currentPoint.y,
+			row: currentPoint.row,
+			col: currentPoint.col,
 			timestamp: Date.now(),
 			screenX: event.clientX,
 			screenY: event.clientY,

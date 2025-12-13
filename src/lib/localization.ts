@@ -162,7 +162,7 @@ export const EN = {
 		introTitle: "Gaze Calibration",
 		introDescription: "Before we begin, we need to calibrate the gaze tracking system.",
 		instructionsLabel: "Instructions:",
-		instruction1: "There will be 9 points to click on the screen",
+		instruction1: "There will be 25 points to click on the screen",
 		instruction2: "Keep your head still and only move your eyes",
 		instruction3: "Focus your gaze on the point, click it, and keep staring until it moves",
 		instruction4:
@@ -489,7 +489,7 @@ export const ZH_TW = {
 		introTitle: "視線校準",
 		introDescription: "在開始遊戲之前，我們需要校準視線追蹤系統。",
 		instructionsLabel: "說明：",
-		instruction1: "螢幕上會出現 9 個黃點",
+		instruction1: "螢幕上會有 25 個點需要點擊",
 		instruction2: "校準過程保持頭部不動，只移動眼睛",
 		instruction3: "聚焦並點擊黃點，繼續聚焦直到黃點移動",
 		instruction4: "點擊和聚焦過程請別眨眼（點擊前可以眨眼）",
