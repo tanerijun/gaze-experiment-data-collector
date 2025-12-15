@@ -19,6 +19,15 @@ const wiggleStyles = `
 .animate-wiggle {
   animation: wiggle 0.5s ease-in-out infinite;
 }
+
+@keyframes redFlash {
+  0%, 100% { background-color: rgb(239, 68, 68); }
+  50% { background-color: rgb(220, 38, 38); }
+}
+
+.animate-red-flash {
+  animation: redFlash 0.6s ease-in-out;
+}
 `
 
 interface SpiritPosition {
@@ -43,7 +52,7 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 		const appearTimer = setTimeout(() => {
 			setShowAppearMessage(false)
 			setShowOverlay(true)
-		}, 2000)
+		}, 1500)
 		return () => clearTimeout(appearTimer)
 	}, [])
 
@@ -60,10 +69,9 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 			setShowOverlay(false)
 			setShowBanishMessage(true)
 
-			// Show banishment message for 1.5 seconds, then trigger callback
 			setTimeout(() => {
 				onSpiritClick()
-			}, 1500)
+			}, 1000)
 		}, 1000)
 	}
 
@@ -85,7 +93,7 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 			)}
 
 			{showOverlay && (
-				<div className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex items-center justify-center">
+				<div className="fixed inset-0 z-50 bg-stone-950/98 backdrop-blur-sm flex items-center justify-center">
 					{/* Spirit orb - clickable */}
 					<button
 						type="button"
@@ -97,8 +105,8 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 							left: `${position.x}%`,
 							top: `${position.y}%`,
 							transform: "translate(-50%, -50%)",
-							width: "50px",
-							height: "50px",
+							width: "35px",
+							height: "35px",
 						}}
 						aria-label={t.dungeonSpirit.clickLabel}
 						disabled={isClicked}
@@ -109,8 +117,8 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 						<div
 							className={`absolute rounded-full ${isClicked ? "animate-ping" : "animate-ping"}`}
 							style={{
-								width: "50px",
-								height: "50px",
+								width: "35px",
+								height: "35px",
 								left: "0",
 								top: "0",
 								background:
@@ -122,36 +130,36 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 						<div
 							className={`absolute rounded-full border-2 transition-all duration-300 ${
 								isClicked
-									? "border-green-400 scale-100 opacity-100"
+									? "border-red-400 scale-100 opacity-100"
 									: "border-purple-400 scale-100 opacity-100"
 							}`}
 							style={{
-								width: "32px",
-								height: "32px",
-								left: "9px",
-								top: "9px",
+								width: "22px",
+								height: "22px",
+								left: "6.5px",
+								top: "6.5px",
 							}}
 						/>
 
 						{/* Inner orb - glowing purple */}
 						<div
 							className={`absolute rounded-full shadow-lg transition-all duration-300 ${
-								isClicked ? "scale-100 bg-green-500" : "scale-100 bg-purple-500"
+								isClicked ? "scale-100 bg-red-500 animate-red-flash" : "scale-100 bg-purple-500"
 							}`}
 							style={{
-								width: "20px",
-								height: "20px",
-								left: "15px",
-								top: "15px",
+								width: "13px",
+								height: "13px",
+								left: "11px",
+								top: "11px",
 								boxShadow: isClicked
-									? "0 0 30px rgba(34, 197, 94, 0.9), 0 0 60px rgba(34, 197, 94, 0.5)"
-									: "0 0 24px rgba(168, 85, 247, 0.8), 0 0 48px rgba(147, 51, 234, 0.4)",
+									? "0 0 20px rgba(34, 197, 94, 0.9), 0 0 40px rgba(34, 197, 94, 0.5)"
+									: "0 0 16px rgba(168, 85, 247, 0.8), 0 0 32px rgba(147, 51, 234, 0.4)",
 							}}
 						/>
 
 						{/* Spirit emoji overlay */}
 						<div
-							className={`absolute text-2xl transition-all duration-300 ${
+							className={`absolute text-lg transition-all duration-300 ${
 								isClicked ? "opacity-100" : "opacity-90"
 							}`}
 							style={{
