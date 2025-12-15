@@ -47,7 +47,7 @@ export function GameNavbar({ ghostsKilled }: GameNavbarProps) {
 				aria-label="Restart experiment"
 				title="Stop recording and return to main menu"
 			>
-				<div className="flex gap-2 items-center text-red-200">
+				<div className="flex gap-2 text-sm items-center text-red-200">
 					<span>⟲</span>
 					<span className="hidden lg:block">{t.game.navbar.restartButton}</span>
 				</div>
@@ -55,7 +55,7 @@ export function GameNavbar({ ghostsKilled }: GameNavbarProps) {
 
 			<div className="flex items-center gap-2 sm:gap-4 md:gap-6">
 				<div className="flex flex-col items-center">
-					<span className="text-stone-400 text-[8px] sm:text-[10px] uppercase tracking-wider font-bold">
+					<span className="text-stone-400 text-sm uppercase tracking-wider font-bold">
 						{t.game.navbar.ghostsKilledLabel}
 					</span>
 					<span className="text-purple-300 text-[10px] sm:text-xs md:text-sm font-bold flex items-center justify-center gap-2">

@@ -33,7 +33,7 @@ export function ExperimentTutorial({ onComplete, onCancel }: ExperimentTutorialP
 
 	return (
 		<div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-			<div className="bg-linear-to-br from-stone-900 via-stone-800 to-stone-900 rounded-xl shadow-2xl border-4 border-amber-600 p-8 max-w-4xl w-full relative overflow-hidden">
+			<div className="bg-linear-to-br from-stone-900 via-stone-800 to-stone-900 rounded-xl shadow-2xl border-4 border-amber-600 p-8 max-w-3xl w-full relative overflow-hidden">
 				{/* Top border accent */}
 				<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent" />
 
@@ -45,7 +45,7 @@ export function ExperimentTutorial({ onComplete, onCancel }: ExperimentTutorialP
 
 				{/* Intro Step */}
 				{currentStep === "intro" && (
-					<div className="space-y-6">
+					<div className="space-y-4">
 						<h2 className="text-3xl font-bold text-amber-100 text-center">
 							{t.tutorial.intro.title}
 						</h2>
@@ -55,7 +55,7 @@ export function ExperimentTutorial({ onComplete, onCancel }: ExperimentTutorialP
 						</p>
 
 						<div className="bg-amber-950/30 border border-amber-800 rounded-lg p-6">
-							<h3 className="text-amber-100 font-semibold mb-4 flex items-center text-lg">
+							<h3 className="text-amber-100 font-semibold mb-4 flex items-center">
 								<AlertIcon className="size-6 mr-2" />
 								{t.tutorial.intro.partsLabel}
 							</h3>
@@ -68,7 +68,7 @@ export function ExperimentTutorial({ onComplete, onCancel }: ExperimentTutorialP
 										<h4 className="text-amber-100 font-semibold mb-1">
 											{t.tutorial.intro.part1Title}
 										</h4>
-										<p className="text-stone-300 text-sm">{t.tutorial.intro.part1Description}</p>
+										<p className="text-stone-300">{t.tutorial.intro.part1Description}</p>
 									</div>
 								</div>
 								<div className="flex items-start space-x-3">
@@ -79,14 +79,14 @@ export function ExperimentTutorial({ onComplete, onCancel }: ExperimentTutorialP
 										<h4 className="text-amber-100 font-semibold mb-1">
 											{t.tutorial.intro.part2Title}
 										</h4>
-										<p className="text-stone-300 text-sm">{t.tutorial.intro.part2Description}</p>
+										<p className="text-stone-300">{t.tutorial.intro.part2Description}</p>
 									</div>
 								</div>
 							</div>
 						</div>
 
 						<div className="bg-blue-950/30 border border-blue-800 rounded-lg p-4">
-							<p className="text-blue-200 text-sm flex items-start">
+							<p className="text-blue-200 flex items-start">
 								<CheckmarkIcon className="size-5 mr-2 mt-0.5 shrink-0" />
 								<span>{t.tutorial.intro.estimatedTime}</span>
 							</p>
@@ -128,9 +128,7 @@ export function ExperimentTutorial({ onComplete, onCancel }: ExperimentTutorialP
 						</h2>
 
 						<div className="bg-stone-800/50 border border-stone-700 rounded-lg p-6">
-							<h3 className="text-amber-100 font-semibold mb-3 text-lg">
-								{t.tutorial.game.storyTitle}
-							</h3>
+							<h3 className="text-amber-100 font-semibold mb-3">{t.tutorial.game.storyTitle}</h3>
 							<p className="text-stone-200 leading-relaxed">{t.tutorial.game.storyDescription}</p>
 						</div>
 
@@ -141,46 +139,39 @@ export function ExperimentTutorial({ onComplete, onCancel }: ExperimentTutorialP
 							</h3>
 							<div className="space-y-4">
 								<div className="flex items-start space-x-3">
-									<div className="shrink-0 w-8 h-8 rounded-full bg-amber-600 text-amber-950 font-bold flex items-center justify-center text-sm">
+									<div className="shrink-0 w-8 h-8 rounded-full bg-amber-600 text-amber-950 font-bold flex items-center justify-center text-sm font-main">
 										1
 									</div>
 									<div>
 										<h4 className="text-amber-100 font-semibold mb-1">
 											{t.tutorial.game.step1Title}
 										</h4>
-										<p className="text-stone-300 text-sm">{t.tutorial.game.step1Description}</p>
+										<p className="text-stone-300">{t.tutorial.game.step1Description}</p>
 									</div>
 								</div>
 								<div className="flex items-start space-x-3">
-									<div className="shrink-0 w-8 h-8 rounded-full bg-amber-600 text-amber-950 font-bold flex items-center justify-center text-sm">
+									<div className="shrink-0 w-8 h-8 rounded-full bg-amber-600 text-amber-950 font-bold flex items-center justify-center text-sm font-main">
 										2
 									</div>
 									<div>
 										<h4 className="text-amber-100 font-semibold mb-1">
 											{t.tutorial.game.step2Title}
 										</h4>
-										<p className="text-stone-300 text-sm">{t.tutorial.game.step2Description}</p>
+										<p className="text-stone-300">{t.tutorial.game.step2Description}</p>
 									</div>
 								</div>
 								<div className="flex items-start space-x-3">
-									<div className="shrink-0 w-8 h-8 rounded-full bg-amber-600 text-amber-950 font-bold flex items-center justify-center text-sm">
+									<div className="shrink-0 w-8 h-8 rounded-full bg-amber-600 text-amber-950 font-bold flex items-center justify-center text-sm font-main">
 										3
 									</div>
 									<div>
 										<h4 className="text-amber-100 font-semibold mb-1">
 											{t.tutorial.game.step3Title}
 										</h4>
-										<p className="text-stone-300 text-sm">{t.tutorial.game.step3Description}</p>
+										<p className="text-stone-300">{t.tutorial.game.step3Description}</p>
 									</div>
 								</div>
 							</div>
-						</div>
-
-						<div className="bg-green-950/30 border border-green-800 rounded-lg p-4">
-							<p className="text-green-200 text-sm flex items-start">
-								<CheckmarkIcon className="size-5 mr-2 mt-0.5 shrink-0" />
-								<span>{t.tutorial.game.readyMessage}</span>
-							</p>
 						</div>
 					</div>
 				)}

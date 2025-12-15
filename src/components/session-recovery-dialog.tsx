@@ -217,7 +217,7 @@ export function SessionCleanupDialog({ onClose }: SessionCleanupDialogProps) {
 				<div className="flex justify-between items-start mb-6">
 					<div>
 						<h2 className="text-3xl font-bold text-amber-100 mb-2">{t.sessionManager.title}</h2>
-						<p className="text-stone-300 text-sm">{t.sessionManager.description}</p>
+						<p className="text-stone-300">{t.sessionManager.description}</p>
 					</div>
 					<button
 						type="button"

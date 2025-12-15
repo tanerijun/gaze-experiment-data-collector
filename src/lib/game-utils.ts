@@ -5,7 +5,7 @@ const CATEGORIES = ["currencies", "fruits", "herbs", "meats", "plants", "undeads
 const ITEMS_PER_CATEGORY = 48
 
 // Grid configuration for the game
-export const GRID_CONFIG: GridConfig = { pairs: 20 }
+export const GRID_CONFIG: GridConfig = { pairs: 2 }
 
 /**
  * Find all valid grid layouts for a given number of cards

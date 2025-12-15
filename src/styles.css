@@ -14,7 +14,7 @@
 }
 
 body {
-    @apply font-main m-0 align-baseline bg-stone-950 text-stone-100 h-screen w-screen;
+    @apply m-0 align-baseline bg-stone-950 text-stone-100 h-screen w-screen text-xl;
     cursor:
       url('/cursor-arrow.png') 0 0,
       auto;
@@ -34,6 +34,16 @@ h6,
 p,
 span {
   @apply select-none;
+}
+
+/* Apply MoriaCitadel font to headers and important elements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-main;
 }
 
 /* Custom cursor for interactive elements */

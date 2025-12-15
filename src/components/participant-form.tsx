@@ -62,7 +62,7 @@ export default function ParticipantForm({ onComplete, onCancel }: ParticipantFor
 		<form onSubmit={handleSubmit} className="space-y-5">
 			{/* Name */}
 			<div>
-				<label htmlFor={nameId} className="block text-sm font-semibold text-amber-100 mb-2">
+				<label htmlFor={nameId} className="block font-semibold text-amber-100 mb-2">
 					{t.participantForm.nameLabel} <span className="text-red-400">*</span>
 				</label>
 				<input
@@ -82,7 +82,7 @@ export default function ParticipantForm({ onComplete, onCancel }: ParticipantFor
 
 			{/* Age */}
 			<div>
-				<label htmlFor={ageId} className="block text-sm font-semibold text-amber-100 mb-2">
+				<label htmlFor={ageId} className="block font-semibold text-amber-100 mb-2">
 					{t.participantForm.ageLabel} <span className="text-red-400">*</span>
 				</label>
 				<input
@@ -102,7 +102,7 @@ export default function ParticipantForm({ onComplete, onCancel }: ParticipantFor
 
 			{/* Gender */}
 			<div>
-				<label htmlFor={genderId} className="block text-sm font-semibold text-amber-100 mb-2">
+				<label htmlFor={genderId} className="block font-semibold text-amber-100 mb-2">
 					{t.participantForm.genderLabel} <span className="text-red-400">*</span>
 				</label>
 				<select
@@ -125,7 +125,7 @@ export default function ParticipantForm({ onComplete, onCancel }: ParticipantFor
 
 			{/* Vision Correction */}
 			<div className="space-y-3 bg-stone-950/30 border border-stone-700 rounded-lg p-4">
-				<p className="text-sm font-semibold text-amber-100 mb-2">
+				<p className="font-semibold text-amber-100 mb-2">
 					{t.participantForm.visionCorrectionLabel}
 				</p>
 

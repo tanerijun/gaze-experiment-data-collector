@@ -28,7 +28,7 @@ export function FullscreenButton({ className }: { className?: string }) {
 			type="button"
 			onClick={handleClick}
 			className={cn(
-				"hidden lg:block bg-stone-800/50 hover:bg-stone-700/50 rounded border border-stone-600 hover:border-stone-500 transition-all duration-200 cursor-pointer py-2 px-4",
+				"hidden lg:block font-main bg-stone-800/50 hover:bg-stone-700/50 rounded border border-stone-600 hover:border-stone-500 transition-all duration-200 cursor-pointer py-2 px-4",
 				className,
 			)}
 			aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}

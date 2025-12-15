@@ -27,9 +27,9 @@ export function RecordingIndicator() {
 	}
 
 	return (
-		<div className="fixed top-4 right-4 z-50 flex items-center space-x-3">
+		<div className="fixed top-2 right-2 z-50 flex items-center space-x-3">
 			{/* Recording status */}
-			<div className="bg-stone-900/90 backdrop-blur-sm border-2 border-red-600 rounded-lg px-4 py-2 shadow-lg flex items-center space-x-3">
+			<div className="bg-stone-900/90 backdrop-blur-sm border-2 border-red-600 rounded-lg w-30 px-4 py-2 shadow-lg flex items-center space-x-3">
 				{/* Pulsing red dot */}
 				<div className="relative flex items-center justify-center">
 					<div
@@ -45,7 +45,7 @@ export function RecordingIndicator() {
 					<span className="text-xs text-stone-400 leading-tight">
 						{isPaused ? t.recordingIndicator.paused : t.recordingIndicator.recording}
 					</span>
-					<span className="text-sm font-mono text-amber-100 leading-tight">
+					<span className="text-xs font-mono text-amber-100 leading-tight">
 						{formatDuration(duration)}
 					</span>
 				</div>

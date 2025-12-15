@@ -174,7 +174,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 				<h2 className="text-3xl font-bold text-amber-100 mb-2 text-center">
 					{t.exportDialog.title}
 				</h2>
-				<p className="text-stone-300 text-center mb-6 text-sm">{t.exportDialog.description}</p>
+				<p className="text-stone-300 text-center mb-6">{t.exportDialog.description}</p>
 
 				{/* Session info */}
 				<div className="space-y-3 mb-6 bg-stone-950/30 border border-stone-700 rounded-lg p-4">

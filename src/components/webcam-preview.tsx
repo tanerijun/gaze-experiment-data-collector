@@ -142,7 +142,7 @@ export function WebcamPreview({
 						<AlertIcon className="size-6 mr-3" />
 						{t.webcamSetup.importantLabel}
 					</h4>
-					<ul className="list-disc list-inside space-y-1 text-stone-300 text-sm">
+					<ul className="list-disc list-inside space-y-1 text-stone-300">
 						<li>{t.webcamSetup.instruction1}</li>
 						<li>{t.webcamSetup.instruction2}</li>
 						<li>{t.webcamSetup.instruction3}</li>

@@ -231,17 +231,15 @@ export function SetupFlow({
 	if (currentStep === "screen-recording") {
 		return (
 			<StepCard>
-				<p className="text-stone-300 text-center mb-6 text-sm">
-					{t.screenRecordingSetup.description}
-				</p>
+				<p className="text-stone-300 text-center mb-6">{t.screenRecordingSetup.description}</p>
 
 				{/* Instructions */}
 				<div className="bg-amber-950/30 border border-amber-800 rounded-lg p-4 mb-6">
-					<h4 className="text-amber-100 font-semibold mb-2 flex items-center text-sm">
+					<h4 className="text-amber-100 font-semibold mb-2 flex items-center">
 						<AlertIcon className="size-5 mr-2" />
 						{t.screenRecordingSetup.whatHappensLabel}
 					</h4>
-					<ol className="list-decimal list-inside space-y-1 text-stone-300 text-sm">
+					<ol className="list-decimal list-inside space-y-1 text-stone-300">
 						<li>{t.screenRecordingSetup.instruction1}</li>
 						<li>{t.screenRecordingSetup.instruction2}</li>
 					</ol>
@@ -313,15 +311,15 @@ export function SetupFlow({
 	if (currentStep === "fullscreen") {
 		return (
 			<StepCard title={t.fullscreenSetup.title}>
-				<p className="text-stone-300 text-center mb-6 text-sm">{t.fullscreenSetup.description}</p>
+				<p className="text-stone-300 text-center mb-6">{t.fullscreenSetup.description}</p>
 
 				{/* Instructions */}
 				<div className="bg-amber-950/30 border border-amber-800 rounded-lg p-4 mb-6">
-					<h4 className="text-amber-100 font-semibold mb-2 flex items-center text-sm">
+					<h4 className="text-amber-100 font-semibold mb-2 flex items-center">
 						<AlertIcon className="size-5 mr-2" />
 						{t.fullscreenSetup.whatHappensLabel}
 					</h4>
-					<ol className="list-decimal list-inside space-y-1 text-stone-300 text-sm">
+					<ol className="list-decimal list-inside space-y-1 text-stone-300">
 						<li>{t.fullscreenSetup.instruction1}</li>
 						<li>{t.fullscreenSetup.instruction2}</li>
 						<li>{t.fullscreenSetup.instruction3}</li>
@@ -329,7 +327,7 @@ export function SetupFlow({
 				</div>
 
 				<div className="bg-blue-950/30 border border-blue-800 rounded-lg p-4 mb-6">
-					<p className="text-blue-200 text-sm flex items-start">
+					<p className="text-blue-200 flex items-start">
 						<CheckmarkIcon className="size-5 mr-2 mt-0.5 shrink-0" />
 						<span>
 							<strong>{t.fullscreenSetup.permissionsGrantedLabel}</strong>{" "}
@@ -394,7 +392,7 @@ export function SetupFlow({
 					<CheckmarkIcon className="size-16 text-green-500" />
 				</div>
 				<h3 className="text-2xl font-bold text-amber-100 mb-2">{t.setupComplete.title}</h3>
-				<p className="text-stone-300 text-sm">{t.setupComplete.message}</p>
+				<p className="text-stone-300">{t.setupComplete.message}</p>
 
 				{error && (
 					<div className="mt-4 p-3 bg-red-950/50 border border-red-600 rounded-lg">

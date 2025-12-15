@@ -46,7 +46,7 @@ export function Card({
 					}}
 				>
 					<div
-						className="select-none absolute inset-0 flex items-center justify-center"
+						className="select-none absolute inset-0 flex items-center justify-center font-main"
 						style={{
 							color: "#a8885c", // desaturated brass/gold
 							textShadow: "0 0 5px rgba(0, 0, 0, 0.5)",

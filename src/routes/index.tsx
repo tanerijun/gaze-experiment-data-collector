@@ -155,7 +155,6 @@ function App() {
 					<h2 className="text-2xl font-bold bg-linear-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent drop-shadow-lg">
 						{t.participantForm.title}
 					</h2>
-					<p className="text-stone-300 text-left text-sm mt-2">{t.participantForm.description}</p>
 				</div>
 			),
 			body: ({ closeDialog }) => (
@@ -495,8 +494,8 @@ function App() {
 					</div>
 
 					{/* Footer */}
-					<div className="mt-12 text-center space-y-4">
-						<p className="text-stone-400 text-sm">
+					<div className="mt-8 text-center space-y-4">
+						<p className="text-stone-400">
 							{!hasConsented
 								? t.mainMenu.footer.step1
 								: !participant
