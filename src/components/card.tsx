@@ -34,7 +34,7 @@ export function Card({
 			>
 				{/* Card Back */}
 				<div
-					className="absolute inset-0 w-full h-full rounded-lg shadow-2xl overflow-hidden"
+					className="absolute inset-0 w-full h-full rounded-2xl shadow-2xl overflow-hidden"
 					style={{
 						backfaceVisibility: "hidden",
 						transform: "rotateY(0deg)",
@@ -60,7 +60,7 @@ export function Card({
 
 				{/* Card Front */}
 				<div
-					className={`absolute inset-0 w-full h-full rounded-lg shadow-2xl overflow-hidden flex items-center justify-center ${
+					className={`absolute inset-0 w-full h-full rounded-2xl shadow-2xl overflow-hidden flex items-center justify-center ${
 						card.isMatched ? "ring-2 ring-amber-500" : ""
 					}`}
 					style={{
