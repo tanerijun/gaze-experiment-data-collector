@@ -19,15 +19,6 @@ const wiggleStyles = `
 .animate-wiggle {
   animation: wiggle 0.5s ease-in-out infinite;
 }
-
-@keyframes redFlash {
-  0%, 100% { background-color: rgb(239, 68, 68); }
-  50% { background-color: rgb(220, 38, 38); }
-}
-
-.animate-red-flash {
-  animation: redFlash 0.6s ease-in-out;
-}
 `
 
 interface SpiritPosition {
@@ -36,22 +27,25 @@ interface SpiritPosition {
 }
 
 interface DungeonSpiritOverlayProps {
-	position: SpiritPosition
-	onSpiritClick: () => void
+	positions: SpiritPosition[]
+	onSpiritClick?: () => void
+	onSpiritKill?: () => void
 }
 
-export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritOverlayProps) {
+export function DungeonSpiritOverlay({
+	positions,
+	onSpiritClick,
+	onSpiritKill,
+}: DungeonSpiritOverlayProps) {
 	const { t } = useTranslation()
 	const [isClicked, setIsClicked] = useState(false)
-	const [showOverlay, setShowOverlay] = useState(false)
-	const [showBanishMessage, setShowBanishMessage] = useState(false)
-
-	// Show appearance message first, then show overlay with spirit
 	const [showAppearMessage, setShowAppearMessage] = useState(true)
+	const [showBanishMessage, setShowBanishMessage] = useState(false)
+	const [currentPositionIndex, setCurrentPositionIndex] = useState(0)
+
 	useEffect(() => {
 		const appearTimer = setTimeout(() => {
 			setShowAppearMessage(false)
-			setShowOverlay(true)
 		}, 1500)
 		return () => clearTimeout(appearTimer)
 	}, [])
@@ -64,15 +58,18 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 
 		setIsClicked(true)
 
-		// Keep spirit visible and wiggling for 1 second, then close overlay and show banishment message
 		setTimeout(() => {
-			setShowOverlay(false)
-			setShowBanishMessage(true)
-
-			setTimeout(() => {
-				onSpiritClick()
-			}, 1000)
-		}, 1000)
+			onSpiritClick?.()
+			if (currentPositionIndex === positions.length - 1) {
+				setShowBanishMessage(true)
+				setTimeout(() => {
+					onSpiritKill?.()
+				}, 1500)
+			} else {
+				setCurrentPositionIndex((prev) => prev + 1)
+				setIsClicked(false)
+			}
+		}, 600)
 	}
 
 	return (
@@ -92,18 +89,16 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 				</div>
 			)}
 
-			{showOverlay && (
-				<div className="fixed inset-0 z-50 bg-stone-950/98 backdrop-blur-sm flex items-center justify-center">
+			{!showAppearMessage && !showBanishMessage && (
+				<div className="fixed inset-0 z-50 bg-stone-950/98 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-750">
 					{/* Spirit orb - clickable */}
 					<button
 						type="button"
 						onClick={handleClick}
-						className={`absolute cursor-pointer focus:outline-none rounded-full flex items-center justify-center transition-transform ${
-							isClicked ? "animate-wiggle" : "hover:scale-110"
-						}`}
+						className={`absolute cursor-pointer focus:outline-none rounded-full flex items-center justify-center transition-transform hover:scale-110`}
 						style={{
-							left: `${position.x}%`,
-							top: `${position.y}%`,
+							left: `${positions[currentPositionIndex].x}%`,
+							top: `${positions[currentPositionIndex].y}%`,
 							transform: "translate(-50%, -50%)",
 							width: "35px",
 							height: "35px",
@@ -144,7 +139,7 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 						{/* Inner orb - glowing purple */}
 						<div
 							className={`absolute rounded-full shadow-lg transition-all duration-300 ${
-								isClicked ? "scale-100 bg-red-500 animate-red-flash" : "scale-100 bg-purple-500"
+								isClicked ? "scale-100 bg-red-500" : "scale-100 bg-purple-500"
 							}`}
 							style={{
 								width: "13px",
@@ -160,15 +155,31 @@ export function DungeonSpiritOverlay({ position, onSpiritClick }: DungeonSpiritO
 						{/* Spirit emoji overlay */}
 						<div
 							className={`absolute text-lg transition-all duration-300 ${
-								isClicked ? "opacity-100" : "opacity-90"
+								isClicked ? "opacity-100 animate-wiggle" : "opacity-90"
 							}`}
 							style={{
 								left: "50%",
 								top: "50%",
 								transform: "translate(-50%, -50%)",
+								filter: isClicked
+									? "drop-shadow(0 0 8px rgb(239, 68, 68)) brightness(1.2) hue-rotate(-10deg)"
+									: "none",
 							}}
 						>
 							👻
+						</div>
+
+						{/* HP Bar - above the spirit */}
+						<div
+							className="absolute -top-2 left-1/2 -translate-x-1/2 h-2 bg-gray-700 rounded-full border border-gray-600 overflow-hidden"
+							style={{ width: "30px" }}
+						>
+							<div
+								className="h-full bg-green-500 transition-all duration-300"
+								style={{
+									width: `${((positions.length - currentPositionIndex) / positions.length) * 100}%`,
+								}}
+							/>
 						</div>
 					</button>
 				</div>
