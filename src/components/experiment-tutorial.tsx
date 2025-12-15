@@ -173,6 +173,12 @@ export function ExperimentTutorial({ onComplete, onCancel }: ExperimentTutorialP
 								</div>
 							</div>
 						</div>
+
+						<div className="bg-blue-950/30 border border-blue-800 rounded-lg p-4">
+							<p className="text-blue-200 leading-relaxed">
+								{t.tutorial.game.headMovementReminder}
+							</p>
+						</div>
 					</div>
 				)}
 
