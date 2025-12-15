@@ -176,7 +176,7 @@ function RouteComponent() {
 						)
 						setFlippedCards([])
 						setIsChecking(false)
-					}, 1000)
+					}, 1300)
 				}
 			}
 		},

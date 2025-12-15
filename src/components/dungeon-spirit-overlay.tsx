@@ -69,7 +69,7 @@ export function DungeonSpiritOverlay({
 				setCurrentPositionIndex((prev) => prev + 1)
 				setIsClicked(false)
 			}
-		}, 600)
+		}, 1000)
 	}
 
 	return (
