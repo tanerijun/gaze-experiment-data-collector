@@ -7,7 +7,7 @@ import { GameBoard } from "@/components/game-board"
 import { GameNavbar } from "@/components/game-navbar"
 import { RecordingIndicator } from "@/components/recording-indicator"
 import { useInterval } from "@/hooks/use-interval"
-import { useSpiritTimer } from "@/hooks/use-spirit-timer"
+import { useSpiritPositions } from "@/hooks/use-spirit-positions"
 import { useTranslation } from "@/hooks/use-translation"
 import { extractCardPositions } from "@/lib/click-tracker"
 import { useConfirmDialog } from "@/lib/dialog/hooks"
@@ -45,13 +45,7 @@ function RouteComponent() {
 	const hasUploaded = useRecordingStore((state) => state.hasUploaded)
 	const { confirm } = useConfirmDialog()
 
-	// Spirit timer for explicit clicks
-	const { secondsUntilSpirit, showSpirit, spiritPosition, onSpiritClick } = useSpiritTimer({
-		enabled: gameState === "playing" && !isPausedByFullscreen && isRecording,
-		onSpiritClick: () => {
-			// Spirit click is automatically tracked by click tracker as "explicit"
-		},
-	})
+	const { showSpirit, currentPositions, triggerNextSpirit, closeSpirit } = useSpiritPositions()
 
 	// Set card positions and mark game start when component mounts
 	useEffect(() => {
@@ -156,6 +150,10 @@ function RouteComponent() {
 
 					setFlippedCards([])
 					setIsChecking(false)
+
+					if (isRecording) {
+						triggerNextSpirit()
+					}
 				} else {
 					// No match - flip back after delay
 					setTimeout(() => {
@@ -172,7 +170,7 @@ function RouteComponent() {
 				}
 			}
 		},
-		[flippedCards, isChecking, isRecording, updateGameMetadata],
+		[flippedCards, isChecking, isRecording, updateGameMetadata, triggerNextSpirit],
 	)
 
 	const handleReturnToMenu = async () => {
@@ -238,15 +236,10 @@ function RouteComponent() {
 				onEnterFullscreen={() => setIsPausedByFullscreen(false)}
 			/>
 
-			<GameNavbar
-				stats={stats}
-				secondsUntilSpirit={secondsUntilSpirit}
-				showSpiritTimer={isRecording}
-			/>
+			<GameNavbar stats={stats} secondsUntilSpirit={0} showSpiritTimer={false} />
 
-			{/* Dungeon Spirit Overlay */}
-			{showSpirit && spiritPosition && (
-				<DungeonSpiritOverlay position={spiritPosition} onSpiritClick={onSpiritClick} />
+			{showSpirit && currentPositions.length > 0 && (
+				<DungeonSpiritOverlay positions={currentPositions} onSpiritKill={closeSpirit} />
 			)}
 
 			{/* Game Board Container */}
@@ -256,7 +249,7 @@ function RouteComponent() {
 						cards={cards}
 						gridConfig={GRID_CONFIG}
 						onCardClick={handleCardClick}
-						disabled={isChecking || gameState === "won" || isPausedByFullscreen}
+						disabled={isChecking || gameState === "won" || isPausedByFullscreen || showSpirit}
 					/>
 				)}
 			</div>
