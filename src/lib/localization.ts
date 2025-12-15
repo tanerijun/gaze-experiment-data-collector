@@ -166,7 +166,7 @@ export const EN = {
 		instruction2: "Keep your head still and only move your eyes",
 		instruction3: "Focus your gaze on the point, click it, and keep staring until it moves",
 		instruction4:
-			"During click and stare, you are not allowed to blink. (You can blink before click)",
+			"During click and stare, you are not allowed to blink. (You can blink any other time)",
 		startButton: "Start Calibration",
 		completeTitle: "Calibration Complete!",
 		completeMessage: "Calibration data collected successfully!",
@@ -486,7 +486,7 @@ export const ZH_TW = {
 		instruction1: "螢幕上會出現 9 個黃點",
 		instruction2: "校準過程保持頭部不動，只移動眼睛",
 		instruction3: "聚焦並點擊黃點，繼續聚焦直到黃點移動",
-		instruction4: "點擊和聚焦過程請別眨眼（點擊前可以眨眼）",
+		instruction4: "點擊和聚焦過程請別眨眼（其他時間可以眨眼）",
 		startButton: "開始校準",
 		completeTitle: "校準完成！",
 		completeMessage: "已成功搜集校準資料！",
