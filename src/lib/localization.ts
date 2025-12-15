@@ -194,21 +194,15 @@ export const EN = {
 	// Game / Gameplay
 	game: {
 		navbar: {
-			timeLabel: "Time",
-			movesLabel: "Moves",
-			matchesLabel: "Matches",
-			nextSpiritLabel: "Next Spirit",
+			ghostsKilledLabel: "Ghosts Killed",
 			restartButton: "Restart",
 			restartConfirmTitle: "Confirm",
 			restartConfirmMessage:
 				"Are you sure you want to restart the experiment? This will stop the current recording and return to the main menu.",
 		},
 		winDialog: {
-			title: "Game Complete!",
-			message: "Congratulations! You found all the pairs!",
-			matchesLabel: "💎 Matches:",
-			movesLabel: "🎯 Moves:",
-			timeLabel: "⏱️ Time:",
+			title: "All Ghosts Vanquished!",
+			message: "Congratulations! You have successfully banished all the spirits!",
 			uploadButton: "Upload Data",
 			returnButton: "Return to Menu",
 		},
@@ -518,20 +512,14 @@ export const ZH_TW = {
 	// Game / Gameplay
 	game: {
 		navbar: {
-			timeLabel: "時間",
-			movesLabel: "移動",
-			matchesLabel: "配對",
-			nextSpiritLabel: "下個幽靈",
+			ghostsKilledLabel: "已擊敗幽靈",
 			restartButton: "重新開始",
 			restartConfirmTitle: "確認",
 			restartConfirmMessage: "您確定要重新開始實驗嗎？這將停止當前錄製並返回首頁。",
 		},
 		winDialog: {
-			title: "遊戲完成！",
-			message: "恭喜！您找到了所有配對！",
-			matchesLabel: "💎 配對：",
-			movesLabel: "🎯 移動：",
-			timeLabel: "⏱️ 時間：",
+			title: "所有幽靈已消滅！",
+			message: "恭喜！您已成功驅逐所有幽靈！",
 			uploadButton: "上傳數據",
 			returnButton: "返回首頁",
 		},

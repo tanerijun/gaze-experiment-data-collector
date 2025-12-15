@@ -45,7 +45,8 @@ function RouteComponent() {
 	const hasUploaded = useRecordingStore((state) => state.hasUploaded)
 	const { confirm } = useConfirmDialog()
 
-	const { showSpirit, currentPositions, triggerNextSpirit, closeSpirit } = useSpiritPositions()
+	const { showSpirit, currentPositions, ghostsKilled, triggerNextSpirit, closeSpirit } =
+		useSpiritPositions()
 
 	// Set card positions and mark game start when component mounts
 	useEffect(() => {
@@ -73,7 +74,7 @@ function RouteComponent() {
 		if (cards.length === 0 || gameState !== "playing") return
 
 		const allMatched = cards.every((card) => card.isMatched)
-		if (allMatched) {
+		if (allMatched && !showSpirit) {
 			setGameState("won")
 			if (isRecording) {
 				markGameEnd()
@@ -86,10 +87,19 @@ function RouteComponent() {
 					stopRecording(true).catch((err) => {
 						console.error("Failed to stop recording:", err)
 					})
-				}, 1000) // wait for a bit just to be safe
+				}, 1000)
 			}
 		}
-	}, [cards, gameState, isRecording, markGameEnd, updateGameMetadata, stats, stopRecording])
+	}, [
+		cards,
+		gameState,
+		isRecording,
+		markGameEnd,
+		updateGameMetadata,
+		stats,
+		stopRecording,
+		showSpirit,
+	])
 
 	// Handle card click
 	const handleCardClick = useCallback(
@@ -236,7 +246,7 @@ function RouteComponent() {
 				onEnterFullscreen={() => setIsPausedByFullscreen(false)}
 			/>
 
-			<GameNavbar stats={stats} secondsUntilSpirit={0} showSpiritTimer={false} />
+			<GameNavbar ghostsKilled={ghostsKilled} />
 
 			{showSpirit && currentPositions.length > 0 && (
 				<DungeonSpiritOverlay positions={currentPositions} onSpiritKill={closeSpirit} />
@@ -270,22 +280,7 @@ function RouteComponent() {
 						<h2 className="text-4xl font-bold text-yellow-100 mb-4 drop-shadow-lg">
 							{t.game.winDialog.title}
 						</h2>
-						<p className="text-yellow-200 mb-6">{t.game.winDialog.message}</p>
-
-						<div className="space-y-2 mb-8 text-left bg-amber-950/40 rounded-lg p-4 border border-yellow-700/50">
-							<p className="text-yellow-100">
-								<span className="text-yellow-300 font-bold">{t.game.winDialog.matchesLabel}</span>{" "}
-								{stats.matches}
-							</p>
-							<p className="text-yellow-100">
-								<span className="text-yellow-300 font-bold">{t.game.winDialog.movesLabel}</span>{" "}
-								{stats.moves}
-							</p>
-							<p className="text-yellow-100">
-								<span className="text-yellow-300 font-bold">{t.game.winDialog.timeLabel}</span>{" "}
-								{stats.timeElapsed}s
-							</p>
-						</div>
+						<p className="text-yellow-200 mb-8">{t.game.winDialog.message}</p>
 
 						{/* Upload data button */}
 						{gameState === "won" && (

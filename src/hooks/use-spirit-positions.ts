@@ -71,6 +71,7 @@ const SPIRIT_POSITIONS: SpiritPosition[] = [
 interface UseSpiritPositionsReturn {
 	showSpirit: boolean
 	currentPositions: SpiritPosition[]
+	ghostsKilled: number
 	triggerNextSpirit: () => void
 	closeSpirit: () => void
 }
@@ -96,6 +97,7 @@ export function useSpiritPositions(): UseSpiritPositionsReturn {
 	return {
 		showSpirit,
 		currentPositions,
+		ghostsKilled: currentGhostIndex,
 		triggerNextSpirit,
 		closeSpirit,
 	}
