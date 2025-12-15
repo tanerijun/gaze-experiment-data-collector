@@ -77,7 +77,7 @@ export function DungeonSpiritOverlay({
 			<style>{wiggleStyles}</style>
 
 			<div
-				className="fixed inset-0 z-50 bg-stone-950/98 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-1500"
+				className="fixed inset-0 z-50 bg-stone-950 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-1500"
 				style={{
 					pointerEvents: showBanishMessage ? "none" : "auto",
 				}}
