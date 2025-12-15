@@ -146,25 +146,13 @@ export function CalibrationOverlay({
 		return (
 			<div className="fixed inset-0 z-50 bg-stone-950 flex items-center justify-center p-4">
 				<FullscreenMonitor enabled={true} />
-				<div className="max-w-lg bg-stone-800 border-4 border-amber-600 rounded-xl p-8 shadow-2xl">
+				<div className="max-w-md bg-stone-800 border-4 border-amber-600 rounded-xl p-8 shadow-2xl">
 					<div className="space-y-6 text-center">
 						<h2 className="text-3xl font-bold text-amber-100">{t.calibration.introTitle}</h2>
 
-						<div className="space-y-4 text-stone-200 text-left">
-							<p className="leading-relaxed">{t.calibration.introDescription}</p>
-
-							<div className="bg-amber-950/50 border border-amber-800 rounded-lg p-4">
-								<h3 className="text-amber-100 font-semibold mb-3">
-									{t.calibration.instructionsLabel}
-								</h3>
-								<ol className="list-decimal list-inside space-y-2 text-sm">
-									<li>{t.calibration.instruction1}</li>
-									<li>{t.calibration.instruction2}</li>
-									<li>{t.calibration.instruction3}</li>
-									<li>{t.calibration.instruction4}</li>
-								</ol>
-							</div>
-						</div>
+						<p className="text-stone-200 text-lg leading-relaxed">
+							{t.calibration.introDescription}
+						</p>
 
 						<button
 							type="button"

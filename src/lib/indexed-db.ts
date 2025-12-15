@@ -327,7 +327,7 @@ export async function getFirstChunkOffset(
 		request.onsuccess = (event) => {
 			const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result
 			if (cursor) {
-			  if (!cursor.value.chunkOffset && cursor.value.chunkOffset !== 0) {
+				if (!cursor.value.chunkOffset && cursor.value.chunkOffset !== 0) {
 					throw new Error("Expected chunkOffset")
 				}
 				resolve(cursor.value.chunkOffset)

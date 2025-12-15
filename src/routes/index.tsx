@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
+import { ExperimentTutorial } from "@/components/experiment-tutorial"
 import { CrossedSwordIcon } from "@/components/icons"
 import { LanguageSelectorDialog } from "@/components/language-selector-dialog"
 import ParticipantForm from "@/components/participant-form"
@@ -22,6 +23,7 @@ function App() {
 	const navigate = useNavigate()
 	const { hasSelectedLanguage, isHydrated } = useLanguageStore()
 	const { t, language } = useTranslation()
+	const [showTutorial, setShowTutorial] = useState(false)
 	const [showSetupFlow, setShowSetupFlow] = useState(false)
 	const [showCleanup, setShowCleanup] = useState(false)
 	const [hasStaleSessions, setHasStaleSessions] = useState(false)
@@ -163,7 +165,16 @@ function App() {
 	}
 
 	const handleStartExperiment = () => {
+		setShowTutorial(true)
+	}
+
+	const handleTutorialComplete = () => {
+		setShowTutorial(false)
 		setShowSetupFlow(true)
+	}
+
+	const handleTutorialCancel = () => {
+		setShowTutorial(false)
 	}
 
 	const handleSetupComplete = () => {
@@ -190,6 +201,10 @@ function App() {
 						getAllSessions().then((s) => setHasStaleSessions(s.length > 0))
 					}}
 				/>
+			)}
+
+			{showTutorial && (
+				<ExperimentTutorial onComplete={handleTutorialComplete} onCancel={handleTutorialCancel} />
 			)}
 
 			{showSetupFlow && <SetupFlow onComplete={handleSetupComplete} onCancel={handleSetupCancel} />}

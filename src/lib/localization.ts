@@ -157,17 +157,58 @@ export const EN = {
 		message: "Starting the game...",
 	},
 
+	// Tutorial
+	tutorial: {
+		intro: {
+			title: "Welcome to the Experiment",
+			description: "The experiment consists of 2 parts",
+			partsLabel: "Experiment Parts:",
+			part1Title: "1. Calibration",
+			part1Description: "Calibrate the gaze tracking system by clicking on 9 points on the screen.",
+			part2Title: "2. Game",
+			part2Description: "Play a memory card game where you'll match cards and banish ghosts.",
+			estimatedTime: "Total estimated time: 5-10 minutes",
+		},
+		calibration: {
+			title: "1. Calibration Tutorial",
+			description:
+				"We need to calibrate the gaze tracking system to accurately track where you're looking.",
+			instructionsLabel: "How it works:",
+			instruction1: "You'll see 9 yellow points appear one at a time on the screen",
+			instruction2: "Keep your head still and only move your eyes to look at each point",
+			instruction3:
+				"Click on the point, then keep staring at it until it moves to the next position",
+			instruction4:
+				"During click and stare, you are not allowed to blink. (You can blink any other time)",
+		},
+		game: {
+			title: "2. Game Tutorial",
+			storyTitle: "Your Mission:",
+			storyDescription: "You are a ghost hunter. Find ghosts residing in items and banish them.",
+			howToPlayLabel: "How to play:",
+			step1Title: "Match the cards",
+			step1Description: "Click cards to flip them over. Find matching pairs to reveal items.",
+			step2Title: "Find the ghosts",
+			step2Description: "When you match cards, ghosts will appear.",
+			step3Title: "Banish the ghosts",
+			step3Description: "Focus your gaze on a ghost and click it to banish it.",
+			readyMessage: "You're ready to begin! Click 'Start' to proceed with the setup.",
+		},
+		startButton: "Start Setup",
+	},
+
 	// Calibration
 	calibration: {
-		introTitle: "Gaze Calibration",
-		introDescription: "Before we begin, we need to calibrate the gaze tracking system.",
+		introTitle: "Ready to Calibrate",
+		introDescription:
+			"Click on each point as it appears. Keep your head still and don't blink while clicking and staring.",
 		instructionsLabel: "Instructions:",
 		instruction1: "There will be 9 points to click on the screen",
 		instruction2: "Keep your head still and only move your eyes",
 		instruction3: "Focus your gaze on the point, click it, and keep staring until it moves",
 		instruction4:
 			"During click and stare, you are not allowed to blink. (You can blink any other time)",
-		startButton: "Start Calibration",
+		startButton: "Begin",
 		completeTitle: "Calibration Complete!",
 		completeMessage: "Calibration data collected successfully!",
 		restartButton: "Restart Calibration",
@@ -475,19 +516,56 @@ export const ZH_TW = {
 	// Setup Flow - Complete
 	setupComplete: {
 		title: "設定完成！",
-		message: "正在啟動遊戲...",
+		message: "開始遊戲中...",
+	},
+
+	// Tutorial
+	tutorial: {
+		intro: {
+			title: "歡迎參加實驗",
+			description: "實驗由 2 個步驟",
+			partsLabel: "實驗步驟：",
+			part1Title: "1. 校準",
+			part1Description: "透過點擊螢幕上的 9 個點來校準視線追蹤系統。",
+			part2Title: "2. 遊戲",
+			part2Description: "玩卡牌配對遊戲，您將匹配卡牌並驅逐幽靈。",
+			estimatedTime: "預計所需時間：5-10 分鐘",
+		},
+		calibration: {
+			title: "1. 校準教學",
+			description: "我們需要校準視線追蹤系統，以準確追蹤您的視線位置。",
+			instructionsLabel: "運作方式：",
+			instruction1: "螢幕上會依次出現 9 個黃色點",
+			instruction2: "保持頭部不動，只移動眼睛看向每個點",
+			instruction3: "點擊該點，然後持續盯著它，直到它移動到下一個位置",
+			instruction4: "點擊和盯視過程中請勿眨眼（其他時間可以眨眼）",
+		},
+		game: {
+			title: "2. 遊戲教學",
+			storyTitle: "您的任務：",
+			storyDescription: "您是幽靈獵人。找到藏在物品中的幽靈並驅逐它們。",
+			howToPlayLabel: "遊戲玩法：",
+			step1Title: "匹配卡牌",
+			step1Description: "點擊卡牌將其翻開。找到匹配的卡牌對以揭示物品。",
+			step2Title: "找到幽靈",
+			step2Description: "當您匹配卡牌時，幽靈會出現。",
+			step3Title: "驅逐幽靈",
+			step3Description: "將視線聚焦在幽靈上並點擊它來驅逐它。",
+			readyMessage: "您已準備好開始！點擊「開始設定」以繼續。",
+		},
+		startButton: "開始實驗準備",
 	},
 
 	// Calibration
 	calibration: {
-		introTitle: "視線校準",
-		introDescription: "在開始遊戲之前，我們需要校準視線追蹤系統。",
+		introTitle: "準備校準",
+		introDescription: "點擊每個出現的黃點。保持頭部不動，點擊和盯視時請勿眨眼。",
 		instructionsLabel: "說明：",
 		instruction1: "螢幕上會出現 9 個黃點",
 		instruction2: "校準過程保持頭部不動，只移動眼睛",
 		instruction3: "聚焦並點擊黃點，繼續聚焦直到黃點移動",
 		instruction4: "點擊和聚焦過程請別眨眼（其他時間可以眨眼）",
-		startButton: "開始校準",
+		startButton: "開始",
 		completeTitle: "校準完成！",
 		completeMessage: "已成功搜集校準資料！",
 		restartButton: "重新校準",
