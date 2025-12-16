@@ -118,7 +118,7 @@ export const EN = {
 		enableButton: "Enable Webcam",
 		requestingAccess: "Requesting Access...",
 		readyMessage: "Webcam is ready!",
-		continueButton: "Continue to Calibration",
+		continueButton: "Continue",
 		cancelButton: "Cancel",
 	},
 
@@ -141,13 +141,13 @@ export const EN = {
 		whatHappensLabel: "What happens next:",
 		instruction1: "Browser will enter fullscreen mode",
 		instruction2: "Complete the calibration process",
-		instruction3: "Then play a card pairing game",
+		instruction3: "Then play the card pairing game",
 		permissionsGrantedLabel: "Permissions granted:",
 		permissionsGrantedMessage:
 			"Preparations completed. Recording will start when you enter fullscreen.",
 		errorTitle: "Error",
 		backButton: "Back",
-		continueButton: "Continue",
+		continueButton: "Enter Fullscreen and Continue",
 		startingRecording: "Starting Recording...",
 	},
 
@@ -481,7 +481,7 @@ export const ZH_TW = {
 		enableButton: "啟用 webcam",
 		requestingAccess: "正在請求存取權限...",
 		readyMessage: "webcam 已就緒！",
-		continueButton: "繼續前往校準",
+		continueButton: "繼續",
 		cancelButton: "取消",
 	},
 
@@ -509,7 +509,7 @@ export const ZH_TW = {
 		permissionsGrantedMessage: "準備就緒。進入全螢幕時將開始錄製。",
 		errorTitle: "錯誤",
 		backButton: "返回",
-		continueButton: "繼續",
+		continueButton: "繼續並進入全螢幕模式",
 		startingRecording: "正在開始錄製...",
 	},
 
