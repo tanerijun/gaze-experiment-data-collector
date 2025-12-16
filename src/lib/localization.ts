@@ -167,7 +167,7 @@ export const EN = {
 			part1Description: "Calibrate the gaze tracking system by clicking on 9 points on the screen.",
 			part2Title: "2. Game",
 			part2Description: "Play a memory card game where you'll match cards and banish ghosts.",
-			estimatedTime: "Total estimated time: 5-10 minutes",
+			estimatedTime: "Total estimated time: ~10 minutes",
 		},
 		calibration: {
 			title: "1. Calibration Tutorial",
