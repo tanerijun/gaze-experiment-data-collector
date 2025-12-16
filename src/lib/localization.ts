@@ -179,7 +179,7 @@ export const EN = {
 			instruction3:
 				"Click on the point, then keep staring at it until it moves to the next position",
 			instruction4:
-				"During click and stare, you are not allowed to blink. (You can blink any other time)",
+				"While focusing on the point, you are not allowed to blink. (You can blink any other time)",
 		},
 		game: {
 			title: "2. Game Tutorial",
@@ -529,7 +529,7 @@ export const ZH_TW = {
 			part1Description: "透過點擊螢幕上的 9 個點來校準視線追蹤系統。",
 			part2Title: "2. 遊戲",
 			part2Description: "玩卡牌配對遊戲，您將匹配卡牌並驅逐幽靈。",
-			estimatedTime: "預計所需時間：5-10 分鐘",
+			estimatedTime: "預計所需時間：~10 分鐘",
 		},
 		calibration: {
 			title: "1. 校準教學",
@@ -538,7 +538,7 @@ export const ZH_TW = {
 			instruction1: "螢幕上會依次出現 9 個黃色點",
 			instruction2: "保持頭部不動，只移動眼睛看向每個點",
 			instruction3: "點擊該點，然後持續盯著它，直到它移動到下一個位置",
-			instruction4: "點擊和盯視過程中請勿眨眼（其他時間可以眨眼）",
+			instruction4: "視線聚焦在黃點過程中請勿眨眼（其他時間可以眨眼）",
 		},
 		game: {
 			title: "2. 遊戲教學",
