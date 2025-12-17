@@ -9,10 +9,10 @@
 	"r2_buckets": [
 		{
 			"binding": "GAZE_EXPERIMENT_BUCKET",
-			"bucket_name": "gaze-experiment-data"
+			"bucket_name": "gaze-estimation-research"
 		}
 	],
 	"vars": {
-		"R2_BUCKET_NAME": "gaze-experiment-data"
+		"R2_BUCKET_NAME": "gaze-estimation-research"
 	}
 }
