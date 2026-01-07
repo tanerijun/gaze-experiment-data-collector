@@ -171,28 +171,29 @@ export const EN = {
 		},
 		calibration: {
 			title: "1. Calibration Tutorial",
-			description:
-				"We need to calibrate the gaze tracking system to accurately track where you're looking.",
+			description: "Calibrate the gaze tracking system to accurately track where you're looking.",
 			instructionsLabel: "How it works:",
 			instruction1: "You'll see 9 yellow points appear one at a time on the screen",
 			instruction2: "Keep your head still and only move your eyes to look at each point",
 			instruction3:
 				"Click on the point, then keep staring at it until it moves to the next position",
 			instruction4:
-				"While focusing on the point, you are not allowed to blink. (You can blink any other time)",
+				"While focusing (clicking) on the point, you are not allowed to blink. (You can blink any other time)",
 		},
 		game: {
 			title: "2. Game Tutorial",
 			storyTitle: "Your Mission:",
 			storyDescription: "You are a ghost hunter. Find ghosts residing in items and banish them.",
 			howToPlayLabel: "How to play:",
-			step1Title: "Match the cards",
+			step1Title: "Match cards",
 			step1Description: "Click cards to flip them over. Find matching pairs to reveal items.",
-			step2Title: "Find the ghosts",
-			step2Description: "When you match cards, ghosts will appear.",
-			step3Title: "Banish the ghosts",
-			step3Description: "Focus your gaze on a ghost and click it to banish it.",
-			headMovementReminder: "⚠️ Keep your head centered. Natural movements are OK, but avoid large intentional shifts.",
+			step2Title: "Banish ghosts",
+			step2Description:
+				"When you match cards, a ghost will appear. Focus your gaze on the ghost and click on it to banish it.",
+			// step3Title: "Banish the ghosts",
+			// step3Description: "Focus your gaze on a ghost and click it to banish it.",
+			headMovementReminder:
+				"⚠️ Keep your head centered. Natural movements are OK, but avoid large intentional shifts.",
 		},
 		startButton: "Start Setup",
 	},
@@ -523,7 +524,7 @@ export const ZH_TW = {
 	tutorial: {
 		intro: {
 			title: "歡迎參加實驗",
-			description: "實驗由 2 個步驟",
+			description: "實驗有 2 個步驟",
 			partsLabel: "實驗步驟：",
 			part1Title: "1. 校準",
 			part1Description: "透過點擊螢幕上的 9 個點來校準視線追蹤系統。",
@@ -538,7 +539,7 @@ export const ZH_TW = {
 			instruction1: "螢幕上會依次出現 9 個黃色點",
 			instruction2: "保持頭部不動，只移動眼睛看向每個點",
 			instruction3: "點擊該點，然後持續盯著它，直到它移動到下一個位置",
-			instruction4: "視線聚焦在黃點過程中請勿眨眼（其他時間可以眨眼）",
+			instruction4: "點擊黃點的那一刻請勿眨眼（其他時間可以眨眼）",
 		},
 		game: {
 			title: "2. 遊戲教學",
@@ -547,10 +548,10 @@ export const ZH_TW = {
 			howToPlayLabel: "遊戲玩法：",
 			step1Title: "匹配卡牌",
 			step1Description: "點擊卡牌將其翻開。找到匹配的卡牌對以揭示物品。",
-			step2Title: "找到幽靈",
-			step2Description: "當您匹配卡牌時，幽靈會出現。",
-			step3Title: "驅逐幽靈",
-			step3Description: "將視線聚焦在幽靈上並點擊它來驅逐它。",
+			step2Title: "驅逐幽靈",
+			step2Description: "當您匹配卡牌時，幽靈會出現，將視線聚焦在幽靈上並點擊它來驅逐它。",
+			// step3Title: "驅逐幽靈",
+			// step3Description: "將視線聚焦在幽靈上並點擊它來驅逐它。",
 			headMovementReminder: "⚠️ 保持頭部居中。自然晃動沒問題，但請避免大幅度刻意晃動。",
 		},
 		startButton: "開始實驗準備",
@@ -720,10 +721,8 @@ export const ZH_TW = {
 
 export type Language = "EN" | "ZH-TW"
 
-// Type for the translation object (EN or ZH_TW)
 export type TranslationObject = typeof EN | typeof ZH_TW
 
-// Define a more flexible type that allows any string values but maintains structure
 export type LocalizationKeys = {
 	[K in keyof typeof EN]: (typeof EN)[K] extends Record<string, unknown>
 		? {
@@ -741,7 +740,6 @@ export const LOCALES: Record<Language, LocalizationKeys> = {
 	"ZH-TW": ZH_TW,
 }
 
-// Helper type for nested key access
 export type NestedKeyOf<ObjectType extends object> = {
 	[Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
 		? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`

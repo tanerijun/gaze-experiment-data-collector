@@ -128,7 +128,7 @@ export function ExperimentTutorial({ onComplete, onCancel }: ExperimentTutorialP
 						</h2>
 
 						<div className="bg-stone-800/50 border border-stone-700 rounded-lg p-6">
-							<h3 className="text-amber-100 font-semibold mb-3">{t.tutorial.game.storyTitle}</h3>
+							{/* <h3 className="text-amber-100 font-semibold mb-3">{t.tutorial.game.storyTitle}</h3> */}
 							<p className="text-stone-200 leading-relaxed">{t.tutorial.game.storyDescription}</p>
 						</div>
 
@@ -160,7 +160,7 @@ export function ExperimentTutorial({ onComplete, onCancel }: ExperimentTutorialP
 										<p className="text-stone-300">{t.tutorial.game.step2Description}</p>
 									</div>
 								</div>
-								<div className="flex items-start space-x-3">
+								{/* <div className="flex items-start space-x-3">
 									<div className="shrink-0 w-8 h-8 rounded-full bg-amber-600 text-amber-950 font-bold flex items-center justify-center text-sm font-main">
 										3
 									</div>
@@ -170,7 +170,7 @@ export function ExperimentTutorial({ onComplete, onCancel }: ExperimentTutorialP
 										</h4>
 										<p className="text-stone-300">{t.tutorial.game.step3Description}</p>
 									</div>
-								</div>
+								</div> */}
 							</div>
 						</div>
 
