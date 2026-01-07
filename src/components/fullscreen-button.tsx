@@ -11,6 +11,11 @@ export function FullscreenButton({ className }: { className?: string }) {
 		return null
 	}
 
+	// On main menu, only show if already in fullscreen (acts as exit button)
+	if (location.pathname === "/" && !isFullscreen) {
+		return null
+	}
+
 	if (!isSupported) {
 		return null
 	}
