@@ -262,8 +262,8 @@ function App() {
 					)}
 
 					{/* Header */}
-					<div className="text-center mb-12">
-						<h1 className="text-5xl sm:text-7xl font-bold bg-linear-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent mb-4 drop-shadow-lg">
+					<div className="text-center mb-6">
+						<h1 className="text-6xl font-bold bg-linear-to-r from-amber-300 to-amber-200 bg-clip-text text-transparent mb-3 drop-shadow-lg">
 							{t.mainMenu.title}
 						</h1>
 						<p className="text-stone-400 text-lg sm:text-xl">{t.mainMenu.subtitle}</p>
@@ -494,7 +494,7 @@ function App() {
 					</div>
 
 					{/* Footer */}
-					<div className="mt-8 text-center space-y-4">
+					<div className="mt-6 text-center space-y-4">
 						<p className="text-stone-400">
 							{!hasConsented
 								? t.mainMenu.footer.step1
