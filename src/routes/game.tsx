@@ -313,20 +313,6 @@ function RouteComponent() {
 								</span>
 							</button>
 						)}
-
-						{/* Return to menu button */}
-						<button
-							type="button"
-							onClick={handleReturnToMenu}
-							className="w-full group relative overflow-hidden py-3 px-6 bg-linear-to-br from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-amber-950 font-bold rounded-lg shadow-lg border-2 border-yellow-400 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
-						>
-							{/* Button shine effect */}
-							<div className="absolute inset-0 bg-linear-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
-
-							{/* Top border accent */}
-							<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-200 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-							<span className="relative z-10">{t.game.winDialog.returnButton}</span>
-						</button>
 					</div>
 				</div>
 			)}

@@ -376,7 +376,7 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 					<button
 						type="button"
 						onClick={onClose}
-						disabled={isProcessing}
+						disabled={!uploadCompleted}
 						className="w-full px-6 py-3 bg-stone-700 hover:bg-stone-600 text-stone-200 font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:ring-offset-stone-900 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						{t.exportDialog.closeButton}
