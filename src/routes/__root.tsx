@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router"
 import { FullscreenButton } from "@/components/fullscreen-button"
 import { DialogProvider } from "@/lib/dialog/provider"
+import { useLanguageStore } from "@/lib/language-store"
 import appCss from "../styles.css?url"
 
 // import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools"
@@ -43,12 +44,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+	const language = useLanguageStore((state) => state.language)
+
 	return (
 		<html lang="en">
 			<head>
 				<HeadContent />
 			</head>
-			<body>
+			<body className={language === "ZH-TW" ? "lang-zh" : ""}>
 				{children}
 				<ClientOnly>
 					<FullscreenButton className="fixed top-2 right-2 z-20" />

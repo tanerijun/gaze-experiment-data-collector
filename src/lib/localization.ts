@@ -549,7 +549,7 @@ export const ZH_TW = {
 			step1Title: "匹配卡牌",
 			step1Description: "點擊卡牌將其翻開。找到匹配的卡牌對以揭示物品。",
 			step2Title: "驅逐幽靈",
-			step2Description: "當您匹配卡牌時，幽靈會出現，將視線聚焦在幽靈上並點擊它來驅逐它。",
+			step2Description: "成功匹配卡牌後，幽靈會出現，請將視線聚焦在幽靈身上並點擊它。",
 			// step3Title: "驅逐幽靈",
 			// step3Description: "將視線聚焦在幽靈上並點擊它來驅逐它。",
 			headMovementReminder: "⚠️ 保持頭部居中。自然晃動沒問題，但請避免大幅度刻意晃動。",

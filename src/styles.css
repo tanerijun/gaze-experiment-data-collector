@@ -20,6 +20,44 @@ body {
       auto;
 }
 
+/* Increase font sizes for Chinese localization */
+body.lang-zh {
+    @apply text-2xl;
+}
+
+/* body.lang-zh h1 {
+    @apply text-6xl;
+}
+
+body.lang-zh h2 {
+    @apply text-5xl;
+}
+
+body.lang-zh h3 {
+    @apply text-4xl;
+}
+
+body.lang-zh h4 {
+    @apply text-3xl;
+}
+
+body.lang-zh h5 {
+    @apply text-2xl;
+}
+
+body.lang-zh h6 {
+    @apply text-xl;
+} */
+
+body.lang-zh p,
+body.lang-zh span,
+body.lang-zh button,
+body.lang-zh input,
+body.lang-zh select,
+body.lang-zh label {
+    @apply text-2xl;
+}
+
 #root {
   @apply h-full w-full;
 }

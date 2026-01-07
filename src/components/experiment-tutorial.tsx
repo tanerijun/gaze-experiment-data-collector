@@ -33,7 +33,7 @@ export function ExperimentTutorial({ onComplete, onCancel }: ExperimentTutorialP
 
 	return (
 		<div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-			<div className="bg-linear-to-br from-stone-900 via-stone-800 to-stone-900 rounded-xl shadow-2xl border-4 border-amber-600 p-8 max-w-3xl w-full relative overflow-hidden">
+			<div className="bg-linear-to-br from-stone-900 via-stone-800 to-stone-900 rounded-xl shadow-2xl border-4 border-amber-600 p-8 max-w-4xl w-full relative overflow-hidden">
 				{/* Top border accent */}
 				<div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent" />
 
