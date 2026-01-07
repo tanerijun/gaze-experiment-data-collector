@@ -42,10 +42,10 @@ export function RecordingIndicator() {
 
 				{/* Status text */}
 				<div className="flex flex-col">
-					<span className="text-xs text-stone-400 leading-tight">
+					<span className="text-xs! text-stone-400 leading-tight">
 						{isPaused ? t.recordingIndicator.paused : t.recordingIndicator.recording}
 					</span>
-					<span className="text-xs font-mono text-amber-100 leading-tight">
+					<span className="text-xs! font-mono text-amber-100 leading-tight">
 						{formatDuration(duration)}
 					</span>
 				</div>

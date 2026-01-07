@@ -27,7 +27,7 @@ export function Card({
 			style={{ perspective: "1000px", minWidth: "40px", minHeight: "40px" }}
 		>
 			<div
-				className={`relative w-full h-full transition-transform duration-600 ease-in-out ${
+				className={`relative w-full h-full transition-transform duration-500 ease-in-out ${
 					card.isFlipped || card.isMatched ? "transform-[rotateY(180deg)]" : ""
 				}`}
 				style={{ transformStyle: "preserve-3d", containerType: "size" }}

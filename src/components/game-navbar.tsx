@@ -55,10 +55,10 @@ export function GameNavbar({ ghostsKilled }: GameNavbarProps) {
 
 			<div className="flex items-center gap-2 sm:gap-4 md:gap-6">
 				<div className="flex flex-col items-center">
-					<span className="text-stone-400 text-sm uppercase tracking-wider font-bold">
+					<span className="text-stone-400 text-sm! uppercase tracking-wider font-bold">
 						{t.game.navbar.ghostsKilledLabel}
 					</span>
-					<span className="text-purple-300 text-[10px] sm:text-xs md:text-sm font-bold flex items-center justify-center gap-2">
+					<span className="text-purple-300 text-sm! font-bold flex items-center justify-center gap-2">
 						<span>👻</span>
 						<span>{ghostsKilled} / 20</span>
 					</span>

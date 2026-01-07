@@ -10,6 +10,20 @@ interface ExportDialogProps {
 
 const isDevelopment = import.meta.env.DEV
 
+/**
+ * Format duration in seconds to "X min Y sec" format
+ */
+function formatDuration(seconds: number): string {
+	const minutes = Math.floor(seconds / 60)
+	const remainingSeconds = seconds % 60
+
+	if (minutes === 0) {
+		return `${remainingSeconds}s`
+	}
+
+	return `${minutes}m ${remainingSeconds}s`
+}
+
 export function ExportDialog({ onClose }: ExportDialogProps) {
 	const { t } = useTranslation()
 	const [isProcessing, setIsProcessing] = useState(false)
@@ -183,16 +197,14 @@ export function ExportDialog({ onClose }: ExportDialogProps) {
 						<span className="text-amber-100 font-semibold">{participant?.name}</span>
 					</div>
 					<div className="flex justify-between text-sm">
-						<span className="text-stone-400">{t.exportDialog.sessionIdLabel}</span>
-						<span className="text-stone-300 font-mono text-xs">{sessionId?.slice(0, 16)}...</span>
-					</div>
-					<div className="flex justify-between text-sm">
 						<span className="text-stone-400">{t.exportDialog.clicksRecordedLabel}</span>
 						<span className="text-amber-100 font-semibold">{clicks.length}</span>
 					</div>
 					<div className="flex justify-between text-sm">
 						<span className="text-stone-400">{t.exportDialog.gameDurationLabel}</span>
-						<span className="text-amber-100 font-semibold">{gameMetadata.duration}s</span>
+						<span className="text-amber-100 font-semibold">
+							{formatDuration(gameMetadata.duration)}
+						</span>
 					</div>
 				</div>
 
